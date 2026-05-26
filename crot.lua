@@ -2155,7 +2155,7 @@ MainSection:Paragraph({
     Body = "Gali sampai ketemu mythics/legendarys."
 })
 
-MiscSection:Toggle({
+MainSection:Toggle({
 
     Name = "Underwater Anchor",
 
