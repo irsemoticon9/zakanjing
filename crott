@@ -35,6 +35,8 @@
 	local mythicDigClickConn = nil
 	local mythicDigLoopConn = nil
 	local autoDebrisEnabled = false
+	local underwaterAnchorEnabled = false
+	local underwaterForce = nil
 	local debrisReturnPos = nil
 	local debrisActive = false
 	local completedDebris = {}
@@ -71,17 +73,61 @@
 	local qteAutoClickConn = nil
 
 	local allShells = {
-	"Aether Harp", "Aurora Carrier", "Babylon", "Barnacle Cluster", "Bay Scallop",
-	"Clam", "Cloud Nerite", "Common cockle", "Conch", "Conus Glaucus", "Cowrie",
-	"Crystal Helmet", "Divine Volute", "Dubious Volute", "Eclipse Turritella", "Imperialis Delphinus",
-	"Lightning Whelk", "Marlin Spike", "Measled Cowrie", "Mitra Mitra",
-	"Mitra Stictica", "Moonshale Murex", "Murex Pecten",
-	"Mussel", "Nautilus Shell", "Nobilis Volute", "Noble Scallop", "Obelisk Triton",
-	"Paua Abalone", "Sand Dollar", "Sea Glass", "Skyspire Turbinidae", "Starfish",
-	"Stellar Limpet", "Sun Shard", "Sundial", "Trumpet Shell",
-	"Turbo Trocus", "Tusk Shell", "Volva Volva","Vortex Whorl",
-	"Wentletrap Snail", "White Abalone", "Worm Snail", "Zephyr Auger",
-	}
+    "Abyssal Scaphula",
+    "Aether Harp",
+    "Aurora Carrier",
+    "Babylon",
+    "Barnacle Cluster",
+    "Bay Scallop",
+    "Clam",
+    "Cloud Nerite",
+    "Common cockle",
+    "Conch",
+    "Conus Glaucus",
+    "Cowrie",
+    "Cryospine Whelk",
+    "Cryowing Harp",
+    "Crystal Helmet",
+    "Deepbind Tritonia",
+    "Divine Volute",
+    "Drowned Nassa",
+    "Dubious Volute",
+    "Eclipse Turritella",
+    "Glacira Miter",
+    "Icetide Volva",
+    "Imperialis Delphinus",
+    "Inkveil Scaphopoda",
+    "Lightning Whelk",
+    "Marlin Spike",
+    "Measled Cowrie",
+    "Mitra Mitra",
+    "Mitra Stictica",
+    "Moonshale Murex",
+    "Murex Pecten",
+    "Mussel",
+    "Nautilus Shell",
+    "Nobilis Volute",
+    "Noble Scallop",
+    "Obelisk Triton",
+    "Paua Abalone",
+    "Sand Dollar",
+    "Sea Glass",
+    "Skyspire Turbinidae",
+    "Snowdrift Scaphopod",
+    "Starfish",
+    "Stellar Limpet",
+    "Sun Shard",
+    "Sundial",
+    "Trumpet Shell",
+    "Turbo Trocus",
+    "Tusk Shell",
+    "Volva Volva",
+    "Vortex Whorl",
+    "Wentletrap Snail",
+    "White Abalone",
+    "Worm Snail",
+    "Zephyr Auger",
+}
 
 	local shellRarities = {
 
@@ -114,11 +160,17 @@
 		["Trumpet Shell"] = "Rare",
 		["Moonshale Murex"] = "Rare",
 		["Zephyr Auger"] = "Rare",
+		["Glacira Miter"] = "Rare",
+		["Cryospine Whelk"] = "Rare",
 
 		-- Epic
 		["Cloud Nerite"] = "Epic",
 		["Stellar Limpet"] = "Epic",
 		["Aether Harp"] = "Epic",
+		["Snowdrift Scaphopod"] = "Epic",
+		["Abyssal Scaphula"] = "Epic",
+		["Deepbind Tritonia	"] = "Epic",
+
 
 		-- Legendary
 		["Mussel"] = "Legendary",
@@ -128,6 +180,10 @@
 		["Skyspire Turbinidae"] = "Legendary",
 		["Aurora Carrier"] = "Legendary",
 		["Lightning Whelk"] = "Legendary",
+		["Icetide Volva"] = "Legendary",
+		["Drowned Nassa"] = "Legendary",
+		["Paua Abalone"] = "Legendary",
+		["White Abalone"] = "Legendary",
 
 		-- Mythic
 		["Worm Snail"] = "Mythic",
@@ -137,10 +193,12 @@
 		["Eclipse Turritella"] = "Mythic",
 		["Divine Volute"] = "Mythic",
 		["Murex Pecten"] = "Mythic",
+		["Inkveil Scaphopoda"] = "Mythic",
 
 		-- Exotic
 		["Sun Shard"] = "Exotic",
 		["Imperialis Delphinus"] = "Exotic",
+		["Cryowing Harp"] = "Exotic",
 	}
 
 	local rarityList = {
@@ -195,6 +253,10 @@
 		["Spawn Island"]      = Vector3.new(71, 41, 42),
 		["Sacred Mountain"] = Vector3.new(3076, 259, 668),
 		["Sky Island"] = Vector3.new(119, 3083, 1265),
+		["Frostveil Isle"] = Vector3.new(3661.6, 33.3, -1017.5),
+		["Glowcap Cave"] = Vector3.new(1415.0, -66.4, 1219.6),
+		["Coral Graveyard"] = Vector3.new(2782.4, -127.9, -822.4),
+		["Lost City"] = Vector3.new(17141.4, -62.1, 3516.9),
 	}
 
 	local npcs = {
@@ -218,6 +280,9 @@
 		["Ardyn"] = Vector3.new(-56, 3136, 1322),
 		["Keeper Solen"] = Vector3.new(2780, 64, 454),
 		["Elder Kaelen"] = Vector3.new(2705, 36, 398),
+		["Virell"] = Vector3.new(3743.7, 63.3, -1137.1),
+		["Lyra"] = Vector3.new(3788.5, 28.6, -969.2),
+		["Lost Diver"] = Vector3.new(2780.8, -123.3, -827.1)
 	}
 
 	local merchantItems = {
@@ -599,6 +664,77 @@
 		end)
 	end	
 
+--Menyelam
+local function enableUnderwaterAnchor()
+
+    local char =
+        Players.LocalPlayer.Character
+
+    local hrp =
+        char
+        and char:FindFirstChild("HumanoidRootPart")
+
+    if not hrp then
+        return
+    end
+
+    if underwaterForce then
+        return
+    end
+
+    underwaterForce = Instance.new("BodyVelocity")
+
+    underwaterForce.Name = "UnderwaterAnchor"
+
+    underwaterForce.MaxForce =
+        Vector3.new(0, math.huge, 0)
+
+    underwaterForce.Velocity =
+        Vector3.new(0, -18, 0)
+
+    underwaterForce.Parent = hrp
+end
+
+local function disableUnderwaterAnchor()
+
+    if underwaterForce then
+        underwaterForce:Destroy()
+        underwaterForce = nil
+    end
+end
+
+task.spawn(function()
+
+    while task.wait(0.2) do
+
+        if not underwaterAnchorEnabled then
+
+            disableUnderwaterAnchor()
+            continue
+        end
+
+        local char =
+            Players.LocalPlayer.Character
+
+        local hrp =
+            char
+            and char:FindFirstChild("HumanoidRootPart")
+
+        if not hrp then
+            continue
+        end
+
+        if hrp.Position.Y < 0 then
+
+            enableUnderwaterAnchor()
+
+        else
+
+            disableUnderwaterAnchor()
+        end
+    end
+end)
+
 	-- AUTO GIFT
 	local function findGiftPrompt()
 
@@ -946,7 +1082,7 @@ end
 					tpTo(sellNpcPos)
 					task.wait(2.5)
 
-					local args = { buffer.fromstring("9") }
+					local args = { buffer.fromstring("@") }
 
 					game:GetService("ReplicatedStorage")
 						:WaitForChild("ByteNetReliable")
@@ -1023,7 +1159,7 @@ end
 						task.wait(2.5)
 
 						local args = {
-							buffer.fromstring("9")
+							buffer.fromstring("@")
 						}
 
 						game:GetService("ReplicatedStorage")
@@ -1397,7 +1533,7 @@ end
 	pcall(function()
 
 		local args = {
-			buffer.fromstring("/")
+			buffer.fromstring("6")
 		}
 
 		game:GetService("ReplicatedStorage")
@@ -1505,7 +1641,7 @@ local function startMythicDig()
                 if not cancelCooldown then
                     cancelCooldown = true
                     pcall(function()
-                        local args = { buffer.fromstring("/") }
+                        local args = { buffer.fromstring("6") }
                         game:GetService("ReplicatedStorage"):WaitForChild("ByteNetReliable"):FireServer(unpack(args))
                     end)
                     task.delay(2, function()
@@ -2017,6 +2153,22 @@ MainSection:Toggle({
 MainSection:Paragraph({
     Header = "ℹ️ Mythic Only Dig Info",
     Body = "Gali sampai ketemu mythics/legendarys."
+})
+
+MiscSection:Toggle({
+
+    Name = "Underwater Anchor",
+
+    Default = false,
+
+    Callback = function(v)
+
+        underwaterAnchorEnabled = v
+
+        if not v then
+            disableUnderwaterAnchor()
+        end
+    end
 })
 
 	MainSection:Toggle({
