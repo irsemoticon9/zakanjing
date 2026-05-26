@@ -1870,7 +1870,7 @@ end
 		task.spawn(function()
 			while autoClaimEnabled do
 				pcall(function()
-					local args = { buffer.fromstring("\005"), [3] = 5 }
+					local args = { buffer.fromstring("\b"), [3] = 8 }
 					game:GetService("ReplicatedStorage"):WaitForChild("ByteNetQuery"):InvokeServer(unpack(args))
 				end)
 				task.wait(1)
