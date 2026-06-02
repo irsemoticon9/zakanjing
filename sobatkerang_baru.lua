@@ -835,39 +835,31 @@ local function startAutoDebris()
 
                     local cf
 
-                    if randomDebris:IsA("BasePart") then
+                    local cf = nil
 
-                        cf = randomDebris.CFrame
+					if randomDebris:IsA("Model")
+					and randomDebris.PrimaryPart then
 
-                    elseif randomDebris:IsA("Model")
-                    and randomDebris.PrimaryPart then
+					cf = randomDebris.PrimaryPart.CFrame
 
-                        cf = randomDebris.PrimaryPart.CFrame
+					end
 
-                    else
-
-                        local part =
-                            randomDebris
-                            :FindFirstChildWhichIsA(
-                                "BasePart"
-                            )
-
-                        if part then
-                            cf = part.CFrame
-                        end
-                    end
+					print(
+					"[Auto Debris] Found:",
+					randomDebris.Name,
+					cf and cf.Position
+)
 
                     if cf then
 
-                        hrp.CFrame = cf
+					print(
+					"[Auto Debris] TP:",
+					randomDebris:GetFullName()
+					)
 
-                        Fluent:Notify({
-                            Title = "Auto Debris",
-                            Content = "Digging debris...",
-                            Duration = 2
-                        })
+					tpTo(cf.Position)
 
-                        task.wait(4)
+					task.wait(4)
 
                         local foundPrompt = false
                         local startTick = tick()
@@ -880,12 +872,6 @@ local function startAutoDebris()
                             if prompt then
 
                                 foundPrompt = true
-
-                                Fluent:Notify({
-                                    Title = "Auto Debris",
-                                    Content = "Opening reward!",
-                                    Duration = 2
-                                })
 
                                 pcall(function()
 
@@ -914,12 +900,6 @@ local function startAutoDebris()
                             Runtime.CompletedDebris[
                                 randomDebris
                             ] = true
-
-                            Fluent:Notify({
-                                Title = "Auto Debris",
-                                Content = "Moon Gift timeout!",
-                                Duration = 3
-                            })
 
                         end
                     end
@@ -952,13 +932,6 @@ local function startAutoDebris()
                     )
 
                 end
-
-                Fluent:Notify({
-                    Title = "Auto Debris",
-                    Content =
-                        "Returning to position!",
-                    Duration = 3
-                })
 
                 Runtime.DebrisReturnPos = nil
                 Runtime.DebrisActive = false
@@ -993,15 +966,9 @@ local function startAutoSell()
 
             pcall(function()
 
-                local args = {
-                    buffer.fromstring("@")
-                }
+				sellInventory()
 
-                ReplicatedStorage
-                    :WaitForChild("ByteNetReliable")
-                    :FireServer(unpack(args))
-
-            end)
+			end)
 
             task.wait(300)
 
@@ -1015,7 +982,26 @@ local function startAutoSell()
 
 end
 
+local sellNpcPos = Vector3.new(
+    110.58097839355469,
+    3083.8408203125,
+    1208.728515625
+)
+
 local function sellInventory()
+
+    local char = LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+    if not hrp then
+        return
+    end
+
+    local returnPos = hrp.Position
+
+    tpTo(sellNpcPos)
+
+    task.wait(2.5)
 
     local args = {
         buffer.fromstring("@")
@@ -1025,11 +1011,18 @@ local function sellInventory()
         :WaitForChild("ByteNetReliable")
         :FireServer(unpack(args))
 
-    Fluent:Notify({
+    task.wait(2)
+
+    tpTo(returnPos)
+	pcall(function()
+
+    Window:Notify({
         Title = "Sell Now",
-        Content = "Inventory sold!",
-        Duration = 3
+        Description = "Inventory sold successfully!",
+        Lifetime = 3
     })
+
+end)
 
 end
 
@@ -1081,12 +1074,6 @@ local function startSellWhenFull()
             if inventoryFull then
 
                 sellInventory()
-
-                Fluent:Notify({
-                    Title = "Sell When Full",
-                    Content = "Inventory full, sold automatically!",
-                    Duration = 4
-                })
 
                 task.wait(5)
 
@@ -1355,21 +1342,9 @@ Tabs.Main:AddToggle("LegitDig", {
 
             startLegitDig()
 
-            Fluent:Notify({
-                Title = "Legit Dig",
-                Content = "Enabled",
-                Duration = 3
-            })
-
         else
 
             stopLegitDig()
-
-            Fluent:Notify({
-                Title = "Legit Dig",
-                Content = "Disabled",
-                Duration = 3
-            })
 
         end
     end
@@ -1386,23 +1361,9 @@ Tabs.Main:AddToggle("FastLegitDig", {
         if Value then
 
             startFastLegitDig()
-
-            Fluent:Notify({
-                Title = "Fast Legit Dig",
-                Content = "Enabled",
-                Duration = 3
-            })
-
         else
 
             stopLegitDig()
-
-            Fluent:Notify({
-                Title = "Fast Legit Dig",
-                Content = "Disabled",
-                Duration = 3
-            })
-
         end
 
     end
@@ -1420,21 +1381,9 @@ Tabs.Main:AddToggle("MythicOnly", {
 
             startMythicDig()
 
-            Fluent:Notify({
-                Title = "Mythic Only Dig",
-                Content = "Enabled",
-                Duration = 3
-            })
-
         else
 
             stopLegitDig()
-
-            Fluent:Notify({
-                Title = "Mythic Only Dig",
-                Content = "Disabled",
-                Duration = 3
-            })
 
         end
 
@@ -1453,19 +1402,7 @@ Tabs.Main:AddToggle("AutoDebris", {
 
             startAutoDebris()
 
-            Fluent:Notify({
-                Title = "Auto Debris",
-                Content = "Enabled",
-                Duration = 3
-            })
-
         else
-
-            Fluent:Notify({
-                Title = "Auto Debris",
-                Content = "Disabled",
-                Duration = 3
-            })
 
         end
 
@@ -1486,19 +1423,7 @@ Tabs.Main:AddToggle("AutoSell", {
 
             startAutoSell()
 
-            Fluent:Notify({
-                Title = "Auto Sell",
-                Content = "Enabled",
-                Duration = 3
-            })
-
         else
-
-            Fluent:Notify({
-                Title = "Auto Sell",
-                Content = "Disabled",
-                Duration = 3
-            })
 
         end
 
@@ -1517,19 +1442,7 @@ Tabs.Main:AddToggle("SellWhenFull", {
 
             startSellWhenFull()
 
-            Fluent:Notify({
-                Title = "Sell When Full",
-                Content = "Enabled",
-                Duration = 3
-            })
-
         else
-
-            Fluent:Notify({
-                Title = "Sell When Full",
-                Content = "Disabled",
-                Duration = 3
-            })
 
         end
 
@@ -1596,19 +1509,7 @@ Tabs.Favorites:AddToggle("AutoFavorite", {
 
             startAutoFavorite()
 
-            Fluent:Notify({
-                Title = "Auto Favorite",
-                Content = "Enabled",
-                Duration = 3
-            })
-
         else
-
-            Fluent:Notify({
-                Title = "Auto Favorite",
-                Content = "Disabled",
-                Duration = 3
-            })
 
         end
 
@@ -1692,19 +1593,7 @@ Tabs.Favorites:AddToggle("AutoFavoriteRarity", {
 
             startAutoFavoriteRarity()
 
-            Fluent:Notify({
-                Title = "Auto Favorite Rarity",
-                Content = "Enabled",
-                Duration = 3
-            })
-
         else
-
-            Fluent:Notify({
-                Title = "Auto Favorite Rarity",
-                Content = "Disabled",
-                Duration = 3
-            })
 
         end
 
