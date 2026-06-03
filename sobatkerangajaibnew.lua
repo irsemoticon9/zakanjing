@@ -3,7 +3,7 @@
 --========================================================
 
 if getgenv().SobatKerangLoaded and getgenv().SobatKerangCleanup then
-    pcall(getgenv().SobatKerangCleanup)
+  pcall(getgenv().SobatKerangCleanup)
 end
 
 getgenv().SobatKerangLoaded = true
@@ -28,52 +28,56 @@ local ShellData = require(ReplicatedStorage.Modules.GameModules.Info.Shells)
 --========================================================
 
 local TeleportLocations = {
-    Islands = {
-        ["Solmere"]           = Vector3.new(-1570, 28.9, -1733.25),
-        ["Caldera Cay"]       = Vector3.new(1650, 25, -1428),
-        ["Sea Stacks Island"] = Vector3.new(971, 26, 1398),
-        ["Crescent Shore"]    = Vector3.new(-1406, 35, 1570),
-        ["Spawn Island"]      = Vector3.new(71, 41, 42),
-        ["Sacred Mountain"]   = Vector3.new(3076, 259, 668),
-        ["Sky Island"]        = Vector3.new(119, 3083, 1265),
-        ["Frostveil Isle"]    = Vector3.new(3661.6, 33.3, -1017.5),
-        ["Glowcap Cave"]      = Vector3.new(1415.0, -66.4, 1219.6),
-        ["Coral Graveyard"]   = Vector3.new(2782.4, -127.9, -822.4),
-        ["Lost City"]         = Vector3.new(17141.4, -62.1, 3516.9),
-    },
-    NPCs = {
-        ["Lost NPC"]       = Vector3.new(1798, 62, -1619),
-        ["Crab Bossfight"] = Vector3.new(-1365, 25, -1562),
-        ["Tinkerer"]       = Vector3.new(107, 46, 56),
-        ["Sarah"]          = Vector3.new(83, 35, 102),
-        ["Boat NPC"]       = Vector3.new(26, 22, 192),
-        ["Merchant"]       = Vector3.new(84, 42, 9),
-        ["Backpack NPC"]   = Vector3.new(0, 52, -2),
-        ["Old Fisherman"]  = Vector3.new(55, 24, 260),
-        ["Ghost"]          = Vector3.new(156, 124, -73),
-        ["Shady NPC"]      = Vector3.new(222, 330, -58),
-        ["Georgie"]        = Vector3.new(906, 28, 1452),
-        ["Maxwell"]        = Vector3.new(884, 26, 1358),
-        ["Hermulese"]      = Vector3.new(-1358, 25, -1569),
-        ["Biologist"]      = Vector3.new(-1453, 38, 1582),
-        ["Oro"]            = Vector3.new(-1413, 35, 1549),
-        ["Psychic"]        = Vector3.new(-1483, 38, 1512),
-        ["Keeper Nyros"]   = Vector3.new(67, 3093, 1420),
-        ["Ardyn"]          = Vector3.new(-56, 3136, 1322),
-        ["Keeper Solen"]   = Vector3.new(2780, 64, 454),
-        ["Elder Kaelen"]   = Vector3.new(2705, 36, 398),
-        ["Virell"]         = Vector3.new(3743.7, 63.3, -1137.1),
-        ["Lyra"]           = Vector3.new(3788.5, 28.6, -969.2),
-        ["Lost Diver"]     = Vector3.new(2780.8, -123.3, -827.1)
-    }
+  Islands = {
+    ["Solmere"] = Vector3.new(-1570, 28.9, -1733.25),
+    ["Caldera Cay"] = Vector3.new(1650, 25, -1428),
+    ["Sea Stacks Island"] = Vector3.new(971, 26, 1398),
+    ["Crescent Shore"] = Vector3.new(-1406, 35, 1570),
+    ["Spawn Island"] = Vector3.new(71, 41, 42),
+    ["Sacred Mountain"] = Vector3.new(3076, 259, 668),
+    ["Sky Island"] = Vector3.new(119, 3083, 1265),
+    ["Frostveil Isle"] = Vector3.new(3661.6, 33.3, -1017.5),
+    ["Glowcap Cave"] = Vector3.new(1415.0, -66.4, 1219.6),
+    ["Coral Graveyard"] = Vector3.new(2782.4, -127.9, -822.4),
+    ["Lost City"] = Vector3.new(17141.4, -62.1, 3516.9),
+  },
+  NPCs = {
+    ["Lost NPC"] = Vector3.new(1798, 62, -1619),
+    ["Crab Bossfight"] = Vector3.new(-1365, 25, -1562),
+    ["Tinkerer"] = Vector3.new(107, 46, 56),
+    ["Sarah"] = Vector3.new(83, 35, 102),
+    ["Boat NPC"] = Vector3.new(26, 22, 192),
+    ["Merchant"] = Vector3.new(84, 42, 9),
+    ["Backpack NPC"] = Vector3.new(0, 52, -2),
+    ["Old Fisherman"] = Vector3.new(55, 24, 260),
+    ["Ghost"] = Vector3.new(156, 124, -73),
+    ["Shady NPC"] = Vector3.new(222, 330, -58),
+    ["Georgie"] = Vector3.new(906, 28, 1452),
+    ["Maxwell"] = Vector3.new(884, 26, 1358),
+    ["Hermulese"] = Vector3.new(-1358, 25, -1569),
+    ["Biologist"] = Vector3.new(-1453, 38, 1582),
+    ["Oro"] = Vector3.new(-1413, 35, 1549),
+    ["Psychic"] = Vector3.new(-1483, 38, 1512),
+    ["Keeper Nyros"] = Vector3.new(67, 3093, 1420),
+    ["Ardyn"] = Vector3.new(-56, 3136, 1322),
+    ["Keeper Solen"] = Vector3.new(2780, 64, 454),
+    ["Elder Kaelen"] = Vector3.new(2705, 36, 398),
+    ["Virell"] = Vector3.new(3743.7, 63.3, -1137.1),
+    ["Lyra"] = Vector3.new(3788.5, 28.6, -969.2),
+    ["Lost Diver"] = Vector3.new(2780.8, -123.3, -827.1)
+  }
 }
 
 local IslandNames = {}
-for name in pairs(TeleportLocations.Islands) do table.insert(IslandNames, name) end
+for name in pairs(TeleportLocations.Islands) do
+  table.insert(IslandNames, name)
+end
 table.sort(IslandNames)
 
 local NpcNames = {}
-for name in pairs(TeleportLocations.NPCs) do table.insert(NpcNames, name) end
+for name in pairs(TeleportLocations.NPCs) do
+  table.insert(NpcNames, name)
+end
 table.sort(NpcNames)
 
 --========================================================
@@ -81,23 +85,65 @@ table.sort(NpcNames)
 --========================================================
 
 local Settings = {
-    Main = { LegitDig = false, FastLegitDig = false, MythicOnly = false, AutoDebris = false, AutoSell = false, SellWhenFull = false },
-    Favorites = { SelectedShells = {}, SelectedRarities = {}, AutoFavorite = false, AutoFavoriteRarity = false },
-    Gift = { SelectedRarities = {}, SelectedNonFavoriteRarities = {}, SelectedShells = {}, AutoGift = false, AutoGiftNonFavorite = false, AutoGiftShells = false },
-    Crab = { SelectedUpgrades = {}, AutoClaim = false, AutoUpgrade = false },
-    Trait = { TargetTrait = nil, AutoReroll = false },
-    Merchant = { SelectedItems = {}, AutoBuy = false },
-    Teleport = { SelectedIsland = nil, SelectedNpc = nil }
+  Main = {
+    LegitDig = false,
+    FastLegitDig = false,
+    MythicOnly = false,
+    AutoDebris = false,
+    AutoSell = false,
+    SellWhenFull = false
+  },
+  Favorites = {
+    SelectedShells = {},
+    SelectedRarities = {},
+    AutoFavorite = false,
+    AutoFavoriteRarity = false
+  },
+  Gift = {
+    SelectedRarities = {},
+    SelectedNonFavoriteRarities = {},
+    SelectedShells = {},
+    AutoGift = false,
+    AutoGiftNonFavorite = false,
+    AutoGiftShells = false
+  },
+  Crab = {
+    SelectedUpgrades = {},
+    AutoClaim = false,
+    AutoUpgrade = false
+  },
+  Trait = {
+    TargetTrait = nil,
+    AutoReroll = false
+  },
+  Merchant = {
+    SelectedItems = {},
+    AutoBuy = false
+  },
+  Teleport = {
+    SelectedIsland = nil,
+    SelectedNpc = nil
+  }
 }
 
 local Runtime = {
-    StartTime = tick(),
-    QteAutoClickConn = nil, PrevLineRot = nil, QteLineMoving = false, CachedBars = nil,
-    MythicDigConn = nil, MythicPrevLineRot = nil, MythicDigMoving = false,
-    CompletedDebris = {}, DebrisReturnPos = nil, DebrisActive = false,
-    SellRunning = false, SellWhenFullRunning = false,
-    GiftRunning = false, MerchantRunning = false,
-    UpgradeActive = false, AntiAfkConn = nil
+  StartTime = tick(),
+  QteAutoClickConn = nil,
+  PrevLineRot = nil,
+  QteLineMoving = false,
+  CachedBars = nil,
+  MythicDigConn = nil,
+  MythicPrevLineRot = nil,
+  MythicDigMoving = false,
+  CompletedDebris = {},
+  DebrisReturnPos = nil,
+  DebrisActive = false,
+  SellRunning = false,
+  SellWhenFullRunning = false,
+  GiftRunning = false,
+  MerchantRunning = false,
+  UpgradeActive = false,
+  AntiAfkConn = nil
 }
 
 --========================================================
@@ -108,135 +154,156 @@ local VIM = game:GetService("VirtualInputManager")
 local FastDigLastClick = 0
 
 local function safeVIMClick()
-    pcall(function()
-        VIM:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-        VIM:SendMouseButtonEvent(0, 0, 0, false, game, 0)
-    end)
+  pcall(function()
+    VIM:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+    VIM:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+  end)
 end
 
 local function angleDiff(a, b)
-    local diff = math.abs(a - b)
-    return math.min(diff, 360 - diff)
+  local diff = math.abs(a - b)
+  return math.min(diff, 360 - diff)
 end
 
 local function tpTo(position)
-    local char = LocalPlayer.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    hrp.CFrame = CFrame.new(position)
+  local char = LocalPlayer.Character
+  if not char then return end
+  local hrp = char:FindFirstChild("HumanoidRootPart")
+  if not hrp then return end
+  hrp.CFrame = CFrame.new(position)
 end
 
 local function findMoonGiftPrompt()
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("ProximityPrompt") then
-            local objectText = tostring(obj.ObjectText)
-            local actionText = tostring(obj.ActionText)
-            if objectText:find("Moon Gift") and actionText:find("Open") then return obj end
-        end
+  for _, obj in ipairs(workspace:GetDescendants()) do
+    if obj:IsA("ProximityPrompt") then
+      local objectText = tostring(obj.ObjectText)
+      local actionText = tostring(obj.ActionText)
+      if objectText:find("Moon Gift") and actionText:find("Open") then
+        return obj
+      end
     end
-    return nil
+  end
+  return nil
 end
 
 local function getShellList()
-    local shells = {}
-    for _, shell in ipairs(ShellData.Items) do table.insert(shells, shell.Name) end
-    table.sort(shells, function(a, b) return string.lower(a) < string.lower(b) end)
-    return shells
+  local shells = {}
+  for _, shell in ipairs(ShellData.Items) do
+    table.insert(shells, shell.Name)
+  end
+  table.sort(shells, function(a, b)
+    return string.lower(a) < string.lower(b)
+  end)
+  return shells
 end
 
 local function getRarityList()
-    return {"Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Exotic", "Abyssal"}
+  return { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Exotic", "Abyssal" }
 end
 
 local ShellRarities = {}
-for _, shell in ipairs(ShellData.Items) do ShellRarities[shell.Name] = shell.Rarity end
-
-local function getHermitUpgradeList()
-    return {"Luck", "Speed", "Space", "Weight"}
+for _, shell in ipairs(ShellData.Items) do
+  ShellRarities[shell.Name] = shell.Rarity
 end
 
--- Helper auto gift
+local function getHermitUpgradeList()
+  return { "Luck", "Speed", "Space", "Weight" }
+end
+
 local function confirmGift()
-    local confirmGui = LocalPlayer.PlayerGui:FindFirstChild("Confirm")
-    if not confirmGui then return false end
-    local yesButton = confirmGui.Main.Buttons.Yes
-    if not yesButton then return false end
-    for _, connection in pairs(getconnections(yesButton.Activated)) do
-        pcall(function() connection:Fire() end)
-    end
-    return true
+  local confirmGui = LocalPlayer.PlayerGui:FindFirstChild("Confirm")
+  if not confirmGui then return false end
+  local yesButton = confirmGui.Main.Buttons.Yes
+  if not yesButton then return false end
+  for _, connection in pairs(getconnections(yesButton.Activated)) do
+    pcall(function()
+      connection:Fire()
+    end)
+  end
+  return true
 end
 
 local function getShellRarity(shellName)
-    for knownShell, rarity in pairs(ShellRarities) do
-        if shellName:find(knownShell) then return rarity end
+  for knownShell, rarity in pairs(ShellRarities) do
+    if shellName:find(knownShell) then
+      return rarity
     end
-    return nil
+  end
+  return nil
 end
 
 local function findNonFavoriteShell()
-    local backpack = LocalPlayer:FindFirstChild("Backpack")
-    if not backpack then return nil end
-    for _, item in ipairs(backpack:GetChildren()) do
-        if item:IsA("Tool") then
-            local fav = item:GetAttribute("Favourite")
-            if not fav then
-                local rarity = getShellRarity(item.Name)
-                if Settings.Gift.SelectedNonFavoriteRarities[rarity] then return item end
-            end
+  local backpack = LocalPlayer:FindFirstChild("Backpack")
+  if not backpack then return nil end
+  for _, item in ipairs(backpack:GetChildren()) do
+    if item:IsA("Tool") then
+      local fav = item:GetAttribute("Favourite")
+      if not fav then
+        local rarity = getShellRarity(item.Name)
+        if Settings.Gift.SelectedNonFavoriteRarities[rarity] then
+          return item
         end
+      end
     end
-    return nil
+  end
+  return nil
 end
 
 local function findSelectedGiftShell()
-    local backpack = LocalPlayer:FindFirstChild("Backpack")
-    if not backpack then return nil end
-    local bestShell, bestWeight = nil, 0
-    for _, item in ipairs(backpack:GetChildren()) do
-        if item:IsA("Tool") then
-            local shellName = item:GetAttribute("Name")
-            if shellName and Settings.Gift.SelectedShells[shellName] then
-                local weight = item:GetAttribute("Weight") or 0
-                if weight > bestWeight then
-                    bestWeight = weight
-                    bestShell = item
-                end
-            end
+  local backpack = LocalPlayer:FindFirstChild("Backpack")
+  if not backpack then return nil end
+  local bestShell, bestWeight = nil, 0
+  for _, item in ipairs(backpack:GetChildren()) do
+    if item:IsA("Tool") then
+      local shellName = item:GetAttribute("Name")
+      if shellName and Settings.Gift.SelectedShells[shellName] then
+        local weight = item:GetAttribute("Weight") or 0
+        if weight > bestWeight then
+          bestWeight = weight
+          bestShell = item
         end
+      end
     end
-    return bestShell
+  end
+  return bestShell
 end
 
 local function getCurrentTool()
-    local ok, result = pcall(function() return LocalPlayer.PlayerGui.Equipment.Main.LeftBar.TraitsFrame.ToolDisplay.NameLabel.Text end)
-    return ok and result or "Unknown"
+  local ok, result = pcall(function()
+    return LocalPlayer.PlayerGui.Equipment.Main.LeftBar.TraitsFrame.ToolDisplay.NameLabel.Text
+  end)
+  return ok and result or "Unknown"
 end
 
 local function getCurrentTrait()
-    local ok, result = pcall(function() return LocalPlayer.PlayerGui.Equipment.Main.LeftBar.TraitsFrame.ToolDisplay.Trait.TextLabel.Text end)
-    return ok and result or "Unknown"
+  local ok, result = pcall(function()
+    return LocalPlayer.PlayerGui.Equipment.Main.LeftBar.TraitsFrame.ToolDisplay.Trait.TextLabel.Text
+  end)
+  return ok and result or "Unknown"
 end
 
 local function getCurrentPityText()
-    local ok, result = pcall(function() return LocalPlayer.PlayerGui.Equipment.Main.LeftBar.TraitsFrame.PityBar.TrackerLabel.Text end)
-    return ok and result or "0/0"
+  local ok, result = pcall(function()
+    return LocalPlayer.PlayerGui.Equipment.Main.LeftBar.TraitsFrame.PityBar.TrackerLabel.Text
+  end)
+  return ok and result or "0/0"
 end
 
 local function getCurrentPity()
-    local pityText = getCurrentPityText()
-    return tonumber(string.match(pityText, "(%d+)")) or 0
+  local pityText = getCurrentPityText()
+  return tonumber(string.match(pityText, "(%d+)")) or 0
 end
 
 local function getTraitList()
-    local traits = {}
-    local frame = LocalPlayer.PlayerGui.Equipment.TraitsInfo.Core.ScrollingFrame
-    for _, obj in ipairs(frame:GetChildren()) do
-        if obj:IsA("Frame") then table.insert(traits, obj.Name) end
+  local traits = {}
+  local frame = LocalPlayer.PlayerGui.Equipment.TraitsInfo.Core.ScrollingFrame
+  for _, obj in ipairs(frame:GetChildren()) do
+    if obj:IsA("Frame") then
+      table.insert(traits, obj.Name)
     end
-    table.sort(traits)
-    return traits
+  end
+  table.sort(traits)
+  return traits
 end
 
 --========================================================
@@ -245,518 +312,643 @@ end
 
 -- LegitDig
 local function startLegitDig()
-    local pgui = LocalPlayer.PlayerGui
-    local prevDiff, clicked = 999, false
-    Runtime.PrevLineRot, Runtime.QteLineMoving = nil, false
+  local pgui = LocalPlayer.PlayerGui
+  local prevDiff, clicked = 999, false
+  Runtime.PrevLineRot, Runtime.QteLineMoving = nil, false
 
-    if Runtime.QteAutoClickConn then
-        Runtime.QteAutoClickConn:Disconnect()
-        Runtime.QteAutoClickConn = nil
-    end
+  if Runtime.QteAutoClickConn then
+    Runtime.QteAutoClickConn:Disconnect()
+    Runtime.QteAutoClickConn = nil
+  end
 
-    Runtime.QteAutoClickConn = RunService.RenderStepped:Connect(function()
-        if not Settings.Main.LegitDig then return end
-        pcall(function()
-            local qte = pgui:FindFirstChild("QTE")
-            if not qte then Runtime.QteLineMoving = false return end
-            local main = qte:FindFirstChild("Main")
-            if not main then Runtime.QteLineMoving = false return end
-            local line, bars = main:FindFirstChild("Line"), main:FindFirstChild("Bars")
-            if not line or not bars then Runtime.QteLineMoving = false return end
+  Runtime.QteAutoClickConn = RunService.RenderStepped:Connect(function()
+    if not Settings.Main.LegitDig then return end
+    pcall(function()
+      local qte = pgui:FindFirstChild("QTE")
+      if not qte then
+        Runtime.QteLineMoving = false
+        return
+      end
+      local main = qte:FindFirstChild("Main")
+      if not main then
+        Runtime.QteLineMoving = false
+        return
+      end
+      local line, bars = main:FindFirstChild("Line"), main:FindFirstChild("Bars")
+      if not line or not bars then
+        Runtime.QteLineMoving = false
+        return
+      end
 
-            local lineRot = line.Rotation
-            if Runtime.PrevLineRot ~= nil then Runtime.QteLineMoving = math.abs(lineRot - Runtime.PrevLineRot) > 0.1 end
-            Runtime.PrevLineRot = lineRot
+      local lineRot = line.Rotation
+      if Runtime.PrevLineRot ~= nil then
+        Runtime.QteLineMoving = math.abs(lineRot - Runtime.PrevLineRot) > 0.1
+      end
+      Runtime.PrevLineRot = lineRot
 
-            local targetBar
-            for _, bar in pairs(bars:GetChildren()) do
-                if bar:IsA("ImageLabel") and bar.Visible then
-                    targetBar = bar
-                    break
-                end
-            end
-
-            if not targetBar then clicked = false return end
-            local diff = angleDiff(lineRot, targetBar.Rotation)
-            local barSize = tonumber(targetBar.Name:match("%d+")) or 15
-
-            if not clicked and diff <= barSize / 2 then
-                if diff > prevDiff then
-                    safeVIMClick()
-                    clicked = true
-                end
-            end
-            if diff > barSize then clicked = false end
-            prevDiff = diff
-        end)
-    end)
-
-    task.spawn(function()
-        while Settings.Main.LegitDig do
-            if not Runtime.QteLineMoving and not Runtime.UpgradeActive then safeVIMClick() end
-            task.wait(0.5)
+      local targetBar
+      for _, bar in pairs(bars:GetChildren()) do
+        if bar:IsA("ImageLabel") and bar.Visible then
+          targetBar = bar
+          break
         end
+      end
+
+      if not targetBar then
+        clicked = false
+        return
+      end
+      local diff = angleDiff(lineRot, targetBar.Rotation)
+      local barSize = tonumber(targetBar.Name:match("%d+")) or 15
+
+      if not clicked and diff <= barSize / 2 then
+        if diff > prevDiff then
+          safeVIMClick()
+          clicked = true
+        end
+      end
+      if diff > barSize then clicked = false end
+      prevDiff = diff
     end)
+  end)
+
+  task.spawn(function()
+    while Settings.Main.LegitDig do
+      if not Runtime.QteLineMoving and not Runtime.UpgradeActive then
+        safeVIMClick()
+      end
+      task.wait(0.5)
+    end
+  end)
 end
 
 -- Fast Legit Dig
 local function startFastLegitDig()
-    local pgui = LocalPlayer.PlayerGui
-    if Runtime.QteAutoClickConn then
-        Runtime.QteAutoClickConn:Disconnect()
-        Runtime.QteAutoClickConn = nil
-    end
+  local pgui = LocalPlayer.PlayerGui
+  if Runtime.QteAutoClickConn then
+    Runtime.QteAutoClickConn:Disconnect()
+    Runtime.QteAutoClickConn = nil
+  end
 
-    Runtime.QteAutoClickConn = RunService.RenderStepped:Connect(function()
-        if not Settings.Main.FastLegitDig then return end
-        pcall(function()
-            local qte = pgui:FindFirstChild("QTE")
-            if not qte then Runtime.CachedBars = nil return end
-            local main = qte:FindFirstChild("Main")
-            if not main then return end
-            local line, bars = main:FindFirstChild("Line"), main:FindFirstChild("Bars")
-            if not line or not bars then return end
+  Runtime.QteAutoClickConn = RunService.RenderStepped:Connect(function()
+    if not Settings.Main.FastLegitDig then return end
+    pcall(function()
+      local qte = pgui:FindFirstChild("QTE")
+      if not qte then
+        Runtime.CachedBars = nil
+        return
+      end
+      local main = qte:FindFirstChild("Main")
+      if not main then return end
+      local line, bars = main:FindFirstChild("Line"), main:FindFirstChild("Bars")
+      if not line or not bars then return end
 
-            if Runtime.CachedBars and #Runtime.CachedBars ~= #bars:GetChildren() then Runtime.CachedBars = nil end
-            if not Runtime.CachedBars then
-                Runtime.CachedBars = {}
-                for _, obj in ipairs(bars:GetChildren()) do
-                    if obj:IsA("ImageLabel") then table.insert(Runtime.CachedBars, obj) end
-                end
-            end
-
-            local targetBar
-            for i = 1, #Runtime.CachedBars do
-                local bar = Runtime.CachedBars[i]
-                if bar.Visible then targetBar = bar break end
-            end
-
-            if not targetBar then return end
-            local diff = angleDiff(line.Rotation, targetBar.Rotation)
-            local barSize = tonumber(targetBar.Name:match("%d+")) or 15
-
-            if diff <= (barSize / 2.5) then
-                local now = tick()
-                if now - FastDigLastClick > 0.08 then
-                    FastDigLastClick = now
-                    safeVIMClick()
-                end
-            end
-        end)
-    end)
-
-    task.spawn(function()
-        while Settings.Main.FastLegitDig do
-            local qte = pgui:FindFirstChild("QTE")
-            if qte then
-                local main = qte:FindFirstChild("Main")
-                local line = main and main:FindFirstChild("Line")
-                if line then
-                    local currentRot = line.Rotation
-                    if Runtime.PrevLineRot ~= nil then Runtime.QteLineMoving = math.abs(currentRot - Runtime.PrevLineRot) > 0.1 end
-                    Runtime.PrevLineRot = currentRot
-                    
-                    if not Runtime.QteLineMoving and not Runtime.UpgradeActive then safeVIMClick() end
-                else
-                    if not Runtime.UpgradeActive then safeVIMClick() end
-                end
-            else
-                if not Runtime.UpgradeActive then safeVIMClick() end
-            end
-            task.wait(0.5)
+      if Runtime.CachedBars and #Runtime.CachedBars ~= #bars:GetChildren() then
+        Runtime.CachedBars = nil
+      end
+      if not Runtime.CachedBars then
+        Runtime.CachedBars = {}
+        for _, obj in ipairs(bars:GetChildren()) do
+          if obj:IsA("ImageLabel") then
+            table.insert(Runtime.CachedBars, obj)
+          end
         end
+      end
+
+      local targetBar
+      for i = 1, #Runtime.CachedBars do
+        local bar = Runtime.CachedBars[i]
+        if bar.Visible then
+          targetBar = bar
+          break
+        end
+      end
+
+      if not targetBar then return end
+      local diff = angleDiff(line.Rotation, targetBar.Rotation)
+      local barSize = tonumber(targetBar.Name:match("%d+")) or 15
+
+      if diff <= (barSize / 2.5) then
+        local now = tick()
+        if now - FastDigLastClick > 0.08 then
+          FastDigLastClick = now
+          safeVIMClick()
+        end
+      end
     end)
+  end)
+
+  task.spawn(function()
+    while Settings.Main.FastLegitDig do
+      local qte = pgui:FindFirstChild("QTE")
+      if qte then
+        local main = qte:FindFirstChild("Main")
+        local line = main and main:FindFirstChild("Line")
+        if line then
+          local currentRot = line.Rotation
+          if Runtime.PrevLineRot ~= nil then
+            Runtime.QteLineMoving = math.abs(currentRot - Runtime.PrevLineRot) > 0.1
+          end
+          Runtime.PrevLineRot = currentRot
+
+          if not Runtime.QteLineMoving and not Runtime.UpgradeActive then
+            safeVIMClick()
+          end
+        else
+          if not Runtime.UpgradeActive then safeVIMClick() end
+        end
+      else
+        if not Runtime.UpgradeActive then safeVIMClick() end
+      end
+      task.wait(0.5)
+    end
+  end)
 end
 
 -- Mythic Only Dig
 local function startMythicDig()
-    local pgui = LocalPlayer.PlayerGui
-    local prevDiff, clicked, cancelCooldown = 999, false, false
-    Runtime.MythicPrevLineRot, Runtime.MythicDigMoving = nil, false
+  local pgui = LocalPlayer.PlayerGui
+  local prevDiff, clicked, cancelCooldown = 999, false, false
+  Runtime.MythicPrevLineRot, Runtime.MythicDigMoving = nil, false
 
-    if Runtime.MythicDigConn then
-        Runtime.MythicDigConn:Disconnect()
-        Runtime.MythicDigConn = nil
-    end
+  if Runtime.MythicDigConn then
+    Runtime.MythicDigConn:Disconnect()
+    Runtime.MythicDigConn = nil
+  end
 
-    Runtime.MythicDigConn = RunService.RenderStepped:Connect(function()
-        if not Settings.Main.MythicOnly then return end
-        pcall(function()
-            local qte = pgui:FindFirstChild("QTE")
-            if not qte then Runtime.MythicDigMoving = false return end
-            local main = qte:FindFirstChild("Main")
-            if not main then Runtime.MythicDigMoving = false return end
-            local line, bars = main:FindFirstChild("Line"), main:FindFirstChild("Bars")
-            if not line or not bars then return end
+  Runtime.MythicDigConn = RunService.RenderStepped:Connect(function()
+    if not Settings.Main.MythicOnly then return end
+    pcall(function()
+      local qte = pgui:FindFirstChild("QTE")
+      if not qte then
+        Runtime.MythicDigMoving = false
+        return
+      end
+      local main = qte:FindFirstChild("Main")
+      if not main then
+        Runtime.MythicDigMoving = false
+        return
+      end
+      local line, bars = main:FindFirstChild("Line"), main:FindFirstChild("Bars")
+      if not line or not bars then return end
 
-            local lineRot = line.Rotation
-            if Runtime.MythicPrevLineRot ~= nil then Runtime.MythicDigMoving = math.abs(lineRot - Runtime.MythicPrevLineRot) > 0.1 end
-            Runtime.MythicPrevLineRot = lineRot
-            if not Runtime.MythicDigMoving then return end
+      local lineRot = line.Rotation
+      if Runtime.MythicPrevLineRot ~= nil then
+        Runtime.MythicDigMoving = math.abs(lineRot - Runtime.MythicPrevLineRot) > 0.1
+      end
+      Runtime.MythicPrevLineRot = lineRot
+      if not Runtime.MythicDigMoving then return end
 
-            local surgeFrame = qte:FindFirstChild("Surge")
-            local surgeVisible = surgeFrame and surgeFrame.Visible
+      local surgeFrame = qte:FindFirstChild("Surge")
+      local surgeVisible = surgeFrame and surgeFrame.Visible
 
-            local targetBar
-            for _, bar in pairs(bars:GetChildren()) do
-                if bar:IsA("ImageLabel") and bar.Visible then targetBar = bar break end
-            end
-
-            if not targetBar then return end
-            local diff = angleDiff(lineRot, targetBar.Rotation)
-            local barSize = tonumber(targetBar.Name:match("%d+")) or 15
-
-            if not surgeVisible then
-                if not cancelCooldown then
-                    cancelCooldown = true
-                    pcall(function() ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("6")) end)
-                    task.delay(2, function() cancelCooldown = false safeVIMClick() end)
-                end
-                prevDiff, clicked, Runtime.MythicDigMoving = diff, false, false
-                return
-            end
-
-            local pingOffset = barSize * 0.35
-            if not clicked and diff <= (barSize / 2) + pingOffset then
-                safeVIMClick()
-                clicked, cancelCooldown = true, false
-            end
-            if diff > barSize then clicked = false end
-            prevDiff = diff
-        end)
-    end)
-
-    task.spawn(function()
-        while Settings.Main.MythicOnly do
-            if not Runtime.MythicDigMoving and not cancelCooldown and not Runtime.UpgradeActive then safeVIMClick() end
-            task.wait(0.2)
+      local targetBar
+      for _, bar in pairs(bars:GetChildren()) do
+        if bar:IsA("ImageLabel") and bar.Visible then
+          targetBar = bar
+          break
         end
+      end
+
+      if not targetBar then return end
+      local diff = angleDiff(lineRot, targetBar.Rotation)
+      local barSize = tonumber(targetBar.Name:match("%d+")) or 15
+
+      if not surgeVisible then
+        if not cancelCooldown then
+          cancelCooldown = true
+          pcall(function()
+            ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("6"))
+          end)
+          task.delay(2, function()
+            cancelCooldown = false
+            safeVIMClick()
+          end)
+        end
+        prevDiff, clicked, Runtime.MythicDigMoving = diff, false, false
+        return
+      end
+
+      local pingOffset = barSize * 0.35
+      if not clicked and diff <= (barSize / 2) + pingOffset then
+        safeVIMClick()
+        clicked, cancelCooldown = true, false
+      end
+      if diff > barSize then clicked = false end
+      prevDiff = diff
     end)
+  end)
+
+  task.spawn(function()
+    while Settings.Main.MythicOnly do
+      if not Runtime.MythicDigMoving and not cancelCooldown and not Runtime.UpgradeActive then
+        safeVIMClick()
+      end
+      task.wait(0.2)
+    end
+  end)
 end
 
 -- Stop Dig
 local function stopLegitDig()
-    Settings.Main.LegitDig, Settings.Main.FastLegitDig, Settings.Main.MythicOnly = false, false, false
-    if Runtime.QteAutoClickConn then Runtime.QteAutoClickConn:Disconnect() Runtime.QteAutoClickConn = nil end
-    if Runtime.MythicDigConn then Runtime.MythicDigConn:Disconnect() Runtime.MythicDigConn = nil end
-    Runtime.CachedBars, Runtime.QteLineMoving, Runtime.PrevLineRot = nil, false, nil
-    Runtime.MythicPrevLineRot, Runtime.MythicDigMoving = nil, false
+  Settings.Main.LegitDig, Settings.Main.FastLegitDig, Settings.Main.MythicOnly = false, false, false
+  if Runtime.QteAutoClickConn then
+    Runtime.QteAutoClickConn:Disconnect()
+    Runtime.QteAutoClickConn = nil
+  end
+  if Runtime.MythicDigConn then
+    Runtime.MythicDigConn:Disconnect()
+    Runtime.MythicDigConn = nil
+  end
+  Runtime.CachedBars, Runtime.QteLineMoving, Runtime.PrevLineRot = nil, false, nil
+  Runtime.MythicPrevLineRot, Runtime.MythicDigMoving = nil, false
 end
 
 -- Auto Debris
 local function startAutoDebris()
-    task.spawn(function()
-        while Settings.Main.AutoDebris do
-            local debrisList = {}
-            for _, v in ipairs(workspace:GetChildren()) do
-                if v.Name == "ImpactDebris" and not Runtime.CompletedDebris[v] then table.insert(debrisList, v) end
-            end
-
-            if #debrisList > 0 then
-                if not Runtime.DebrisActive then
-                    local char = LocalPlayer.Character
-                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-                    if hrp then Runtime.DebrisReturnPos, Runtime.DebrisActive = hrp.Position, true end
-                end
-
-                local randomDebris = debrisList[math.random(1,#debrisList)]
-                local cf = (randomDebris:IsA("Model") and randomDebris.PrimaryPart) and randomDebris.PrimaryPart.CFrame or nil
-
-                if cf then
-                    tpTo(cf.Position)
-                    task.wait(4)
-                    local foundPrompt, startTick = false, tick()
-                    repeat
-                        local prompt = findMoonGiftPrompt()
-                        if prompt then
-                            foundPrompt = true
-                            pcall(function() fireproximityprompt(prompt) end)
-                            task.wait(2)
-                            Runtime.CompletedDebris[randomDebris] = true
-                            break
-                        end
-                        task.wait(0.2)
-                    until tick() - startTick > 60
-                    if not foundPrompt then Runtime.CompletedDebris[randomDebris] = true end
-                end
-            end
-
-            local stillExists = false
-            for _, v in ipairs(workspace:GetChildren()) do
-                if v.Name == "ImpactDebris" and not Runtime.CompletedDebris[v] then stillExists = true break end
-            end
-
-            if not stillExists and Runtime.DebrisActive then
-                if Runtime.DebrisReturnPos then tpTo(Runtime.DebrisReturnPos) end
-                Runtime.DebrisReturnPos, Runtime.DebrisActive, Runtime.CompletedDebris = nil, false, {}
-            end
-            task.wait(1)
+  task.spawn(function()
+    while Settings.Main.AutoDebris do
+      local debrisList = {}
+      for _, v in ipairs(workspace:GetChildren()) do
+        if v.Name == "ImpactDebris" and not Runtime.CompletedDebris[v] then
+          table.insert(debrisList, v)
         end
-    end)
+      end
+
+      if #debrisList > 0 then
+        if not Runtime.DebrisActive then
+          local char = LocalPlayer.Character
+          local hrp = char and char:FindFirstChild("HumanoidRootPart")
+          if hrp then
+            Runtime.DebrisReturnPos, Runtime.DebrisActive = hrp.Position, true
+          end
+        end
+
+        local randomDebris = debrisList[math.random(1, #debrisList)]
+        local cf = (randomDebris:IsA("Model") and randomDebris.PrimaryPart) and randomDebris.PrimaryPart.CFrame or nil
+
+        if cf then
+          tpTo(cf.Position)
+          task.wait(4)
+          local foundPrompt, startTick = false, tick()
+          repeat
+            local prompt = findMoonGiftPrompt()
+            if prompt then
+              foundPrompt = true
+              pcall(function()
+                fireproximityprompt(prompt)
+              end)
+              task.wait(2)
+              Runtime.CompletedDebris[randomDebris] = true
+              break
+            end
+            task.wait(0.2)
+          until tick() - startTick > 60
+          if not foundPrompt then
+            Runtime.CompletedDebris[randomDebris] = true
+          end
+        end
+      end
+
+      local stillExists = false
+      for _, v in ipairs(workspace:GetChildren()) do
+        if v.Name == "ImpactDebris" and not Runtime.CompletedDebris[v] then
+          stillExists = true
+          break
+        end
+      end
+
+      if not stillExists and Runtime.DebrisActive then
+        if Runtime.DebrisReturnPos then
+          tpTo(Runtime.DebrisReturnPos)
+        end
+        Runtime.DebrisReturnPos, Runtime.DebrisActive, Runtime.CompletedDebris = nil, false, {}
+      end
+      task.wait(1)
+    end
+  end)
 end
 
 -- Auto Sell
 local sellNpcPos = Vector3.new(110.58, 3083.84, 1208.72)
 local function sellInventory()
-    local char = LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    local returnPos = hrp.Position
+  local char = LocalPlayer.Character
+  local hrp = char and char:FindFirstChild("HumanoidRootPart")
+  if not hrp then return end
+  local returnPos = hrp.Position
 
-    tpTo(sellNpcPos)
-    task.wait(2.5)
-    pcall(function() ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("@")) end)
-    task.wait(2)
-    tpTo(returnPos)
+  tpTo(sellNpcPos)
+  task.wait(2.5)
+  pcall(function()
+    ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("@"))
+  end)
+  task.wait(2)
+  tpTo(returnPos)
 end
 
 local function startAutoSell()
-    if Runtime.SellRunning then return end
-    Runtime.SellRunning = true
-    task.spawn(function()
-        while Settings.Main.AutoSell do pcall(sellInventory) task.wait(300) end
-        Runtime.SellRunning = false
-    end)
+  if Runtime.SellRunning then return end
+  Runtime.SellRunning = true
+  task.spawn(function()
+    while Settings.Main.AutoSell do
+      pcall(sellInventory)
+      task.wait(300)
+    end
+    Runtime.SellRunning = false
+  end)
 end
 
 local function startSellWhenFull()
-    if Runtime.SellWhenFullRunning then return end
-    Runtime.SellWhenFullRunning = true
-    task.spawn(function()
-        while Settings.Main.SellWhenFull do
-            local inventoryFull = false
-            pcall(function()
-                for _, gui in pairs(LocalPlayer.PlayerGui:GetDescendants()) do
-                    if gui:IsA("TextLabel") and tostring(gui.Text):match("^%d+/%d+$") then
-                        local current, max = gui.Text:match("(%d+)/(%d+)")
-                        if tonumber(current) and tonumber(max) and tonumber(current) >= tonumber(max) then
-                            inventoryFull = true break
-                        end
-                    end
-                end
-            end)
-            if inventoryFull then sellInventory() task.wait(5) end
-            task.wait(2)
+  if Runtime.SellWhenFullRunning then return end
+  Runtime.SellWhenFullRunning = true
+  task.spawn(function()
+    while Settings.Main.SellWhenFull do
+      local inventoryFull = false
+      pcall(function()
+        for _, gui in pairs(LocalPlayer.PlayerGui:GetDescendants()) do
+          if gui:IsA("TextLabel") and tostring(gui.Text):match("^%d+/%d+$") then
+            local current, max = gui.Text:match("(%d+)/(%d+)")
+            if tonumber(current) and tonumber(max) and tonumber(current) >= tonumber(max) then
+              inventoryFull = true
+              break
+            end
+          end
         end
-        Runtime.SellWhenFullRunning = false
-    end)
+      end)
+      if inventoryFull then
+        sellInventory()
+        task.wait(5)
+      end
+      task.wait(2)
+    end
+    Runtime.SellWhenFullRunning = false
+  end)
 end
 
 -- Auto Favorite
 local function favoriteShell(item)
-    pcall(function() ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("\b\001\001"), {item}) end)
+  pcall(function()
+    ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("\b\001\001"), { item })
+  end)
 end
+
 local function unfavoriteShell(item)
-    pcall(function() ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("\b\001\000"), {item}) end)
+  pcall(function()
+    ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("\b\001\000"), { item })
+  end)
 end
 
 local function startAutoFavorite()
-    task.spawn(function()
-        while Settings.Favorites.AutoFavorite do
-            for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
-                if not Settings.Favorites.AutoFavorite then break end
-                for shellName in pairs(Settings.Favorites.SelectedShells) do
-                    if item.Name:find(shellName) then favoriteShell(item) task.wait(0.05) end
-                end
-            end
-            task.wait(1)
+  task.spawn(function()
+    while Settings.Favorites.AutoFavorite do
+      for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        if not Settings.Favorites.AutoFavorite then break end
+        for shellName in pairs(Settings.Favorites.SelectedShells) do
+          if item.Name:find(shellName) then
+            favoriteShell(item)
+            task.wait(0.05)
+          end
         end
-    end)
+      end
+      task.wait(1)
+    end
+  end)
 end
 
 local function startAutoFavoriteRarity()
-    task.spawn(function()
-        while Settings.Favorites.AutoFavoriteRarity do
-            for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
-                if not Settings.Favorites.AutoFavoriteRarity then break end
-                local matched = false
-                for shellName, rarity in pairs(ShellRarities) do
-                    if item.Name:find(shellName) then
-                        if Settings.Favorites.SelectedRarities[rarity] then matched = true end
-                        break
-                    end
-                end
-                if matched then favoriteShell(item) task.wait(0.05) end
+  task.spawn(function()
+    while Settings.Favorites.AutoFavoriteRarity do
+      for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        if not Settings.Favorites.AutoFavoriteRarity then break end
+        local matched = false
+        for shellName, rarity in pairs(ShellRarities) do
+          if item.Name:find(shellName) then
+            if Settings.Favorites.SelectedRarities[rarity] then
+              matched = true
             end
-            task.wait(1)
+            break
+          end
         end
-    end)
+        if matched then
+          favoriteShell(item)
+          task.wait(0.05)
+        end
+      end
+      task.wait(1)
+    end
+  end)
 end
 
 -- Auto Gift
 local function findGiftableShell()
-    local backpack = LocalPlayer:FindFirstChild("Backpack")
-    if not backpack then return nil end
-    for _, item in ipairs(backpack:GetChildren()) do
-        if item:IsA("Tool") and Settings.Gift.SelectedRarities[getShellRarity(item.Name)] then return item end
+  local backpack = LocalPlayer:FindFirstChild("Backpack")
+  if not backpack then return nil end
+  for _, item in ipairs(backpack:GetChildren()) do
+    if item:IsA("Tool") and Settings.Gift.SelectedRarities[getShellRarity(item.Name)] then
+      return item
     end
-    return nil
+  end
+  return nil
 end
 
 local function equipGiftShell(shell)
-    if not shell or not LocalPlayer.Character then return false end
-    pcall(function() shell.Parent = LocalPlayer.Character end)
-    task.wait(0.5) return true
+  if not shell or not LocalPlayer.Character then return false end
+  pcall(function()
+    shell.Parent = LocalPlayer.Character
+  end)
+  task.wait(0.5)
+  return true
 end
 
 local function findGiftPrompt()
-    local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return nil end
-    for _, targetPlayer in ipairs(Players:GetPlayers()) do
-        if targetPlayer ~= LocalPlayer then
-            local targetHRP = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-            if targetHRP and (hrp.Position - targetHRP.Position).Magnitude <= 15 then
-                for _, obj in ipairs(targetPlayer.Character:GetDescendants()) do
-                    if obj:IsA("ProximityPrompt") and tostring(obj.ActionText):find("Interact") then return obj end
-                end
-            end
+  local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+  if not hrp then return nil end
+  for _, targetPlayer in ipairs(Players:GetPlayers()) do
+    if targetPlayer ~= LocalPlayer then
+      local targetHRP = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+      if targetHRP and (hrp.Position - targetHRP.Position).Magnitude <= 15 then
+        for _, obj in ipairs(targetPlayer.Character:GetDescendants()) do
+          if obj:IsA("ProximityPrompt") and tostring(obj.ActionText):find("Interact") then
+            return obj
+          end
         end
+      end
     end
-    return nil
+  end
+  return nil
 end
 
 local function executeGiftRoutine(shell)
-    if shell and equipGiftShell(shell) then
-        local prompt = findGiftPrompt()
-        if prompt then
-            fireproximityprompt(prompt) task.wait(1) confirmGift() task.wait(2)
-        end
+  if shell and equipGiftShell(shell) then
+    local prompt = findGiftPrompt()
+    if prompt then
+      fireproximityprompt(prompt)
+      task.wait(1)
+      confirmGift()
+      task.wait(2)
     end
+  end
 end
 
 local function startAutoGift()
-    if Runtime.GiftRunning then return end
-    Runtime.GiftRunning = true
-    task.spawn(function()
-        while Settings.Gift.AutoGift do executeGiftRoutine(findGiftableShell()) task.wait(0.5) end
-        Runtime.GiftRunning = false
-    end)
+  if Runtime.GiftRunning then return end
+  Runtime.GiftRunning = true
+  task.spawn(function()
+    while Settings.Gift.AutoGift do
+      executeGiftRoutine(findGiftableShell())
+      task.wait(0.5)
+    end
+    Runtime.GiftRunning = false
+  end)
 end
 
 local function startAutoGiftNonFavorite()
-    if Runtime.GiftRunning then return end
-    Runtime.GiftRunning = true
-    task.spawn(function()
-        while Settings.Gift.AutoGiftNonFavorite do executeGiftRoutine(findNonFavoriteShell()) task.wait(0.5) end
-        Runtime.GiftRunning = false
-    end)
+  if Runtime.GiftRunning then return end
+  Runtime.GiftRunning = true
+  task.spawn(function()
+    while Settings.Gift.AutoGiftNonFavorite do
+      executeGiftRoutine(findNonFavoriteShell())
+      task.wait(0.5)
+    end
+    Runtime.GiftRunning = false
+  end)
 end
 
 local function startAutoGiftShells()
-    if Runtime.GiftRunning then return end
-    Runtime.GiftRunning = true
-    task.spawn(function()
-        while Settings.Gift.AutoGiftShells do executeGiftRoutine(findSelectedGiftShell()) task.wait(0.5) end
-        Runtime.GiftRunning = false
-    end)
+  if Runtime.GiftRunning then return end
+  Runtime.GiftRunning = true
+  task.spawn(function()
+    while Settings.Gift.AutoGiftShells do
+      executeGiftRoutine(findSelectedGiftShell())
+      task.wait(0.5)
+    end
+    Runtime.GiftRunning = false
+  end)
 end
 
 -- Hermit Crab Claim & Upgrade
 local function claimAllHermitShells()
-    pcall(function() ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(buffer.fromstring("\b"), nil, 8) end)
+  pcall(function()
+    ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(buffer.fromstring("\b"), nil, 8)
+  end)
 end
 
 local function startAutoHermitClaim()
-    task.spawn(function()
-        while Settings.Crab.AutoClaim do task.wait(300) claimAllHermitShells() end
-    end)
+  task.spawn(function()
+    while Settings.Crab.AutoClaim do
+      task.wait(300)
+      claimAllHermitShells()
+    end
+  end)
 end
 
 local function virtualClickButton(buttonObj)
-    if not buttonObj or not buttonObj:IsA("GuiButton") then return end
-    pcall(function()
-        local guiService = game:GetService("GuiService")
-        local x = buttonObj.AbsolutePosition.X + (buttonObj.AbsoluteSize.X / 2)
-        local y = buttonObj.AbsolutePosition.Y + (buttonObj.AbsoluteSize.Y / 2) + guiService:GetGuiInset().Y
-        VIM:SendMouseButtonEvent(x, y, 0, true, game, 0) task.wait(0.05)
-        VIM:SendMouseButtonEvent(x, y, 0, false, game, 0)
-    end)
+  if not buttonObj or not buttonObj:IsA("GuiButton") then return end
+  pcall(function()
+    local guiService = game:GetService("GuiService")
+    local x = buttonObj.AbsolutePosition.X + (buttonObj.AbsoluteSize.X / 2)
+    local y = buttonObj.AbsolutePosition.Y + (buttonObj.AbsoluteSize.Y / 2) + guiService:GetGuiInset().Y
+    VIM:SendMouseButtonEvent(x, y, 0, true, game, 0)
+    task.wait(0.05)
+    VIM:SendMouseButtonEvent(x, y, 0, false, game, 0)
+  end)
 end
 
 local function upgradeHermit(stat)
-    local hermitGui = LocalPlayer.PlayerGui:FindFirstChild("HermitCrab")
-    if not hermitGui then return end
-    local folderName = stat == "Weight" and "WeightCap" or stat
-    pcall(function()
-        local targetStatObj = hermitGui.Main.Core.InfoFrame.Stats.StatsFolder:FindFirstChild(folderName)
-        if targetStatObj and targetStatObj:FindFirstChild("Upgrade") then
-            if targetStatObj.Upgrade.AbsoluteSize.X > 0 and targetStatObj.Upgrade.AbsoluteSize.Y > 0 then
-                virtualClickButton(targetStatObj.Upgrade)
-            end
-        end
-    end)
+  local hermitGui = LocalPlayer.PlayerGui:FindFirstChild("HermitCrab")
+  if not hermitGui then return end
+  local folderName = stat == "Weight" and "WeightCap" or stat
+  pcall(function()
+    local targetStatObj = hermitGui.Main.Core.InfoFrame.Stats.StatsFolder:FindFirstChild(folderName)
+    if targetStatObj and targetStatObj:FindFirstChild("Upgrade") then
+      if targetStatObj.Upgrade.AbsoluteSize.X > 0 and targetStatObj.Upgrade.AbsoluteSize.Y > 0 then
+        virtualClickButton(targetStatObj.Upgrade)
+      end
+    end
+  end)
 end
 
 local function startAutoHermitUpgrade()
-    task.spawn(function()
-        while Settings.Crab.AutoUpgrade do
-            local hermitGui = LocalPlayer.PlayerGui:FindFirstChild("HermitCrab")
-            if hermitGui then
-                local mainFrame = hermitGui:FindFirstChild("Main")
-                local isAlreadyOpen = mainFrame and mainFrame.Visible
-                Runtime.UpgradeActive = true task.wait(0.1)
-                
-                if mainFrame and not isAlreadyOpen and hermitGui:FindFirstChild("OpenButton") then
-                    virtualClickButton(hermitGui.OpenButton) task.wait(0.4)
-                end
-                
-                for upgradeName in pairs(Settings.Crab.SelectedUpgrades) do
-                    if not Settings.Crab.AutoUpgrade then break end
-                    upgradeHermit(upgradeName) task.wait(0.6)
-                end
-                
-                if mainFrame and not isAlreadyOpen and hermitGui:FindFirstChild("CloseButton") then
-                    virtualClickButton(hermitGui.CloseButton) task.wait(0.2)
-                end
-                
-                Runtime.UpgradeActive = false task.wait(8) 
-            else
-                task.wait(1)
-            end
+  task.spawn(function()
+    while Settings.Crab.AutoUpgrade do
+      local hermitGui = LocalPlayer.PlayerGui:FindFirstChild("HermitCrab")
+      if hermitGui then
+        local mainFrame = hermitGui:FindFirstChild("Main")
+        local isAlreadyOpen = mainFrame and mainFrame.Visible
+        Runtime.UpgradeActive = true
+        task.wait(0.1)
+
+        if mainFrame and not isAlreadyOpen and hermitGui:FindFirstChild("OpenButton") then
+          virtualClickButton(hermitGui.OpenButton)
+          task.wait(0.4)
         end
-    end)
+
+        for upgradeName in pairs(Settings.Crab.SelectedUpgrades) do
+          if not Settings.Crab.AutoUpgrade then break end
+          upgradeHermit(upgradeName)
+          task.wait(0.6)
+        end
+
+        if mainFrame and not isAlreadyOpen and hermitGui:FindFirstChild("CloseButton") then
+          virtualClickButton(hermitGui.CloseButton)
+          task.wait(0.2)
+        end
+
+        Runtime.UpgradeActive = false
+        task.wait(8)
+      else
+        task.wait(1)
+      end
+    end
+  end)
 end
 
 -- Reroll Trait
 local function rerollCurrentTool()
-    local toolName = getCurrentTool()
-    if toolName == "Unknown" or toolName == "" then return end
-    pcall(function()
-        local payload = "!" .. string.char(#toolName) .. "\000" .. toolName
-        ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(buffer.fromstring(payload), nil, 33)
-    end)
+  local toolName = getCurrentTool()
+  if toolName == "Unknown" or toolName == "" then return end
+  pcall(function()
+    local payload = "!" .. string.char(#toolName) .. "\000" .. toolName
+    ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(buffer.fromstring(payload), nil, 33)
+  end)
 end
 
 local function startAutoTraitReroll()
-    task.spawn(function()
-        local lastPity = getCurrentPity()
-        while Settings.Trait.AutoReroll do
-            local currentTrait = getCurrentTrait()
-            if currentTrait == Settings.Trait.TargetTrait or getCurrentPity() < lastPity then
-                Settings.Trait.AutoReroll = false break
-            end
-            lastPity = getCurrentPity()
-            rerollCurrentTool() task.wait(1)
-        end
-    end)
+  task.spawn(function()
+    local lastPity = getCurrentPity()
+    while Settings.Trait.AutoReroll do
+      local currentTrait = getCurrentTrait()
+      if currentTrait == Settings.Trait.TargetTrait or getCurrentPity() < lastPity then
+        Settings.Trait.AutoReroll = false
+        break
+      end
+      lastPity = getCurrentPity()
+      rerollCurrentTool()
+      task.wait(1)
+    end
+  end)
 end
 
 -- Auto Buy Merchant
 local function buyMerchantItem(itemName)
-    local payload = "&" .. string.char(#itemName) .. "\000" .. itemName
-    pcall(function() ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(buffer.fromstring(payload), nil, 38) end)
+  local payload = "&" .. string.char(#itemName) .. "\000" .. itemName
+  pcall(function()
+    ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(buffer.fromstring(payload), nil, 38)
+  end)
 end
 
 local function startAutoBuyMerchant()
-    task.spawn(function()
-        while Settings.Merchant.AutoBuy do
-            local boughtAny = false
-            for itemName in pairs(Settings.Merchant.SelectedItems) do
-                buyMerchantItem(itemName) boughtAny = true task.wait(0.3)
-            end
-            task.wait(boughtAny and 0.2 or 1)
-        end
-    end)
+  task.spawn(function()
+    while Settings.Merchant.AutoBuy do
+      local boughtAny = false
+      for itemName in pairs(Settings.Merchant.SelectedItems) do
+        buyMerchantItem(itemName)
+        boughtAny = true
+        task.wait(0.3)
+      end
+      task.wait(boughtAny and 0.2 or 1)
+    end
+  end)
 end
 
 --========================================================
@@ -768,24 +960,24 @@ local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/A
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Sobat Kerang",
-    SubTitle = "v3 Ultimate",
-    TabWidth = 170,
-    Size = UDim2.fromOffset(950, 650),
-    Acrylic = true,
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.RightControl
+  Title = "Sobat Kerang",
+  SubTitle = "v3 Ultimate",
+  TabWidth = 170,
+  Size = UDim2.fromOffset(950, 650),
+  Acrylic = true,
+  Theme = "Dark",
+  MinimizeKey = Enum.KeyCode.RightControl
 })
 
 local Tabs = {
-    Main = Window:CreateTab({Title = "Main", Icon = "pickaxe"}),
-    Favorites = Window:CreateTab({Title = "Favorites", Icon = "star"}),
-    Gift = Window:CreateTab({Title = "Auto Gift Shells", Icon = "gift"}),
-    Crab = Window:CreateTab({Title = "Hermit Crab", Icon = "shell"}),
-    Trait = Window:CreateTab({Title = "Trait Reroll", Icon = "refresh-cw"}),
-    Merchant = Window:CreateTab({Title = "Merchant", Icon = "shopping-cart"}),
-    Teleport = Window:CreateTab({Title = "Teleport", Icon = "map-pinned"}),
-    Settings = Window:CreateTab({Title = "Settings", Icon = "settings"})
+  Main = Window:CreateTab({ Title = "Main", Icon = "pickaxe" }),
+  Favorites = Window:CreateTab({ Title = "Favorites", Icon = "star" }),
+  Gift = Window:CreateTab({ Title = "Auto Gift Shells", Icon = "gift" }),
+  Crab = Window:CreateTab({ Title = "Hermit Crab", Icon = "shell" }),
+  Trait = Window:CreateTab({ Title = "Trait Reroll", Icon = "refresh-cw" }),
+  Merchant = Window:CreateTab({ Title = "Merchant", Icon = "shopping-cart" }),
+  Teleport = Window:CreateTab({ Title = "Teleport", Icon = "map-pinned" }),
+  Settings = Window:CreateTab({ Title = "Settings", Icon = "settings" })
 }
 
 --========================================================
@@ -795,7 +987,9 @@ local Tabs = {
 local CoreGui = game:GetService("CoreGui")
 local UIS = game:GetService("UserInputService")
 
-if CoreGui:FindFirstChild("SobatKerangFloating") then CoreGui.SobatKerangFloating:Destroy() end
+if CoreGui:FindFirstChild("SobatKerangFloating") then
+  CoreGui.SobatKerangFloating:Destroy()
+end
 
 local FloatGui = Instance.new("ScreenGui")
 FloatGui.Name = "SobatKerangFloating"
@@ -828,32 +1022,38 @@ Stroke.Parent = ShellButton
 local dragging, dragStart, startPos = false, nil, nil
 
 ShellButton.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging, dragStart, startPos = true, input.Position, ShellButton.Position
-        input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
-    end
+  if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    dragging, dragStart, startPos = true, input.Position, ShellButton.Position
+    input.Changed:Connect(function()
+      if input.UserInputState == Enum.UserInputState.End then
+        dragging = false
+      end
+    end)
+  end
 end)
 
 UIS.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        local delta = input.Position - dragStart
-        ShellButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
+  if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+    local delta = input.Position - dragStart
+    ShellButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+  end
 end)
 
 local Minimized = false
 ShellButton.MouseButton1Click:Connect(function()
-    Minimized = not Minimized
-    pcall(function()
-        local fluentGui = CoreGui:FindFirstChild("FluentRenewed") or CoreGui:FindFirstChild("Fluent")
-        if fluentGui then
-            for _, obj in ipairs(fluentGui:GetChildren()) do
-                if obj:IsA("Frame") then obj.Visible = not Minimized end
-            end
-        else
-            Window:Minimize(Minimized)
+  Minimized = not Minimized
+  pcall(function()
+    local fluentGui = CoreGui:FindFirstChild("FluentRenewed") or CoreGui:FindFirstChild("Fluent")
+    if fluentGui then
+      for _, obj in ipairs(fluentGui:GetChildren()) do
+        if obj:IsA("Frame") then
+          obj.Visible = not Minimized
         end
-    end)
+      end
+    else
+      Window:Minimize(Minimized)
+    end
+  end)
 end)
 
 --========================================================
@@ -861,83 +1061,293 @@ end)
 --========================================================
 
 Tabs.Main:CreateSection("Digging")
-Tabs.Main:CreateToggle("LegitDig", {Title = "Legit Dig", Default = false, Callback = function(V) Settings.Main.LegitDig = V if V then startLegitDig() else stopLegitDig() end end})
-Tabs.Main:CreateToggle("FastLegitDig", {Title = "Fast Legit Dig", Default = false, Callback = function(V) Settings.Main.FastLegitDig = V if V then startFastLegitDig() else stopLegitDig() end end})
-Tabs.Main:CreateToggle("MythicOnly", {Title = "Mythic Only Dig ✨", Default = false, Callback = function(V) Settings.Main.MythicOnly = V if V then startMythicDig() else stopLegitDig() end end})
-Tabs.Main:CreateToggle("AutoDebris", {Title = "Auto Debris", Default = false, Callback = function(V) Settings.Main.AutoDebris = V if V then startAutoDebris() end end})
+Tabs.Main:CreateToggle("LegitDig", {
+  Title = "Legit Dig",
+  Default = false,
+  Callback = function(V)
+    Settings.Main.LegitDig = V
+    if V then startLegitDig() else stopLegitDig() end
+  end
+})
+Tabs.Main:CreateToggle("FastLegitDig", {
+  Title = "Fast Legit Dig",
+  Default = false,
+  Callback = function(V)
+    Settings.Main.FastLegitDig = V
+    if V then startFastLegitDig() else stopLegitDig() end
+  end
+})
+Tabs.Main:CreateToggle("MythicOnly", {
+  Title = "Mythic Only Dig ✨",
+  Default = false,
+  Callback = function(V)
+    Settings.Main.MythicOnly = V
+    if V then startMythicDig() else stopLegitDig() end
+  end
+})
+Tabs.Main:CreateToggle("AutoDebris", {
+  Title = "Auto Debris",
+  Default = false,
+  Callback = function(V)
+    Settings.Main.AutoDebris = V
+    if V then startAutoDebris() end
+  end
+})
 
 Tabs.Main:CreateSection("Sell")
-Tabs.Main:CreateToggle("AutoSell", {Title = "Auto Sell", Default = false, Callback = function(V) Settings.Main.AutoSell = V if V then startAutoSell() end end})
-Tabs.Main:CreateToggle("SellWhenFull", {Title = "Sell When Full", Default = false, Callback = function(V) Settings.Main.SellWhenFull = V if V then startSellWhenFull() end end})
-Tabs.Main:CreateButton({Title = "Sell Now", Callback = function() sellInventory() end})
+Tabs.Main:CreateToggle("AutoSell", {
+  Title = "Auto Sell",
+  Default = false,
+  Callback = function(V)
+    Settings.Main.AutoSell = V
+    if V then startAutoSell() end
+  end
+})
+Tabs.Main:CreateToggle("SellWhenFull", {
+  Title = "Sell When Full",
+  Default = false,
+  Callback = function(V)
+    Settings.Main.SellWhenFull = V
+    if V then startSellWhenFull() end
+  end
+})
+Tabs.Main:CreateButton({ Title = "Sell Now", Callback = function()
+  sellInventory()
+end })
 
 --========================================================
 -- TAB: FAVORITES
 --========================================================
 
 Tabs.Favorites:CreateSection("Shell Favorites")
-Tabs.Favorites:CreateDropdown("SelectedShells", {Title = "Select Shells", Values = getShellList(), Multi = true, Default = {}}):OnChanged(function(V) Settings.Favorites.SelectedShells = V end)
-Tabs.Favorites:CreateToggle("AutoFavorite", {Title = "Auto Favorite Selected Shells", Default = false, Callback = function(V) Settings.Favorites.AutoFavorite = V if V then startAutoFavorite() end end})
-Tabs.Favorites:CreateButton({Title = "Unfavorite Selected Shells", Callback = function() for _, i in ipairs(LocalPlayer.Backpack:GetChildren()) do for n in pairs(Settings.Favorites.SelectedShells) do if i.Name:find(n) then unfavoriteShell(i) end end end end})
+Tabs.Favorites:CreateDropdown("SelectedShells", {
+  Title = "Select Shells",
+  Values = getShellList(),
+  Multi = true,
+  Default = {}
+}):OnChanged(function(V)
+  Settings.Favorites.SelectedShells = V
+end)
+Tabs.Favorites:CreateToggle("AutoFavorite", {
+  Title = "Auto Favorite Selected Shells",
+  Default = false,
+  Callback = function(V)
+    Settings.Favorites.AutoFavorite = V
+    if V then startAutoFavorite() end
+  end
+})
+Tabs.Favorites:CreateButton({ Title = "Unfavorite Selected Shells", Callback = function()
+  for _, i in ipairs(LocalPlayer.Backpack:GetChildren()) do
+    for n in pairs(Settings.Favorites.SelectedShells) do
+      if i.Name:find(n) then
+        unfavoriteShell(i)
+      end
+    end
+  end
+end })
 
 Tabs.Favorites:CreateSection("Rarity Favorites")
-Tabs.Favorites:CreateDropdown("SelectedRarities", {Title = "Select Rarities", Values = getRarityList(), Multi = true, Default = {}}):OnChanged(function(V) Settings.Favorites.SelectedRarities = V end)
-Tabs.Favorites:CreateToggle("AutoFavoriteRarity", {Title = "Auto Favorite Selected Rarities", Default = false, Callback = function(V) Settings.Favorites.AutoFavoriteRarity = V if V then startAutoFavoriteRarity() end end})
+Tabs.Favorites:CreateDropdown("SelectedRarities", {
+  Title = "Select Rarities",
+  Values = getRarityList(),
+  Multi = true,
+  Default = {}
+}):OnChanged(function(V)
+  Settings.Favorites.SelectedRarities = V
+end)
+Tabs.Favorites:CreateToggle("AutoFavoriteRarity", {
+  Title = "Auto Favorite Selected Rarities",
+  Default = false,
+  Callback = function(V)
+    Settings.Favorites.AutoFavoriteRarity = V
+    if V then startAutoFavoriteRarity() end
+  end
+})
 
 --========================================================
 -- TAB: GIFT
 --========================================================
 
 Tabs.Gift:CreateSection("Auto Gift Base on Rarities")
-Tabs.Gift:CreateDropdown("GiftRarities", {Title = "Select Gift Rarities", Values = getRarityList(), Multi = true, Default = {}}):OnChanged(function(V) Settings.Gift.SelectedRarities = V end)
-Tabs.Gift:CreateToggle("AutoGift", {Title = "Selected Rarities", Default = false, Callback = function(V) Settings.Gift.AutoGift = V if V then startAutoGift() end end})
+Tabs.Gift:CreateDropdown("GiftRarities", {
+  Title = "Select Gift Rarities",
+  Values = getRarityList(),
+  Multi = true,
+  Default = {}
+}):OnChanged(function(V)
+  Settings.Gift.SelectedRarities = V
+end)
+Tabs.Gift:CreateToggle("AutoGift", {
+  Title = "Selected Rarities",
+  Default = false,
+  Callback = function(V)
+    Settings.Gift.AutoGift = V
+    if V then startAutoGift() end
+  end
+})
 
 Tabs.Gift:CreateSection("Auto Gift Base on Unfavorite Shells")
-Tabs.Gift:CreateDropdown("GiftNFRarities", {Title = "Select Non-Favorite Rarities", Values = getRarityList(), Multi = true, Default = {}}):OnChanged(function(V) Settings.Gift.SelectedNonFavoriteRarities = V end)
-Tabs.Gift:CreateToggle("AutoGiftNonFavorite", {Title = "Auto Gift Non-Favorite", Default = false, Callback = function(V) Settings.Gift.AutoGiftNonFavorite = V if V then Settings.Gift.AutoGift = false startAutoGiftNonFavorite() end end})
+Tabs.Gift:CreateDropdown("GiftNFRarities", {
+  Title = "Select Non-Favorite Rarities",
+  Values = getRarityList(),
+  Multi = true,
+  Default = {}
+}):OnChanged(function(V)
+  Settings.Gift.SelectedNonFavoriteRarities = V
+end)
+Tabs.Gift:CreateToggle("AutoGiftNonFavorite", {
+  Title = "Auto Gift Non-Favorite",
+  Default = false,
+  Callback = function(V)
+    Settings.Gift.AutoGiftNonFavorite = V
+    if V then
+      Settings.Gift.AutoGift = false
+      startAutoGiftNonFavorite()
+    end
+  end
+})
 
 Tabs.Gift:CreateSection("Auto Gift Base on Shell Names")
-Tabs.Gift:CreateDropdown("GiftShells", {Title = "Select Shells", Values = getShellList(), Multi = true, Default = {}}):OnChanged(function(V) Settings.Gift.SelectedShells = V end)
-Tabs.Gift:CreateToggle("AutoGiftShells", {Title = "Auto Gift Selected Shells", Default = false, Callback = function(V) Settings.Gift.AutoGiftShells = V if V then Settings.Gift.AutoGift = false Settings.Gift.AutoGiftNonFavorite = false startAutoGiftShells() end end})
+Tabs.Gift:CreateDropdown("GiftShells", {
+  Title = "Select Shells",
+  Values = getShellList(),
+  Multi = true,
+  Default = {}
+}):OnChanged(function(V)
+  Settings.Gift.SelectedShells = V
+end)
+Tabs.Gift:CreateToggle("AutoGiftShells", {
+  Title = "Auto Gift Selected Shells",
+  Default = false,
+  Callback = function(V)
+    Settings.Gift.AutoGiftShells = V
+    if V then
+      Settings.Gift.AutoGift = false
+      Settings.Gift.AutoGiftNonFavorite = false
+      startAutoGiftShells()
+    end
+  end
+})
 
 --========================================================
 -- TAB: HERMIT CRAB
 --========================================================
 
 Tabs.Crab:CreateSection("Claim")
-Tabs.Crab:CreateToggle("AutoClaim", {Title = "Auto Claim Shells", Default = false, Callback = function(V) Settings.Crab.AutoClaim = V if V then claimAllHermitShells() startAutoHermitClaim() end end})
+Tabs.Crab:CreateToggle("AutoClaim", {
+  Title = "Auto Claim Shells",
+  Default = false,
+  Callback = function(V)
+    Settings.Crab.AutoClaim = V
+    if V then
+      claimAllHermitShells()
+      startAutoHermitClaim()
+    end
+  end
+})
 
 Tabs.Crab:CreateSection("Upgrades")
-Tabs.Crab:CreateDropdown("HermitUpgrades", {Title = "Select Upgrades", Values = getHermitUpgradeList(), Multi = true, Default = {}}):OnChanged(function(V) Settings.Crab.SelectedUpgrades = V end)
-Tabs.Crab:CreateToggle("AutoUpgrade", {Title = "Auto Upgrade Selected", Default = false, Callback = function(V) Settings.Crab.AutoUpgrade = V if V then startAutoHermitUpgrade() end end})
+Tabs.Crab:CreateDropdown("HermitUpgrades", {
+  Title = "Select Upgrades",
+  Values = getHermitUpgradeList(),
+  Multi = true,
+  Default = {}
+}):OnChanged(function(V)
+  Settings.Crab.SelectedUpgrades = V
+end)
+Tabs.Crab:CreateToggle("AutoUpgrade", {
+  Title = "Auto Upgrade Selected",
+  Default = false,
+  Callback = function(V)
+    Settings.Crab.AutoUpgrade = V
+    if V then startAutoHermitUpgrade() end
+  end
+})
 
 --========================================================
 -- TAB: TRAIT REROLL
 --========================================================
 
-Tabs.Trait:CreateDropdown("TargetTrait", {Title = "Target Trait", Values = getTraitList(), Multi = false, Default = nil}):OnChanged(function(V) Settings.Trait.TargetTrait = V end)
-Tabs.Trait:CreateToggle("AutoTraitReroll", {Title = "Auto Trait Reroll", Default = false, Callback = function(V) Settings.Trait.AutoReroll = V if V and Settings.Trait.TargetTrait then startAutoTraitReroll() end end})
+Tabs.Trait:CreateDropdown("TargetTrait", {
+  Title = "Target Trait",
+  Values = getTraitList(),
+  Multi = false,
+  Default = nil
+}):OnChanged(function(V)
+  Settings.Trait.TargetTrait = V
+end)
+Tabs.Trait:CreateToggle("AutoTraitReroll", {
+  Title = "Auto Trait Reroll",
+  Default = false,
+  Callback = function(V)
+    Settings.Trait.AutoReroll = V
+    if V and Settings.Trait.TargetTrait then
+      startAutoTraitReroll()
+    end
+  end
+})
 
 --========================================================
 -- TAB: MERCHANT
 --========================================================
 
-local KnownMerchantItems = {"Abyssal Charm","Colossus Charm","Coral Charm","Crystal Charm","Driftwood Charm","Eclipse Charm","Leviathan Charm","Moonstone Charm","Pebble Charm","Prism Charm","Sea Glass Charm","Starfish Charm","Tidal Charm","Tide Charm","Void Charm","Crab Treat","Pearl","Mystic Shell"}
+local KnownMerchantItems = {
+  "Abyssal Charm", "Colossus Charm", "Coral Charm", "Crystal Charm",
+  "Driftwood Charm", "Eclipse Charm", "Leviathan Charm", "Moonstone Charm",
+  "Pebble Charm", "Prism Charm", "Sea Glass Charm", "Starfish Charm",
+  "Tidal Charm", "Tide Charm", "Void Charm", "Crab Treat", "Pearl", "Mystic Shell"
+}
 Tabs.Merchant:CreateSection("Auto Buy Items")
-Tabs.Merchant:CreateDropdown("MerchantItems", {Title = "Select Known Items", Values = KnownMerchantItems, Multi = true, Default = {}}):OnChanged(function(V) Settings.Merchant.SelectedItems = V end)
-Tabs.Merchant:CreateToggle("AutoBuyMerchant", {Title = "Enable Auto Buy Merchant", Default = false, Callback = function(V) Settings.Merchant.AutoBuy = V if V then startAutoBuyMerchant() end end})
+Tabs.Merchant:CreateDropdown("MerchantItems", {
+  Title = "Select Known Items",
+  Values = KnownMerchantItems,
+  Multi = true,
+  Default = {}
+}):OnChanged(function(V)
+  Settings.Merchant.SelectedItems = V
+end)
+Tabs.Merchant:CreateToggle("AutoBuyMerchant", {
+  Title = "Enable Auto Buy Merchant",
+  Default = false,
+  Callback = function(V)
+    Settings.Merchant.AutoBuy = V
+    if V then startAutoBuyMerchant() end
+  end
+})
 
 --========================================================
 -- TAB: TELEPORT
 --========================================================
 
 Tabs.Teleport:CreateSection("Island Teleport")
-Tabs.Teleport:CreateDropdown("SelectedIsland", {Title = "Select Island", Values = IslandNames, Multi = false, Default = nil}):OnChanged(function(V) Settings.Teleport.SelectedIsland = V end)
-Tabs.Teleport:CreateButton({Title = "🚀 Teleport Instan ke Pulau", Callback = function() if Settings.Teleport.SelectedIsland then tpTo(TeleportLocations.Islands[Settings.Teleport.SelectedIsland] + Vector3.new(0, 5, 0)) end end})
+Tabs.Teleport:CreateDropdown("SelectedIsland", {
+  Title = "Select Island",
+  Values = IslandNames,
+  Multi = false,
+  Default = nil
+}):OnChanged(function(V)
+  Settings.Teleport.SelectedIsland = V
+end)
+Tabs.Teleport:CreateButton({ Title = "🚀 Teleport Instan ke Pulau", Callback = function()
+  if Settings.Teleport.SelectedIsland then
+    tpTo(TeleportLocations.Islands[Settings.Teleport.SelectedIsland] + Vector3.new(0, 5, 0))
+  end
+end })
 
 Tabs.Teleport:CreateSection("NPC Teleport")
-Tabs.Teleport:CreateDropdown("SelectedNPC", {Title = "Select NPC", Values = NpcNames, Multi = false, Default = nil}):OnChanged(function(V) Settings.Teleport.SelectedNpc = V end)
-Tabs.Teleport:CreateButton({Title = "🚀 Teleport Instan ke NPC", Callback = function() if Settings.Teleport.SelectedNpc then tpTo(TeleportLocations.NPCs[Settings.Teleport.SelectedNpc] + Vector3.new(0, 5, 0)) end end})
+Tabs.Teleport:CreateDropdown("SelectedNPC", {
+  Title = "Select NPC",
+  Values = NpcNames,
+  Multi = false,
+  Default = nil
+}):OnChanged(function(V)
+  Settings.Teleport.SelectedNpc = V
+end)
+Tabs.Teleport:CreateButton({ Title = "🚀 Teleport Instan ke NPC", Callback = function()
+  if Settings.Teleport.SelectedNpc then
+    tpTo(TeleportLocations.NPCs[Settings.Teleport.SelectedNpc] + Vector3.new(0, 5, 0))
+  end
+end })
 
 --========================================================
 -- MANAGEMENT SETUP (INTERFACE & SAVE)
@@ -946,7 +1356,7 @@ Tabs.Teleport:CreateButton({Title = "🚀 Teleport Instan ke NPC", Callback = fu
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
 SaveManager:IgnoreThemeSettings()
-SaveManager:SetIgnoreIndexes{}
+SaveManager:SetIgnoreIndexes({})
 
 InterfaceManager:SetFolder("SobatKerangHub")
 SaveManager:SetFolder("SobatKerangHub/SobatKerangAjaib")
@@ -959,28 +1369,35 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 --========================================================
 
 Window:SelectTab(1)
-Fluent:Notify({Title = "Sobat Kerang", Content = "SAATNYA SOBAT KERANG BERAKSI!", Duration = 5})
+Fluent:Notify({
+  Title = "Sobat Kerang",
+  Content = "SAATNYA SOBAT KERANG BERAKSI!",
+  Duration = 5
+})
 SaveManager:LoadAutoloadConfig()
 
--- [[ ANTI-AFK OTOMATIS ]]
-    if not Runtime.AntiAfkConn then
-        Runtime.AntiAfkConn = LocalPlayer.Idled:Connect(function()
-			VirtualUser:CaptureController()
-			VirtualUser:ClickButton2(Vector2.new())
-			print("[Sobat Kerang] Timer AFK direset!")
-        end)
-    end
+-- Anti-AFK Otomatis
+if not Runtime.AntiAfkConn then
+  Runtime.AntiAfkConn = LocalPlayer.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
+    print("[Sobat Kerang] Timer AFK direset!")
+  end)
+end
 
 getgenv().SobatKerangCleanup = function()
-    pcall(function()
-        if CoreGui:FindFirstChild("SobatKerangFloating") then
-            CoreGui.SobatKerangFloating:Destroy()
-        end
-    end)
-    pcall(function()
-        if Runtime.AntiAfkConn then Runtime.AntiAfkConn:Disconnect() Runtime.AntiAfkConn = nil end
-        Window:Destroy()
-    end)
+  pcall(function()
+    if CoreGui:FindFirstChild("SobatKerangFloating") then
+      CoreGui.SobatKerangFloating:Destroy()
+    end
+  end)
+  pcall(function()
+    if Runtime.AntiAfkConn then
+      Runtime.AntiAfkConn:Disconnect()
+      Runtime.AntiAfkConn = nil
+    end
+    Window:Destroy()
+  end)
 end
 
 print("SCRIPT END")
