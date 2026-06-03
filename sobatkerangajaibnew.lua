@@ -15,6 +15,60 @@ local ShellData = require(
 )
 
 --========================================================
+-- DATABASE TELEPORT (HARDCODE RAPI)
+--========================================================
+
+local TeleportLocations = {
+    Islands = {
+        ["Solmere"]           = Vector3.new(-1570, 28.9, -1733.25),
+        ["Caldera Cay"]       = Vector3.new(1650, 25, -1428),
+        ["Sea Stacks Island"] = Vector3.new(971, 26, 1398),
+        ["Crescent Shore"]    = Vector3.new(-1406, 35, 1570),
+        ["Spawn Island"]      = Vector3.new(71, 41, 42),
+        ["Sacred Mountain"]   = Vector3.new(3076, 259, 668),
+        ["Sky Island"]        = Vector3.new(119, 3083, 1265),
+        ["Frostveil Isle"]    = Vector3.new(3661.6, 33.3, -1017.5),
+        ["Glowcap Cave"]      = Vector3.new(1415.0, -66.4, 1219.6),
+        ["Coral Graveyard"]   = Vector3.new(2782.4, -127.9, -822.4),
+        ["Lost City"]         = Vector3.new(17141.4, -62.1, 3516.9),
+    },
+    NPCs = {
+        ["Lost NPC"]       = Vector3.new(1798, 62, -1619),
+        ["Crab Bossfight"] = Vector3.new(-1365, 25, -1562),
+        ["Tinkerer"]       = Vector3.new(107, 46, 56),
+        ["Sarah"]          = Vector3.new(83, 35, 102),
+        ["Boat NPC"]       = Vector3.new(26, 22, 192),
+        ["Merchant"]       = Vector3.new(84, 42, 9),
+        ["Backpack NPC"]   = Vector3.new(0, 52, -2),
+        ["Old Fisherman"]  = Vector3.new(55, 24, 260),
+        ["Ghost"]          = Vector3.new(156, 124, -73),
+        ["Shady NPC"]      = Vector3.new(222, 330, -58),
+        ["Georgie"]        = Vector3.new(906, 28, 1452),
+        ["Maxwell"]        = Vector3.new(884, 26, 1358),
+        ["Hermulese"]      = Vector3.new(-1358, 25, -1569),
+        ["Biologist"]      = Vector3.new(-1453, 38, 1582),
+        ["Oro"]            = Vector3.new(-1413, 35, 1549),
+        ["Psychic"]        = Vector3.new(-1483, 38, 1512),
+        ["Keeper Nyros"]   = Vector3.new(67, 3093, 1420),
+        ["Ardyn"]          = Vector3.new(-56, 3136, 1322),
+        ["Keeper Solen"]   = Vector3.new(2780, 64, 454),
+        ["Elder Kaelen"]   = Vector3.new(2705, 36, 398),
+        ["Virell"]         = Vector3.new(3743.7, 63.3, -1137.1),
+        ["Lyra"]           = Vector3.new(3788.5, 28.6, -969.2),
+        ["Lost Diver"]     = Vector3.new(2780.8, -123.3, -827.1)
+    }
+}
+
+-- Ekstrak daftar nama untuk Dropdown UI
+local IslandNames = {}
+for name in pairs(TeleportLocations.Islands) do table.insert(IslandNames, name) end
+table.sort(IslandNames)
+
+local NpcNames = {}
+for name in pairs(TeleportLocations.NPCs) do table.insert(NpcNames, name) end
+table.sort(NpcNames)
+
+--========================================================
 -- SETTINGS
 --========================================================
 
@@ -64,7 +118,6 @@ local Settings = {
 
     Merchant = {
         SelectedItems = {},
-
         AutoBuy = false,
     },
 
@@ -102,6 +155,7 @@ local Runtime = {
 	SellWhenFullRunning = false,
 
 	GiftRunning = false,
+    MerchantRunning = false,
 }
 
 --========================================================
@@ -148,8 +202,7 @@ local function angleDiff(a, b)
 end
 
 -- ===== AREA HELPER ====
--- Helper Teleport 
-
+-- Helper Teleport Instan
 local function tpTo(position)
 
     local char = LocalPlayer.Character
@@ -169,8 +222,8 @@ local function tpTo(position)
 	
 end
 
--- helper debris
 
+-- helper debris
 local function findMoonGiftPrompt()
 
     for _, obj in ipairs(workspace:GetDescendants()) do
@@ -1986,6 +2039,59 @@ local function stopLegitDig()
 
 end
 
+-- Fungsi Dynamic ByteNet Merchant
+local function buyMerchantItem(itemName)
+    if not itemName or itemName == "" then return end
+    
+    local actionID = 38
+    local prefix = string.char(actionID)
+    local lengthByte = string.char(#itemName)
+    local payload = prefix .. lengthByte .. "\000" .. itemName
+
+    pcall(function()
+        local args = {
+            buffer.fromstring(payload),
+            [3] = actionID
+        }
+        ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(unpack(args))
+        print("[Sobat Kerang] Mencoba membeli item:", itemName)
+    end)
+end
+
+-- Loop Auto Buy Merchant Jarak Jauh
+local function startAutoBuyMerchant()
+    if Runtime.MerchantRunning then return end
+    Runtime.MerchantRunning = true
+
+    task.spawn(function()
+        while Settings.Merchant.AutoBuy do
+            local merchantFound = false
+            -- Mengecek apakah ada Travelling Merchant di dalam workspace
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v.Name == "TravellingMerchant" or v.Name == "TravelingMerchant" then
+                    merchantFound = true
+                    break
+                end
+            end
+
+            if merchantFound then
+                -- Beli dari daftar Dropdown saja
+                for item, isSelected in pairs(Settings.Merchant.SelectedItems) do
+                    if isSelected then
+                        buyMerchantItem(item)
+                        task.wait(0.5)
+                    end
+                end
+                
+                -- Tunggu lebih lama agar tidak spam request saat merchant masih spawn
+                task.wait(5) 
+            end
+            
+            task.wait(1)
+        end
+        Runtime.MerchantRunning = false
+    end)
+end
 
 --========================================================
 -- FLUENT UI & ADDONS (LOADED & CONFIGURATED)
@@ -2005,7 +2111,7 @@ local InterfaceManager = loadstring(game:HttpGet(
 
 local Window = Fluent:CreateWindow({
     Title = "Sobat Kerang",
-    SubTitle = "v2 Rewrite (Renewed)",
+    SubTitle = "v3 Ultimate",
     TabWidth = 170,
     Size = UDim2.fromOffset(950, 650),
 
@@ -2648,6 +2754,128 @@ Tabs.Trait:CreateToggle(
 
     end
 })
+
+--========================================================
+-- MERCHANT TAB (TANPA CUSTOM INPUT)
+--========================================================
+
+Tabs.Merchant:CreateSection("Auto Buy Items")
+
+local KnownMerchantItems = {
+    "Abyssal Charm",
+    "Colossus Charm",
+    "Coral Charm",
+    "Crystal Charm",
+    "Driftwood Charm",
+    "Eclipse Charm",
+    "Leviathan Charm",
+    "Moonstone Charm",
+    "Pebble Charm",
+    "Prism Charm",
+    "Sea Glass Charm",
+    "Starfish Charm",
+    "Tidal Charm",
+    "Tide Charm",
+    "Void Charm",
+    "Crab Treat",
+    "Pearl",
+    "Mystic Shell"
+}
+
+Tabs.Merchant:CreateDropdown("MerchantItems", {
+    Title = "Select Known Items",
+    Values = KnownMerchantItems,
+    Multi = true,
+    Default = {},
+    Callback = function(Value)
+        Settings.Merchant.SelectedItems = Value
+    end
+})
+
+Tabs.Merchant:CreateToggle("AutoBuyMerchant", {
+    Title = "Enable Auto Buy Merchant",
+    Description = "Beli otomatis dari jauh saat Merchant spawn",
+    Default = Settings.Merchant.AutoBuy,
+    Callback = function(Value)
+        Settings.Merchant.AutoBuy = Value
+        if Value then
+            startAutoBuyMerchant()
+        end
+    end
+})
+
+--========================================================
+-- TELEPORT TAB (INSTANT TELEPORT)
+--========================================================
+
+Tabs.Teleport:CreateSection("Island Teleport")
+
+Tabs.Teleport:CreateDropdown("SelectedIsland", {
+    Title = "Select Island",
+    Values = IslandNames,
+    Multi = false,
+    Default = nil,
+    Callback = function(Value)
+        Settings.Teleport.SelectedIsland = Value
+    end
+})
+
+Tabs.Teleport:CreateButton({
+    Title = "🚀 Teleport Instan ke Pulau",
+    Callback = function()
+        local target = Settings.Teleport.SelectedIsland
+        if target and TeleportLocations.Islands[target] then
+            Fluent:Notify({
+                Title = "Teleporting",
+                Content = "Berhasil teleport ke " .. target .. "!",
+                Duration = 3
+            })
+            -- Menambahkan offset +5 di sumbu Y agar tidak nyangkut di tanah
+            tpTo(TeleportLocations.Islands[target] + Vector3.new(0, 5, 0))
+        else
+            Fluent:Notify({
+                Title = "Error",
+                Content = "Pilih pulau terlebih dahulu!",
+                Duration = 3
+            })
+        end
+    end
+})
+
+Tabs.Teleport:CreateSection("NPC Teleport")
+
+Tabs.Teleport:CreateDropdown("SelectedNPC", {
+    Title = "Select NPC",
+    Values = NpcNames,
+    Multi = false,
+    Default = nil,
+    Callback = function(Value)
+        Settings.Teleport.SelectedNpc = Value
+    end
+})
+
+Tabs.Teleport:CreateButton({
+    Title = "🚀 Teleport Instan ke NPC",
+    Callback = function()
+        local target = Settings.Teleport.SelectedNpc
+        if target and TeleportLocations.NPCs[target] then
+            Fluent:Notify({
+                Title = "Teleporting",
+                Content = "Berhasil teleport ke " .. target .. "!",
+                Duration = 3
+            })
+            -- Menambahkan offset +5 di sumbu Y agar tidak nyangkut di tanah
+            tpTo(TeleportLocations.NPCs[target] + Vector3.new(0, 5, 0))
+        else
+            Fluent:Notify({
+                Title = "Error",
+                Content = "Pilih NPC terlebih dahulu!",
+                Duration = 3
+            })
+        end
+    end
+})
+
 
 --========================================================
 -- MANAGEMENT SETUP (MENGADOPSI INTEGRASI INTERFACE & SAVE)
