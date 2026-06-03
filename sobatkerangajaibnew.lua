@@ -156,6 +156,8 @@ local Runtime = {
 
 	GiftRunning = false,
     MerchantRunning = false,
+	
+	UpgradeActive = false,
 }
 
 --========================================================
@@ -678,19 +680,13 @@ local function startLegitDig()
     end)
 
     task.spawn(function()
-
         while Settings.Main.LegitDig do
-
-            if not Runtime.QteLineMoving then
-
+            -- JIKA SEDANG UPGRADE, JANGAN KLIK DIG! (Gencatan senjata)
+            if not Runtime.QteLineMoving and not Runtime.UpgradeActive then
                 safeVIMClick()
-
             end
-
             task.wait(0.5)
-
         end
-
     end)
 
     print("[Sobat Kerang] Legit Dig Started")
@@ -811,54 +807,30 @@ local function startFastLegitDig()
     end)
 
     task.spawn(function()
-
         while Settings.Main.FastLegitDig do
-
             local qte = pgui:FindFirstChild("QTE")
-
             if qte then
-
                 local main = qte:FindFirstChild("Main")
                 local line = main and main:FindFirstChild("Line")
-
                 if line then
-
                     local currentRot = line.Rotation
-
                     if Runtime.PrevLineRot ~= nil then
-
-                        Runtime.QteLineMoving =
-                            math.abs(
-                                currentRot -
-                                Runtime.PrevLineRot
-                            ) > 0.1
-
+                        Runtime.QteLineMoving = math.abs(currentRot - Runtime.PrevLineRot) > 0.1
                     end
-
                     Runtime.PrevLineRot = currentRot
-
-                    if not Runtime.QteLineMoving then
-
+                    
+                    -- TAMBAHKAN PENGECEKAN Runtime.UpgradeActive DI SINI
+                    if not Runtime.QteLineMoving and not Runtime.UpgradeActive then
                         safeVIMClick()
-
                     end
-
                 else
-
-                    safeVIMClick()
-
+                    if not Runtime.UpgradeActive then safeVIMClick() end
                 end
-
             else
-
-                safeVIMClick()
-
+                if not Runtime.UpgradeActive then safeVIMClick() end
             end
-
             task.wait(0.5)
-
         end
-
     end)
 
     print("[Sobat Kerang] Fast Legit Dig Started")
@@ -1808,65 +1780,95 @@ local function startAutoHermitClaim()
 end
 
 --upgrade hermit
-local function upgradeHermit(stat)
-	print(
-    "[UPGRADE]",
-    stat
-	)
-    local realStat =
-        HermitUpgradeMap[stat]
-
-    if not realStat then
-        return
-    end
-
+local function virtualClickButton(buttonObj)
+    if not buttonObj or not buttonObj:IsA("GuiButton") then return end
+    
     pcall(function()
-        local payload = "\f" .. string.char(#realStat) .. "\000" .. realStat
-        ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(buffer.fromstring(payload), nil, 12)
+        -- Menggunakan VirtualInputManager bawaan service untuk simulasi klik mouse murni
+        local guiService = game:GetService("GuiService")
+        local x = buttonObj.AbsolutePosition.X + (buttonObj.AbsoluteSize.X / 2)
+        local y = buttonObj.AbsolutePosition.Y + (buttonObj.AbsoluteSize.Y / 2) + guiService:GetGuiInset().Y
+        
+        VIM:SendMouseButtonEvent(x, y, 0, true, game, 0)
+        task.wait(0.05)
+        VIM:SendMouseButtonEvent(x, y, 0, false, game, 0)
     end)
+end
 
+local function upgradeHermit(stat)
+    local pgui = LocalPlayer.PlayerGui
+    local hermitGui = pgui:FindFirstChild("HermitCrab")
+    
+    if not hermitGui then return end
+    
+    -- Sesuaikan penamaan folder stat aslinya
+    local folderName = stat
+    if stat == "Weight" then
+        folderName = "WeightCap"
+    end
+    
+    pcall(function()
+        local statsFolder = hermitGui.Main.Core.InfoFrame.Stats.StatsFolder
+        local targetStatObj = statsFolder:FindFirstChild(folderName)
+        
+        if targetStatObj and targetStatObj:FindFirstChild("Upgrade") then
+            local upgradeButton = targetStatObj.Upgrade
+            
+            -- Cek apakah tombolnya visible di layar sebelum diklik
+            if upgradeButton.AbsoluteSize.X > 0 and upgradeButton.AbsoluteSize.Y > 0 then
+                print("[Sobat Kerang] Klik fisik tombol upgrade:", folderName)
+                virtualClickButton(upgradeButton)
+                
+                -- Memunculkan notifikasi Fluent UI kalau upgrade diproses
+                Fluent:Notify({
+                    Title = "Hermit Auto Upgrade",
+                    Content = "Berhasil meningkatkan status " .. folderName .. "!",
+                    Duration = 1.5
+                })
+            end
+        end
+    end)
 end
 
 -- loop upgrade hermit
 local function startAutoHermitUpgrade()
-
     task.spawn(function()
-
         while Settings.Crab.AutoUpgrade do
-
-            for upgradeName in pairs(
-                Settings.Crab.SelectedUpgrades
-            ) do
-
-                print(
-                    "[HERMIT]",
-                    upgradeName
-                )
-
-                local mapped =
-                    HermitUpgradeMap[upgradeName]
-
-                print(
-                    "[MAPPED]",
-                    mapped
-                )
-
-                if not Settings.Crab.AutoUpgrade then
-                    break
+            local pgui = LocalPlayer.PlayerGui
+            local hermitGui = pgui:FindFirstChild("HermitCrab")
+            
+            if hermitGui then
+                local mainFrame = hermitGui:FindFirstChild("Main")
+                local isAlreadyOpen = mainFrame and mainFrame.Visible
+                
+                Runtime.UpgradeActive = true
+                task.wait(0.1)
+                
+                if mainFrame and not isAlreadyOpen and hermitGui:FindFirstChild("OpenButton") then
+ 
+                    virtualClickButton(hermitGui.OpenButton)
+                    task.wait(0.4)
                 end
-
-                upgradeHermit(upgradeName)
-
-                task.wait(0.5)
-
+                
+                for upgradeName in pairs(Settings.Crab.SelectedUpgrades) do
+                    if not Settings.Crab.AutoUpgrade then break end
+                    upgradeHermit(upgradeName)
+                    task.wait(0.6)
+                end
+                
+                if mainFrame and not isAlreadyOpen and hermitGui:FindFirstChild("CloseButton") then
+                    virtualClickButton(hermitGui.CloseButton)
+                    task.wait(0.2)
+                end
+                
+                Runtime.UpgradeActive = false
+                
+                task.wait(8) 
+            else
+                task.wait(1)
             end
-
-            task.wait(1)
-
         end
-
     end)
-
 end
 
 -- function reroll trait
@@ -2007,27 +2009,27 @@ end
 
 -- [ALUR LAMA] Loop Auto Buy Merchant (Deteksi via PlayerGui Terbuka)
 local function startAutoBuyMerchant()
-
     task.spawn(function()
-
         while Settings.Merchant.AutoBuy do
-
-            for itemName in pairs(
-                Settings.Merchant.SelectedItems
-            ) do
-
+            local boughtAny = false
+            
+            -- Terus looping item yang dicentang secara cepat
+            for itemName in pairs(Settings.Merchant.SelectedItems) do
+                print("[MERCHANT BUYING]", itemName)
                 buyMerchantItem(itemName)
-
-                task.wait(0.5)
-
+                boughtAny = true
+                task.wait(0.3) -- Jeda kilat antar packet (300 milidetik) agar server sukses memproses stock berikutnya
             end
-
-            task.wait(10)
-
+            
+            -- Jika tidak ada item yang dicentang atau selesai memproses satu putaran kilat,
+            -- beri jeda sangat kecil (bukan 10 detik) agar loop background tidak membuat game crash/freeze
+            if not boughtAny then
+                task.wait(1)
+            else
+                task.wait(0.2) -- Jeda tipis untuk langsung kembali menguras stock berikutnya jika masih ada
+            end
         end
-
     end)
-
 end
 
 --========================================================
@@ -2726,6 +2728,10 @@ Tabs.Merchant:CreateDropdown("MerchantItems", {
     Default = {},
     Callback = function(Value)
         Settings.Merchant.SelectedItems = Value
+		print(
+        game:GetService("HttpService")
+        :JSONEncode(Value)
+    )
     end
 })
 
@@ -2843,3 +2849,4 @@ Fluent:Notify({
 SaveManager:LoadAutoloadConfig()
 
 print("SCRIPT END")
+
