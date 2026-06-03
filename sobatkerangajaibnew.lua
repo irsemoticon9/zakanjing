@@ -1859,7 +1859,7 @@ Tabs.Gift:AddSection("Gift Rarities")
 
 Tabs.Gift:AddParagraph({
     Title = "Info",
-    Content = "Auto Gift akan mengirim shell sesuai rarity yang dipilih ke player terdekat."})
+    Content = "Auto Gift akan mengirim shell sesuai rarity yang dipilih ke player terdekat."
 
 local GiftRarityDropdown =
     Tabs.Gift:AddDropdown(
