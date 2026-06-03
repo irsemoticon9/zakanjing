@@ -1857,6 +1857,10 @@ Tabs.Favorites:AddButton({
 
 Tabs.Gift:AddSection("Gift Rarities")
 
+Tabs.Gift:AddParagraph({
+    Title = "Info",
+    Content = "Auto Gift akan mengirim shell sesuai rarity yang dipilih ke player terdekat."})
+
 local GiftRarityDropdown =
     Tabs.Gift:AddDropdown(
     "GiftRarities",
@@ -1900,15 +1904,8 @@ Tabs.Gift:AddToggle("AutoGift", {
     end
 })
 
-Tabs.Gift:AddButton({
-    Title = "Test Gift Confirm",
+Tabs.Gift:AddSection("Gift Rarities")
 
-    Callback = function()
-
-        confirmGift()
-
-    end
-})
 
 --========================================================
 -- LOOPS
