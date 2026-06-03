@@ -40,11 +40,14 @@ local Settings = {
     },
 
     Gift = {
-        SelectedRarities = {},
+    SelectedRarities = {},
+    SelectedNonFavoriteRarities = {},
+    SelectedShells = {},
 
-        AutoGift = false,
-        AutoGiftNonFavorite = false,
-    },
+    AutoGift = false,
+    AutoGiftNonFavorite = false,
+    AutoGiftShells = false,
+	},
 
     Crab = {
         AutoClaim = false,
@@ -294,6 +297,89 @@ local function getShellRarity(shellName)
     end
 
     return nil
+
+end
+
+-- helper non favorite shell
+local function findNonFavoriteShell()
+
+    local backpack =
+        LocalPlayer:FindFirstChild("Backpack")
+
+    if not backpack then
+        return nil
+    end
+
+    for _, item in ipairs(backpack:GetChildren()) do
+
+        if item:IsA("Tool") then
+
+            local fav =
+                item:GetAttribute("Favourite")
+
+            if not fav then
+
+                local rarity =
+                    getShellRarity(item.Name)
+
+                if Settings.Gift
+                    .SelectedNonFavoriteRarities[rarity]
+                then
+
+                    return item
+
+                end
+
+            end
+
+        end
+
+    end
+
+    return nil
+
+end
+-- helper find shells
+local function findSelectedGiftShell()
+
+    local backpack =
+        LocalPlayer:FindFirstChild("Backpack")
+
+    if not backpack then
+        return nil
+    end
+
+    local bestShell = nil
+    local bestWeight = 0
+
+    for _, item in ipairs(backpack:GetChildren()) do
+
+        if item:IsA("Tool") then
+
+            local shellName =
+                item:GetAttribute("Name")
+
+            if shellName
+            and Settings.Gift.SelectedShells[shellName]
+            then
+
+                local weight =
+                    item:GetAttribute("Weight") or 0
+
+                if weight > bestWeight then
+
+                    bestWeight = weight
+                    bestShell = item
+
+                end
+
+            end
+
+        end
+
+    end
+
+    return bestShell
 
 end
 
@@ -1442,6 +1528,111 @@ local function startAutoGift()
 
 end
 
+-- auto gift non favorite 
+local function startAutoGiftNonFavorite()
+
+    if Runtime.GiftRunning then
+        return
+    end
+
+    Runtime.GiftRunning = true
+
+    task.spawn(function()
+
+        while Settings.Gift.AutoGiftNonFavorite do
+
+            local shell =
+                findNonFavoriteShell()
+
+            if shell then
+
+                print(
+                    "[Auto Gift NF] Found:",
+                    shell.Name
+                )
+
+                if equipGiftShell(shell) then
+
+                    local prompt =
+                        findGiftPrompt()
+
+                    if prompt then
+
+                        fireproximityprompt(prompt)
+
+                        task.wait(1)
+
+                        confirmGift()
+
+                        task.wait(2)
+
+                    end
+                end
+            end
+
+            task.wait(0.5)
+
+        end
+
+        Runtime.GiftRunning = false
+
+    end)
+
+end
+
+-- auto gift selected shell
+local function startAutoGiftShells()
+
+    if Runtime.GiftRunning then
+        return
+    end
+
+    Runtime.GiftRunning = true
+
+    task.spawn(function()
+
+        while Settings.Gift.AutoGiftShells do
+
+            local shell =
+                findSelectedGiftShell()
+
+            if shell then
+
+                print(
+                    "[Auto Gift Shell]",
+                    shell:GetAttribute("Name"),
+                    shell:GetAttribute("Weight")
+                )
+
+                if equipGiftShell(shell) then
+
+                    local prompt =
+                        findGiftPrompt()
+
+                    if prompt then
+
+                        fireproximityprompt(prompt)
+
+                        task.wait(1)
+
+                        confirmGift()
+
+                        task.wait(2)
+
+                    end
+                end
+            end
+
+            task.wait(0.5)
+
+        end
+
+        Runtime.GiftRunning = false
+
+    end)
+
+end
+
 -- Stop Legit Dig
 local function stopLegitDig()
 
@@ -1509,7 +1700,7 @@ local Tabs = {
     }),
 
     Gift = Window:AddTab({
-        Title = "Gift",
+        Title = "Auto Gift Shells",
         Icon = "gift"
     }),
 
@@ -1855,11 +2046,7 @@ Tabs.Favorites:AddButton({
 -- GIFT TAB
 --========================================================
 
-Tabs.Gift:AddSection("Gift Rarities")
-Tabs.Gift:AddParagraph({
-    Title = "Info",
-    Content = "Stand near a player. Auto Gift will automatically equip matching shells, open the gift prompt, and confirm the gift."
-})
+Tabs.Gift:AddSection("Auto Gift Base on Rarities")
 
 local GiftRarityDropdown =
     Tabs.Gift:AddDropdown(
@@ -1888,7 +2075,7 @@ GiftRarityDropdown:OnChanged(function(Value)
 end)
 
 Tabs.Gift:AddToggle("AutoGift", {
-    Title = "Auto Gift Selected Rarities",
+    Title = "Selected Rarities",
     Default = Settings.Gift.AutoGift,
 
     Callback = function(Value)
@@ -1898,6 +2085,103 @@ Tabs.Gift:AddToggle("AutoGift", {
         if Value then
 
             startAutoGift()
+
+        end
+
+    end
+})
+
+Tabs.Gift:AddSection("Auto Gift Base on Unfavorite Shells")
+
+
+local GiftNFDropdown =
+    Tabs.Gift:AddDropdown(
+    "GiftNFRarities",
+    {
+        Title = "Select Non-Favorite Rarities",
+
+        Values = getRarityList(),
+
+        Multi = true,
+
+        Default = {}
+    }
+)
+
+GiftNFDropdown:OnChanged(function(Value)
+
+    Settings.Gift
+        .SelectedNonFavoriteRarities =
+        Value
+
+end)
+
+Tabs.Gift:AddToggle(
+    "AutoGiftNonFavorite",
+{
+    Title = "Auto Gift Non-Favorite",
+
+    Default = Settings.Gift.AutoGiftNonFavorite,
+
+    Callback = function(Value)
+
+        Settings.Gift.AutoGiftNonFavorite =
+            Value
+
+        if Value then
+
+            Settings.Gift.AutoGift =
+                false
+
+            startAutoGiftNonFavorite()
+
+        end
+
+    end
+})
+
+Tabs.Gift:AddSection("Auto Gift Base on Shell Names")
+
+local GiftShellDropdown =
+    Tabs.Gift:AddDropdown(
+    "GiftShells",
+    {
+        Title = "Select Shells",
+
+        Values = getShellList(),
+
+        Multi = true,
+
+        Default = {}
+    }
+)
+
+GiftShellDropdown:OnChanged(function(Value)
+
+    Settings.Gift.SelectedShells =
+        Value
+
+end)
+
+Tabs.Gift:AddToggle(
+    "AutoGiftShells",
+{
+    Title = "Auto Gift Selected Shells",
+
+    Default =
+        Settings.Gift.AutoGiftShells,
+
+    Callback = function(Value)
+
+        Settings.Gift.AutoGiftShells =
+            Value
+
+        if Value then
+
+            Settings.Gift.AutoGift = false
+            Settings.Gift.AutoGiftNonFavorite = false
+
+            startAutoGiftShells()
 
         end
 
