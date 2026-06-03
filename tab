@@ -248,7 +248,32 @@ for _, shell in ipairs(ShellData.Items) do
 
 end
 
+-- Helper auto gift
+local function sendGiftToTarget(playerName)
 
+    pcall(function()
+
+        local args = {
+            buffer.fromstring(
+                "\026\000"
+                .. playerName
+                .. "\026\000"
+                .. playerName
+            )
+        }
+
+        ReplicatedStorage
+            :WaitForChild("ByteNetReliable")
+            :FireServer(unpack(args))
+
+        print(
+            "[Gift Test] Sent:",
+            playerName
+        )
+
+    end)
+
+end
 
 
 -- LegitDig 
@@ -1636,6 +1661,23 @@ Tabs.Favorites:AddButton({
 
     end
 })
+
+--========================================================
+-- GIFT TAB
+--========================================================
+
+Tabs.Gift:AddSection("Testing")
+
+Tabs.Gift:AddButton({
+    Title = "Test Gift Confirm",
+
+    Callback = function()
+
+        sendGiftToTarget("irse999")
+
+    end
+})
+
 --========================================================
 -- LOOPS
 --========================================================
