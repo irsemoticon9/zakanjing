@@ -222,7 +222,6 @@ local function tpTo(position)
 	
 end
 
-
 -- helper debris
 local function findMoonGiftPrompt()
 
@@ -250,7 +249,6 @@ local function findMoonGiftPrompt()
 end
 
 -- helper get shell list
-
 local function getShellList()
 
     local shells = {}
@@ -278,7 +276,6 @@ local function getShellList()
 end
 
 -- helper get rarity
-
 local function getRarityList()
 
     local order = {
@@ -1072,8 +1069,9 @@ local function startMythicDig()
 end
 
 -- auto debris
-
 local function startAutoDebris()
+
+    local pgui = LocalPlayer.PlayerGui
 
     task.spawn(function()
 
@@ -1304,13 +1302,9 @@ local function sellInventory()
 
     task.wait(2.5)
 
-    local args = {
-        buffer.fromstring("@")
-    }
-
-    ReplicatedStorage
-        :WaitForChild("ByteNetReliable")
-        :FireServer(unpack(args))
+    pcall(function()
+        ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("@"))
+    end)
 
     task.wait(2)
 
@@ -1396,16 +1390,7 @@ end
 local function favoriteShell(item)
 
     pcall(function()
-
-        local args = {
-            buffer.fromstring("\b\001\001"),
-            { item }
-        }
-
-        ReplicatedStorage
-            :WaitForChild("ByteNetReliable")
-            :FireServer(unpack(args))
-
+        ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("\b\001\001"), { item })
     end)
 
 end
@@ -1457,16 +1442,7 @@ end
 local function unfavoriteShell(item)
 
     pcall(function()
-
-        local args = {
-            buffer.fromstring("\b\001\000"),
-            { item }
-        }
-
-        ReplicatedStorage
-            :WaitForChild("ByteNetReliable")
-            :FireServer(unpack(args))
-
+        ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("\b\001\000"), { item })
     end)
 
 end
@@ -1800,23 +1776,16 @@ local function startAutoGiftShells()
     end)
 
 end
+
 -- claim shell
 local function claimAllHermitShells()
 
     pcall(function()
-
-        local args = {
-            buffer.fromstring("\b"),
-            [3] = 8
-        }
-
-        ReplicatedStorage
-            :WaitForChild("ByteNetQuery")
-            :InvokeServer(unpack(args))
-
+        ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(buffer.fromstring("\b"), nil, 8)
     end)
 
 end
+
 -- loop claim shell
 local function startAutoHermitClaim()
 
@@ -1852,25 +1821,12 @@ local function upgradeHermit(stat)
     end
 
     pcall(function()
-
-        local args = {
-            buffer.fromstring(
-                "\f"
-                .. string.char(#realStat)
-                .. "\000"
-                .. realStat
-            ),
-
-            [3] = 12
-        }
-
-        ReplicatedStorage
-            :WaitForChild("ByteNetQuery")
-            :InvokeServer(unpack(args))
-
+        local payload = "\f" .. string.char(#realStat) .. "\000" .. realStat
+        ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(buffer.fromstring(payload), nil, 12)
     end)
 
 end
+
 -- loop upgrade hermit
 local function startAutoHermitUpgrade()
 
@@ -1926,21 +1882,8 @@ local function rerollCurrentTool()
     end
 
     pcall(function()
-
-        local args = {
-            buffer.fromstring(
-                "!"
-                .. string.char(#toolName)
-                .. "\000"
-                .. toolName
-            ),
-            [3] = 33
-        }
-
-        ReplicatedStorage
-            :WaitForChild("ByteNetQuery")
-            :InvokeServer(unpack(args))
-
+        local payload = "!" .. string.char(#toolName) .. "\000" .. toolName
+        ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(buffer.fromstring(payload), nil, 33)
     end)
 
 end
@@ -2039,58 +1982,52 @@ local function stopLegitDig()
 
 end
 
--- Fungsi Dynamic ByteNet Merchant
+-- [ALUR LAMA + VALUE BARU] Fungsi Dynamic ByteNet Merchant
 local function buyMerchantItem(itemName)
-    if not itemName or itemName == "" then return end
-    
-    local actionID = 38
-    local prefix = string.char(actionID)
-    local lengthByte = string.char(#itemName)
-    local payload = prefix .. lengthByte .. "\000" .. itemName
+
+    local payload =
+        "&"
+        .. string.char(#itemName)
+        .. "\000"
+        .. itemName
 
     pcall(function()
-        local args = {
-            buffer.fromstring(payload),
-            [3] = actionID
-        }
-        ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(unpack(args))
-        print("[Sobat Kerang] Mencoba membeli item:", itemName)
+
+        ReplicatedStorage
+            :WaitForChild("ByteNetQuery")
+            :InvokeServer(
+                buffer.fromstring(payload),
+                nil,
+                38
+            )
+
     end)
+
 end
 
--- Loop Auto Buy Merchant Jarak Jauh
+-- [ALUR LAMA] Loop Auto Buy Merchant (Deteksi via PlayerGui Terbuka)
 local function startAutoBuyMerchant()
-    if Runtime.MerchantRunning then return end
-    Runtime.MerchantRunning = true
 
     task.spawn(function()
+
         while Settings.Merchant.AutoBuy do
-            local merchantFound = false
-            -- Mengecek apakah ada Travelling Merchant di dalam workspace
-            for _, v in pairs(workspace:GetDescendants()) do
-                if v.Name == "TravellingMerchant" or v.Name == "TravelingMerchant" then
-                    merchantFound = true
-                    break
-                end
+
+            for itemName in pairs(
+                Settings.Merchant.SelectedItems
+            ) do
+
+                buyMerchantItem(itemName)
+
+                task.wait(0.5)
+
             end
 
-            if merchantFound then
-                -- Beli dari daftar Dropdown saja
-                for item, isSelected in pairs(Settings.Merchant.SelectedItems) do
-                    if isSelected then
-                        buyMerchantItem(item)
-                        task.wait(0.5)
-                    end
-                end
-                
-                -- Tunggu lebih lama agar tidak spam request saat merchant masih spawn
-                task.wait(5) 
-            end
-            
-            task.wait(1)
+            task.wait(10)
+
         end
-        Runtime.MerchantRunning = false
+
     end)
+
 end
 
 --========================================================
@@ -2675,7 +2612,7 @@ UpgradeDropdown:OnChanged(function(Value)
 end)
 
 Tabs.Crab:CreateToggle(
-    "AutoUpgrade (MASIH BUG!)",
+    "AutoUpgrade", -- [FIXED] Tulisan MASIH BUG! dihapus karena metodenya sudah dibetulkan
 {
     Title = "Auto Upgrade Selected",
 
@@ -2756,7 +2693,7 @@ Tabs.Trait:CreateToggle(
 })
 
 --========================================================
--- MERCHANT TAB (TANPA CUSTOM INPUT)
+-- MERCHANT TAB (FULL FIXED - ALUR LAMA)
 --========================================================
 
 Tabs.Merchant:CreateSection("Auto Buy Items")
@@ -2794,7 +2731,7 @@ Tabs.Merchant:CreateDropdown("MerchantItems", {
 
 Tabs.Merchant:CreateToggle("AutoBuyMerchant", {
     Title = "Enable Auto Buy Merchant",
-    Description = "Beli otomatis dari jauh saat Merchant spawn",
+    Description = "Otomatis memborong item pilihan ketika kamu membuka menu toko Merchant",
     Default = Settings.Merchant.AutoBuy,
     Callback = function(Value)
         Settings.Merchant.AutoBuy = Value
@@ -2830,7 +2767,6 @@ Tabs.Teleport:CreateButton({
                 Content = "Berhasil teleport ke " .. target .. "!",
                 Duration = 3
             })
-            -- Menambahkan offset +5 di sumbu Y agar tidak nyangkut di tanah
             tpTo(TeleportLocations.Islands[target] + Vector3.new(0, 5, 0))
         else
             Fluent:Notify({
@@ -2864,7 +2800,6 @@ Tabs.Teleport:CreateButton({
                 Content = "Berhasil teleport ke " .. target .. "!",
                 Duration = 3
             })
-            -- Menambahkan offset +5 di sumbu Y agar tidak nyangkut di tanah
             tpTo(TeleportLocations.NPCs[target] + Vector3.new(0, 5, 0))
         else
             Fluent:Notify({
@@ -2881,19 +2816,15 @@ Tabs.Teleport:CreateButton({
 -- MANAGEMENT SETUP (MENGADOPSI INTEGRASI INTERFACE & SAVE)
 --========================================================
 
--- Menyerahkan kontrol library Fluent ke manager addon
 SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
 
--- Konfigurasi agar save manager mengabaikan tema (tidak menimpa tema pilihan player)
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes{}
 
--- Menentukan nama folder penyimpanan di file internal exploit/executor
 InterfaceManager:SetFolder("SobatKerangHub")
 SaveManager:SetFolder("SobatKerangHub/SobatKerangAjaib")
 
--- Otomatis membuat isi komplit dari Tab Settings (Theme, Blur, Config)
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
@@ -2901,17 +2832,14 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 -- FINALIZE EXECUTION
 --========================================================
 
--- Merender otomatis Tab Main di awal eksekusi agar UI langsung tampil rapi
 Window:SelectTab(1)
 
--- Memunculkan notifikasi pembuka script
 Fluent:Notify({
     Title = "Sobat Kerang",
     Content = "SAATNYA SOBAT KERANG BERAKSI!",
     Duration = 5
 })
 
--- Mencoba memuat config otomatis jika player mencentang opsi Autoload sebelumnya
 SaveManager:LoadAutoloadConfig()
 
 print("SCRIPT END")
