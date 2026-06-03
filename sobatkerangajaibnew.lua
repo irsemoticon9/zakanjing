@@ -21,6 +21,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
 local workspace = game:GetService("workspace")
+local VirtualUser = game:GetService("VirtualUser")
 
 local LocalPlayer = Players.LocalPlayer
 
@@ -172,6 +173,7 @@ local Runtime = {
     MerchantRunning = false,
 	
 	UpgradeActive = false,
+	AntiAfkConn = nil,
 }
 
 --========================================================
@@ -2944,6 +2946,32 @@ SaveManager:SetIgnoreIndexes{}
 
 InterfaceManager:SetFolder("SobatKerangHub")
 SaveManager:SetFolder("SobatKerangHub/SobatKerangAjaib")
+
+Tabs.Settings:CreateSection("Script Enhancements")
+
+Tabs.Settings:CreateToggle("AntiAFKToggle", {
+    Title = "Anti-AFK (Bypass Disconnect)",
+    Description = "Mencegah kick otomatis dari server Roblox saat AFK 20 menit.",
+    Default = false,
+    Callback = function(Value)
+        if Value then
+            -- Aktifkan pengaman AFK
+            if not Runtime.AntiAfkConn then
+                Runtime.AntiAfkConn = LocalPlayer.Idled:Connect(function()
+                    VirtualUser:CaptureController()
+                    VirtualUser:ClickButton2(Vector2.new())
+                    print("[Sobat Kerang] Timer AFK 20 menit berhasil direset!")
+                end)
+            end
+        else
+            -- Matikan pengaman AFK jika toggle dimatikan
+            if Runtime.AntiAfkConn then
+                Runtime.AntiAfkConn:Disconnect()
+                Runtime.AntiAfkConn = nil
+            end
+        end
+    end
+})
 
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
