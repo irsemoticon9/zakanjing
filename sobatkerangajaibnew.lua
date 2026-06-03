@@ -1856,6 +1856,10 @@ Tabs.Favorites:AddButton({
 --========================================================
 
 Tabs.Gift:AddSection("Gift Rarities")
+Tabs.Gift:AddParagraph({
+    Title = "Info",
+    Content = "Stand near a player. Auto Gift will automatically equip matching shells, open the gift prompt, and confirm the gift."
+})
 
 local GiftRarityDropdown =
     Tabs.Gift:AddDropdown(
@@ -1896,16 +1900,6 @@ Tabs.Gift:AddToggle("AutoGift", {
             startAutoGift()
 
         end
-
-    end
-})
-
-Tabs.Gift:AddButton({
-    Title = "Test Gift Confirm",
-
-    Callback = function()
-
-        confirmGift()
 
     end
 })
