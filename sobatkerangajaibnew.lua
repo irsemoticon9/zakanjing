@@ -249,29 +249,33 @@ for _, shell in ipairs(ShellData.Items) do
 end
 
 -- Helper auto gift
-local function sendGiftToTarget(playerName)
+local function confirmGift()
 
-    pcall(function()
+    local confirmGui =
+        LocalPlayer.PlayerGui:FindFirstChild("Confirm")
 
-        local args = {
-            buffer.fromstring(
-                "\026\000"
-                .. playerName
-                .. "\026\000"
-                .. playerName
-            )
-        }
+    if not confirmGui then
+        return false
+    end
 
-        ReplicatedStorage
-            :WaitForChild("ByteNetReliable")
-            :FireServer(unpack(args))
+    local yesButton =
+        confirmGui.Main.Buttons.Yes
 
-        print(
-            "[Gift Test] Sent:",
-            playerName
-        )
+    if not yesButton then
+        return false
+    end
 
-    end)
+    for _, connection in pairs(
+        getconnections(yesButton.Activated)
+    ) do
+
+        pcall(function()
+            connection:Fire()
+        end)
+
+    end
+
+    return true
 
 end
 
@@ -1673,7 +1677,7 @@ Tabs.Gift:AddButton({
 
     Callback = function()
 
-        sendGiftToTarget("irse999")
+        confirmGift()
 
     end
 })
