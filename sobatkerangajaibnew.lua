@@ -1900,8 +1900,6 @@ Tabs.Gift:AddToggle("AutoGift", {
     end
 })
 
-Tabs.Gift:AddSection("Gift Rarities")
-
 
 --========================================================
 -- LOOPS
