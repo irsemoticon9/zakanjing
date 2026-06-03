@@ -99,6 +99,8 @@ local Runtime = {
 	
 	SellRunning = false,
 	SellWhenFullRunning = false,
+
+	GiftRunning = false,
 }
 
 --========================================================
@@ -144,6 +146,7 @@ local function angleDiff(a, b)
     )
 end
 
+-- ===== AREA HELPER ====
 -- Helper Teleport 
 
 local function tpTo(position)
@@ -279,7 +282,22 @@ local function confirmGift()
 
 end
 
+-- Helper find shell rarity
+local function getShellRarity(shellName)
 
+    for knownShell, rarity in pairs(ShellRarities) do
+
+        if shellName:find(knownShell) then
+            return rarity
+        end
+
+    end
+
+    return nil
+
+end
+
+-- ===== AREA FUNCTION UTAMA
 -- LegitDig 
 local function startLegitDig()
 
@@ -1258,6 +1276,173 @@ local function startAutoFavoriteRarity()
 
 end
 
+-- Find Shell to Gift
+local function findGiftableShell()
+
+    local backpack =
+        LocalPlayer:FindFirstChild("Backpack")
+
+    if not backpack then
+        return nil
+    end
+
+    for _, item in ipairs(backpack:GetChildren()) do
+
+        if item:IsA("Tool") then
+
+            local rarity =
+                getShellRarity(item.Name)
+
+            if Settings.Gift.SelectedRarities[rarity] then
+
+                return item
+
+            end
+
+        end
+
+    end
+
+    return nil
+
+end
+
+-- equip shell to gift
+local function equipGiftShell(shell)
+
+    if not shell then
+        return false
+    end
+
+    local char =
+        LocalPlayer.Character
+
+    if not char then
+        return false
+    end
+
+    pcall(function()
+
+        shell.Parent = char
+
+    end)
+
+    task.wait(0.5)
+
+    return true
+
+end
+
+-- trigger gift prompt
+local function findGiftPrompt()
+
+    local char =
+        LocalPlayer.Character
+
+    local hrp =
+        char
+        and char:FindFirstChild("HumanoidRootPart")
+
+    if not hrp then
+        return nil
+    end
+
+    for _, targetPlayer in ipairs(
+        Players:GetPlayers()
+    ) do
+
+        if targetPlayer ~= LocalPlayer then
+
+            local targetChar =
+                targetPlayer.Character
+
+            local targetHRP =
+                targetChar
+                and targetChar:FindFirstChild(
+                    "HumanoidRootPart"
+                )
+
+            if targetHRP then
+
+                local dist =
+                    (hrp.Position - targetHRP.Position)
+                    .Magnitude
+
+                if dist <= 15 then
+
+                    for _, obj in ipairs(
+                        targetChar:GetDescendants()
+                    ) do
+
+                        if obj:IsA("ProximityPrompt")
+                        and tostring(obj.ActionText)
+                            :find("Interact")
+                        then
+
+                            return obj
+
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return nil
+
+end
+
+-- start auto gift
+local function startAutoGift()
+
+    if Runtime.GiftRunning then
+        return
+    end
+
+    Runtime.GiftRunning = true
+
+    task.spawn(function()
+
+        while Settings.Gift.AutoGift do
+
+            local shell =
+                findGiftableShell()
+
+            if shell then
+				print("[Auto Gift] Found:", shell.Name)
+					
+                if equipGiftShell(shell) then
+
+                    local prompt =
+                        findGiftPrompt()
+
+                    if prompt then
+
+                        fireproximityprompt(prompt)
+
+                        task.wait(1)
+
+						print("[Auto Gift] Confirming")
+							
+                        confirmGift()
+
+                        task.wait(2)
+
+                    end
+                end
+            end
+
+            task.wait(0.5)
+
+        end
+
+        Runtime.GiftRunning = false
+
+    end)
+
+end
+
+-- Stop Legit Dig
 local function stopLegitDig()
 
     Settings.Main.LegitDig = false
@@ -1670,7 +1855,50 @@ Tabs.Favorites:AddButton({
 -- GIFT TAB
 --========================================================
 
-Tabs.Gift:AddSection("Testing")
+Tabs.Gift:AddSection("Gift Rarities")
+
+local GiftRarityDropdown =
+    Tabs.Gift:AddDropdown(
+    "GiftRarities",
+    {
+        Title = "Select Gift Rarities",
+
+        Values = getRarityList(),
+
+        Multi = true,
+
+        Default = {}
+    }
+)
+
+GiftRarityDropdown:OnChanged(function(Value)
+
+    Settings.Gift.SelectedRarities = Value
+
+    print("Selected Gift Rarities:")
+
+    for rarity in pairs(Value) do
+        print(rarity)
+    end
+
+end)
+
+Tabs.Gift:AddToggle("AutoGift", {
+    Title = "Auto Gift Selected Rarities",
+    Default = Settings.Gift.AutoGift,
+
+    Callback = function(Value)
+
+        Settings.Gift.AutoGift = Value
+
+        if Value then
+
+            startAutoGift()
+
+        end
+
+    end
+})
 
 Tabs.Gift:AddButton({
     Title = "Test Gift Confirm",
