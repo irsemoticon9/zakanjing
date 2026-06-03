@@ -1988,16 +1988,24 @@ end
 
 
 --========================================================
--- FLUENT UI
+-- FLUENT UI & ADDONS (LOADED & CONFIGURATED)
 --========================================================
 
 local Fluent = loadstring(game:HttpGet(
     "https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"
 ))()
 
+-- Memuat SaveManager dan InterfaceManager untuk Tab Settings otomatis
+local SaveManager = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"
+))()
+local InterfaceManager = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"
+))()
+
 local Window = Fluent:CreateWindow({
     Title = "Sobat Kerang",
-    SubTitle = "v2 Rewrite",
+    SubTitle = "v2 Rewrite (Renewed)",
     TabWidth = 170,
     Size = UDim2.fromOffset(950, 650),
 
@@ -2009,53 +2017,54 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
 
-    Main = Window:AddTab({
+    Main = Window:CreateTab({
         Title = "Main",
         Icon = "pickaxe"
     }),
 
-    Favorites = Window:AddTab({
+    Favorites = Window:CreateTab({
         Title = "Favorites",
         Icon = "star"
     }),
 
-    Gift = Window:AddTab({
+    Gift = Window:CreateTab({
         Title = "Auto Gift Shells",
         Icon = "gift"
     }),
 
-    Crab = Window:AddTab({
+    Crab = Window:CreateTab({
         Title = "Hermit Crab",
         Icon = "shell"
     }),
 
-    Trait = Window:AddTab({
+    Trait = Window:CreateTab({
         Title = "Trait Reroll",
         Icon = "refresh-cw"
     }),
 
-    Merchant = Window:AddTab({
+    Merchant = Window:CreateTab({
         Title = "Merchant",
         Icon = "shopping-cart"
     }),
 
-    Teleport = Window:AddTab({
+    Teleport = Window:CreateTab({
         Title = "Teleport",
         Icon = "map-pinned"
     }),
 
-    Settings = Window:AddTab({
+    Settings = Window:CreateTab({
         Title = "Settings",
         Icon = "settings"
     })
 }
+
 --========================================================
 -- MAIN TAB
 --========================================================
 
-Tabs.Main:AddSection("Digging")
+Tabs.Main:CreateSection("Digging")
 
-Tabs.Main:AddToggle("LegitDig", {
+Tabs.Main:CreateToggle("LegitDig", {
     Title = "Legit Dig",
     Default = Settings.Main.LegitDig,
 
@@ -2075,7 +2084,7 @@ Tabs.Main:AddToggle("LegitDig", {
     end
 })
 
-Tabs.Main:AddToggle("FastLegitDig", {
+Tabs.Main:CreateToggle("FastLegitDig", {
     Title = "Fast Legit Dig",
     Default = Settings.Main.FastLegitDig,
 
@@ -2094,7 +2103,7 @@ Tabs.Main:AddToggle("FastLegitDig", {
     end
 })
 
-Tabs.Main:AddToggle("MythicOnly", {
+Tabs.Main:CreateToggle("MythicOnly", {
     Title = "Mythic Only Dig ✨",
     Default = Settings.Main.MythicOnly,
 
@@ -2115,7 +2124,7 @@ Tabs.Main:AddToggle("MythicOnly", {
     end
 })
 
-Tabs.Main:AddToggle("AutoDebris", {
+Tabs.Main:CreateToggle("AutoDebris", {
     Title = "Auto Debris",
     Default = Settings.Main.AutoDebris,
 
@@ -2134,9 +2143,9 @@ Tabs.Main:AddToggle("AutoDebris", {
     end
 })
 
-Tabs.Main:AddSection("Sell")
+Tabs.Main:CreateSection("Sell")
 
-Tabs.Main:AddToggle("AutoSell", {
+Tabs.Main:CreateToggle("AutoSell", {
     Title = "Auto Sell",
     Default = Settings.Main.AutoSell,
 
@@ -2155,7 +2164,7 @@ Tabs.Main:AddToggle("AutoSell", {
     end
 })
 
-Tabs.Main:AddToggle("SellWhenFull", {
+Tabs.Main:CreateToggle("SellWhenFull", {
     Title = "Sell When Full",
     Default = Settings.Main.SellWhenFull,
 
@@ -2174,7 +2183,7 @@ Tabs.Main:AddToggle("SellWhenFull", {
     end
 })
 
-Tabs.Main:AddButton({
+Tabs.Main:CreateButton({
     Title = "Sell Now",
 
     Callback = function()
@@ -2184,20 +2193,14 @@ Tabs.Main:AddButton({
     end
 })
 
-Fluent:Notify({
-    Title = "Sobat Kerang",
-    Content = "SAATNYA SOBAT KERANG BERAKSI!",
-    Duration = 5
-})
-
 --========================================================
 -- FAVORITES TAB
 --========================================================
 
-Tabs.Favorites:AddSection("Shell Favorites")
+Tabs.Favorites:CreateSection("Shell Favorites")
 
 local ShellDropdown =
-    Tabs.Favorites:AddDropdown(
+    Tabs.Favorites:CreateDropdown(
     "SelectedShells",
     {
         Title = "Select Shells",
@@ -2222,7 +2225,7 @@ ShellDropdown:OnChanged(function(Value)
 
 end)
 
-Tabs.Favorites:AddToggle("AutoFavorite", {
+Tabs.Favorites:CreateToggle("AutoFavorite", {
     Title = "Auto Favorite Selected Shells",
     Default = Settings.Favorites.AutoFavorite,
 
@@ -2241,7 +2244,7 @@ Tabs.Favorites:AddToggle("AutoFavorite", {
     end
 })
 
-Tabs.Favorites:AddButton({
+Tabs.Favorites:CreateButton({
     Title = "Unfavorite Selected Shells",
 
     Callback = function()
@@ -2278,10 +2281,10 @@ Tabs.Favorites:AddButton({
     end
 })
 
-Tabs.Favorites:AddSection("Rarity Favorites")
+Tabs.Favorites:CreateSection("Rarity Favorites")
 
 local RarityDropdown =
-    Tabs.Favorites:AddDropdown(
+    Tabs.Favorites:CreateDropdown(
     "SelectedRarities",
     {
         Title = "Select Rarities",
@@ -2306,7 +2309,7 @@ RarityDropdown:OnChanged(function(Value)
 
 end)
 
-Tabs.Favorites:AddToggle("AutoFavoriteRarity", {
+Tabs.Favorites:CreateToggle("AutoFavoriteRarity", {
     Title = "Auto Favorite Selected Rarities",
     Default = Settings.Favorites.AutoFavoriteRarity,
 
@@ -2325,7 +2328,7 @@ Tabs.Favorites:AddToggle("AutoFavoriteRarity", {
     end
 })
 
-Tabs.Favorites:AddButton({
+Tabs.Favorites:CreateButton({
     Title = "Unfavorite Selected Rarities",
 
     Callback = function()
@@ -2366,10 +2369,10 @@ Tabs.Favorites:AddButton({
 -- GIFT TAB
 --========================================================
 
-Tabs.Gift:AddSection("Auto Gift Base on Rarities")
+Tabs.Gift:CreateSection("Auto Gift Base on Rarities")
 
 local GiftRarityDropdown =
-    Tabs.Gift:AddDropdown(
+    Tabs.Gift:CreateDropdown(
     "GiftRarities",
     {
         Title = "Select Gift Rarities",
@@ -2394,7 +2397,7 @@ GiftRarityDropdown:OnChanged(function(Value)
 
 end)
 
-Tabs.Gift:AddToggle("AutoGift", {
+Tabs.Gift:CreateToggle("AutoGift", {
     Title = "Selected Rarities",
     Default = Settings.Gift.AutoGift,
 
@@ -2411,11 +2414,11 @@ Tabs.Gift:AddToggle("AutoGift", {
     end
 })
 
-Tabs.Gift:AddSection("Auto Gift Base on Unfavorite Shells")
+Tabs.Gift:CreateSection("Auto Gift Base on Unfavorite Shells")
 
 
 local GiftNFDropdown =
-    Tabs.Gift:AddDropdown(
+    Tabs.Gift:CreateDropdown(
     "GiftNFRarities",
     {
         Title = "Select Non-Favorite Rarities",
@@ -2436,7 +2439,7 @@ GiftNFDropdown:OnChanged(function(Value)
 
 end)
 
-Tabs.Gift:AddToggle(
+Tabs.Gift:CreateToggle(
     "AutoGiftNonFavorite",
 {
     Title = "Auto Gift Non-Favorite",
@@ -2460,10 +2463,10 @@ Tabs.Gift:AddToggle(
     end
 })
 
-Tabs.Gift:AddSection("Auto Gift Base on Shell Names")
+Tabs.Gift:CreateSection("Auto Gift Base on Shell Names")
 
 local GiftShellDropdown =
-    Tabs.Gift:AddDropdown(
+    Tabs.Gift:CreateDropdown(
     "GiftShells",
     {
         Title = "Select Shells",
@@ -2483,7 +2486,7 @@ GiftShellDropdown:OnChanged(function(Value)
 
 end)
 
-Tabs.Gift:AddToggle(
+Tabs.Gift:CreateToggle(
     "AutoGiftShells",
 {
     Title = "Auto Gift Selected Shells",
@@ -2512,9 +2515,9 @@ Tabs.Gift:AddToggle(
 -- HERMIT CRAB TAB
 --========================================================
 
-Tabs.Crab:AddSection("Claim")
+Tabs.Crab:CreateSection("Claim")
 
-Tabs.Crab:AddToggle(
+Tabs.Crab:CreateToggle(
     "AutoClaim",
 {
     Title = "Auto Claim Shells",
@@ -2538,10 +2541,10 @@ Tabs.Crab:AddToggle(
     end
 })
 
-Tabs.Crab:AddSection("Upgrades")
+Tabs.Crab:CreateSection("Upgrades")
 
 local UpgradeDropdown =
-    Tabs.Crab:AddDropdown(
+    Tabs.Crab:CreateDropdown(
     "HermitUpgrades",
     {
         Title = "Select Upgrades",
@@ -2565,7 +2568,7 @@ UpgradeDropdown:OnChanged(function(Value)
 
 end)
 
-Tabs.Crab:AddToggle(
+Tabs.Crab:CreateToggle(
     "AutoUpgrade (MASIH BUG!)",
 {
     Title = "Auto Upgrade Selected",
@@ -2592,7 +2595,7 @@ Tabs.Crab:AddToggle(
 --========================================================
 
 local TraitDropdown =
-    Tabs.Trait:AddDropdown(
+    Tabs.Trait:CreateDropdown(
     "TargetTrait",
 {
     Title = "Target Trait",
@@ -2610,7 +2613,7 @@ TraitDropdown:OnChanged(function(Value)
 
 end)
 
-Tabs.Trait:AddToggle(
+Tabs.Trait:CreateToggle(
     "AutoTraitReroll",
 {
     Title = "Auto Trait Reroll",
@@ -2647,6 +2650,40 @@ Tabs.Trait:AddToggle(
 })
 
 --========================================================
--- LOOPS
+-- MANAGEMENT SETUP (MENGADOPSI INTEGRASI INTERFACE & SAVE)
 --========================================================
+
+-- Menyerahkan kontrol library Fluent ke manager addon
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+
+-- Konfigurasi agar save manager mengabaikan tema (tidak menimpa tema pilihan player)
+SaveManager:IgnoreThemeSettings()
+SaveManager:SetIgnoreIndexes{}
+
+-- Menentukan nama folder penyimpanan di file internal exploit/executor
+InterfaceManager:SetFolder("SobatKerangHub")
+SaveManager:SetFolder("SobatKerangHub/SobatKerangAjaib")
+
+-- Otomatis membuat isi komplit dari Tab Settings (Theme, Blur, Config)
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+--========================================================
+-- FINALIZE EXECUTION
+--========================================================
+
+-- Merender otomatis Tab Main di awal eksekusi agar UI langsung tampil rapi
+Window:SelectTab(1)
+
+-- Memunculkan notifikasi pembuka script
+Fluent:Notify({
+    Title = "Sobat Kerang",
+    Content = "SAATNYA SOBAT KERANG BERAKSI!",
+    Duration = 5
+})
+
+-- Mencoba memuat config otomatis jika player mencentang opsi Autoload sebelumnya
+SaveManager:LoadAutoloadConfig()
+
 print("SCRIPT END")
