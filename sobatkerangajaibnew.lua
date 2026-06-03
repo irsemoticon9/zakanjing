@@ -1,4 +1,18 @@
 --========================================================
+-- SCRIPT AVAIL CHECKER
+--========================================================
+
+if getgenv().SobatKerangLoaded
+and getgenv().SobatKerangCleanup
+then
+
+    pcall(getgenv().SobatKerangCleanup)
+
+end
+
+getgenv().SobatKerangLoaded = true
+	
+--========================================================
 -- SERVICES
 --========================================================
 
@@ -2102,6 +2116,106 @@ local Tabs = {
         Icon = "settings"
     })
 }
+--========================================================
+-- FLOATING SHELL BUTTON
+--========================================================
+
+local CoreGui = game:GetService("CoreGui")
+local UIS = game:GetService("UserInputService")
+
+local FloatGui = Instance.new("ScreenGui")
+FloatGui.Name = "SobatKerangFloating"
+FloatGui.ResetOnSpawn = false
+FloatGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+FloatGui.Parent = CoreGui
+
+local ShellButton = Instance.new("TextButton")
+ShellButton.Name = "ShellButton"
+ShellButton.Parent = FloatGui
+
+ShellButton.Size = UDim2.fromOffset(60,60)
+ShellButton.Position = UDim2.new(0,20,0.5,-30)
+
+ShellButton.Text = "🐚"
+ShellButton.TextScaled = false
+ShellButton.TextSize = 28
+
+ShellButton.BackgroundColor3 = Color3.fromRGB(35,35,35)
+ShellButton.TextColor3 = Color3.new(1,1,1)
+
+ShellButton.AutoButtonColor = true
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(1,0)
+Corner.Parent = ShellButton
+
+local Stroke = Instance.new("UIStroke")
+Stroke.Thickness = 2
+Stroke.Parent = ShellButton
+
+--========================================================
+-- DRAG SYSTEM
+--========================================================
+
+local dragging = false
+local dragStart
+local startPos
+
+ShellButton.InputBegan:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+        dragging = true
+        dragStart = input.Position
+        startPos = ShellButton.Position
+
+        input.Changed:Connect(function()
+
+            if input.UserInputState == Enum.UserInputState.End then
+
+                dragging = false
+
+            end
+        end)
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+    if dragging
+    and input.UserInputType == Enum.UserInputType.MouseMovement
+    then
+
+        local delta =
+            input.Position - dragStart
+
+        ShellButton.Position =
+            UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+    end
+end)
+
+--========================================================
+-- MINIMIZE / RESTORE
+--========================================================
+
+local Minimized = false
+
+ShellButton.MouseButton1Click:Connect(function()
+
+    Minimized = not Minimized
+
+    pcall(function()
+
+        Window:Minimize(Minimized)
+
+    end)
+
+end)
 
 --========================================================
 -- MAIN TAB
@@ -2847,6 +2961,20 @@ Fluent:Notify({
 })
 
 SaveManager:LoadAutoloadConfig()
+
+getgenv().SobatKerangCleanup = function()
+
+    pcall(function()
+        game:GetService("CoreGui")
+            :FindFirstChild("SobatKerangFloating")
+            :Destroy()
+    end)
+
+    pcall(function()
+        Window:Destroy()
+    end)
+
+end
 
 print("SCRIPT END")
 
