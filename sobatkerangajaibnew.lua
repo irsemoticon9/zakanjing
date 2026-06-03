@@ -1900,6 +1900,15 @@ Tabs.Gift:AddToggle("AutoGift", {
     end
 })
 
+Tabs.Gift:AddButton({
+    Title = "Test Gift Confirm",
+
+    Callback = function()
+
+        confirmGift()
+
+    end
+})
 
 --========================================================
 -- LOOPS
