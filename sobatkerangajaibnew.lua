@@ -50,19 +50,17 @@ local Settings = {
 	},
 
     Crab = {
-        AutoClaim = false,
+    SelectedUpgrades = {},
 
-        AutoLuck = false,
-        AutoSpeed = false,
-        AutoSpace = false,
-        AutoWeight = false,
-    },
+    AutoClaim = false,
+    AutoUpgrade = false,
+	},
 
-    Trait = {
-        SelectedTool = nil,
+   Trait = {
+    TargetTrait = nil,
 
-        AutoReroll = false,
-    },
+    AutoReroll = false,
+	},
 
     Merchant = {
         SelectedItems = {},
@@ -254,6 +252,25 @@ for _, shell in ipairs(ShellData.Items) do
 
 end
 
+-- helper auto upgrade hermit
+local function getHermitUpgradeList()
+
+    return {
+        "Luck",
+        "Speed",
+        "Space",
+        "Weight"
+    }
+
+end
+local HermitUpgradeMap = {
+
+    Luck = "Luck",
+    Speed = "Speed",
+    Space = "Space",
+    Weight = "WeightCap"
+
+}
 -- Helper auto gift
 local function confirmGift()
 
@@ -380,6 +397,104 @@ local function findSelectedGiftShell()
     end
 
     return bestShell
+
+end
+
+-- helper curent tool
+local function getCurrentTool()
+
+    local ok, result = pcall(function()
+
+        return LocalPlayer.PlayerGui
+            .Equipment.Main.LeftBar
+            .TraitsFrame.ToolDisplay
+            .NameLabel.Text
+
+    end)
+
+    return ok and result or "Unknown"
+
+end
+
+local function getCurrentTrait()
+
+    local ok, result = pcall(function()
+
+        return LocalPlayer.PlayerGui
+            .Equipment.Main.LeftBar
+            .TraitsFrame.ToolDisplay
+            .Trait.TextLabel.Text
+
+    end)
+
+    return ok and result or "Unknown"
+
+end
+
+local function getCurrentPityText()
+
+    local ok, result = pcall(function()
+
+        return LocalPlayer.PlayerGui
+            .Equipment.Main.LeftBar
+            .TraitsFrame.PityBar
+            .TrackerLabel.Text
+
+    end)
+
+    return ok and result or "0/0"
+
+end
+
+local function getCurrentPity()
+
+    local pityText = getCurrentPityText()
+
+    return tonumber(
+        string.match(pityText, "(%d+)")
+    ) or 0
+
+end
+
+local function getCurrentPearls()
+
+    local ok, result = pcall(function()
+
+        return LocalPlayer.PlayerGui
+            .Main.Stats.Pearls.Value.Value
+
+    end)
+
+    return ok and result or 0
+
+end
+
+local function getTraitList()
+
+    local traits = {}
+
+    local frame =
+        LocalPlayer.PlayerGui
+        .Equipment.TraitsInfo
+        .Core
+        .ScrollingFrame
+
+    for _, obj in ipairs(frame:GetChildren()) do
+
+        if obj:IsA("Frame") then
+
+            table.insert(
+                traits,
+                obj.Name
+            )
+
+        end
+
+    end
+
+    table.sort(traits)
+
+    return traits
 
 end
 
@@ -1632,6 +1747,211 @@ local function startAutoGiftShells()
     end)
 
 end
+-- claim shell
+local function claimAllHermitShells()
+
+    pcall(function()
+
+        local args = {
+            buffer.fromstring("\b"),
+            [3] = 8
+        }
+
+        ReplicatedStorage
+            :WaitForChild("ByteNetQuery")
+            :InvokeServer(unpack(args))
+
+    end)
+
+end
+-- loop claim shell
+local function startAutoHermitClaim()
+
+    task.spawn(function()
+
+        while Settings.Crab.AutoClaim do
+
+            task.wait(300)
+
+            if not Settings.Crab.AutoClaim then
+                break
+            end
+
+            claimAllHermitShells()
+
+        end
+
+    end)
+
+end
+
+--upgrade hermit
+local function upgradeHermit(stat)
+	print(
+    "[UPGRADE]",
+    stat
+	)
+    local realStat =
+        HermitUpgradeMap[stat]
+
+    if not realStat then
+        return
+    end
+
+    pcall(function()
+
+        local args = {
+            buffer.fromstring(
+                "\f"
+                .. string.char(#realStat)
+                .. "\000"
+                .. realStat
+            ),
+
+            [3] = 12
+        }
+
+        ReplicatedStorage
+            :WaitForChild("ByteNetQuery")
+            :InvokeServer(unpack(args))
+
+    end)
+
+end
+-- loop upgrade hermit
+local function startAutoHermitUpgrade()
+
+    task.spawn(function()
+
+        while Settings.Crab.AutoUpgrade do
+
+            for upgradeName in pairs(
+                Settings.Crab.SelectedUpgrades
+            ) do
+
+                print(
+                    "[HERMIT]",
+                    upgradeName
+                )
+
+                local mapped =
+                    HermitUpgradeMap[upgradeName]
+
+                print(
+                    "[MAPPED]",
+                    mapped
+                )
+
+                if not Settings.Crab.AutoUpgrade then
+                    break
+                end
+
+                upgradeHermit(upgradeName)
+
+                task.wait(0.5)
+
+            end
+
+            task.wait(1)
+
+        end
+
+    end)
+
+end
+
+-- function reroll trait
+local function rerollCurrentTool()
+
+    local toolName =
+        getCurrentTool()
+
+    if toolName == "Unknown"
+    or toolName == ""
+    then
+        return
+    end
+
+    pcall(function()
+
+        local args = {
+            buffer.fromstring(
+                "!"
+                .. string.char(#toolName)
+                .. "\000"
+                .. toolName
+            ),
+            [3] = 33
+        }
+
+        ReplicatedStorage
+            :WaitForChild("ByteNetQuery")
+            :InvokeServer(unpack(args))
+
+    end)
+
+end
+
+-- loop auto reroll trait
+local function startAutoTraitReroll()
+
+    task.spawn(function()
+
+        local lastPity =
+            getCurrentPity()
+
+        while Settings.Trait.AutoReroll do
+
+            local currentTrait =
+                getCurrentTrait()
+
+            if currentTrait ==
+                Settings.Trait.TargetTrait
+            then
+
+                Settings.Trait.AutoReroll =
+                    false
+
+                Fluent:Notify({
+                    Title = "Trait Reroll",
+                    Content =
+                        "Found trait: "
+                        .. currentTrait,
+                    Duration = 8
+                })
+
+                break
+            end
+
+            local currentPity =
+                getCurrentPity()
+
+            if currentPity < lastPity then
+
+                Settings.Trait.AutoReroll =
+                    false
+
+                Fluent:Notify({
+                    Title = "Trait Reroll",
+                    Content =
+                        "Pity reset detected!",
+                    Duration = 8
+                })
+
+                break
+            end
+
+            lastPity = currentPity
+
+            rerollCurrentTool()
+
+            task.wait(1)
+
+        end
+
+    end)
+
+end
 
 -- Stop Legit Dig
 local function stopLegitDig()
@@ -2189,5 +2509,144 @@ Tabs.Gift:AddToggle(
 })
 
 --========================================================
+-- HERMIT CRAB TAB
+--========================================================
+
+Tabs.Crab:AddSection("Claim")
+
+Tabs.Crab:AddToggle(
+    "AutoClaim",
+{
+    Title = "Auto Claim Shells",
+
+    Default =
+        Settings.Crab.AutoClaim,
+
+    Callback = function(Value)
+
+        Settings.Crab.AutoClaim =
+            Value
+
+        if Value then
+
+            claimAllHermitShells() -- claim langsung
+
+            startAutoHermitClaim()
+
+        end
+
+    end
+})
+
+Tabs.Crab:AddSection("Upgrades")
+
+local UpgradeDropdown =
+    Tabs.Crab:AddDropdown(
+    "HermitUpgrades",
+    {
+        Title = "Select Upgrades",
+
+        Values = getHermitUpgradeList(),
+
+        Multi = true,
+
+        Default = {}
+    }
+)
+
+UpgradeDropdown:OnChanged(function(Value)
+
+    print(
+        game:GetService("HttpService")
+            :JSONEncode(Value)
+    )
+
+    Settings.Crab.SelectedUpgrades = Value
+
+end)
+
+Tabs.Crab:AddToggle(
+    "AutoUpgrade (MASIH BUG!)",
+{
+    Title = "Auto Upgrade Selected",
+
+    Default =
+        Settings.Crab.AutoUpgrade,
+
+    Callback = function(Value)
+
+        Settings.Crab.AutoUpgrade =
+            Value
+
+        if Value then
+
+            startAutoHermitUpgrade()
+
+        end
+
+    end
+})
+
+--========================================================
+-- TRAIT TAB
+--========================================================
+
+local TraitDropdown =
+    Tabs.Trait:AddDropdown(
+    "TargetTrait",
+{
+    Title = "Target Trait",
+
+    Values = getTraitList(),
+
+    Multi = false,
+
+    Default = nil
+})
+
+TraitDropdown:OnChanged(function(Value)
+
+    Settings.Trait.TargetTrait = Value
+
+end)
+
+Tabs.Trait:AddToggle(
+    "AutoTraitReroll",
+{
+    Title = "Auto Trait Reroll",
+
+    Default = false,
+
+    Callback = function(Value)
+
+        Settings.Trait.AutoReroll =
+            Value
+
+        if Value then
+
+            if not Settings.Trait.TargetTrait then
+
+                Fluent:Notify({
+                    Title = "Trait Reroll",
+                    Content =
+                        "Select target trait first!",
+                    Duration = 5
+                })
+
+                Settings.Trait.AutoReroll =
+                    false
+
+                return
+            end
+
+            startAutoTraitReroll()
+
+        end
+
+    end
+})
+
+--========================================================
 -- LOOPS
 --========================================================
+print("SCRIPT END")
