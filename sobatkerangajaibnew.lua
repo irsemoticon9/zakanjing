@@ -306,6 +306,18 @@ local function getTraitList()
   return traits
 end
 
+local function getCurrentPearls()
+  local ok, result = pcall(function()
+    return LocalPlayer.PlayerGui.Main.Stats.Pearls.Value.Value
+  end)
+  if ok and result then
+    -- Format angka dengan ribuan separator (contoh: 12345 -> "12,345")
+    local formatted = tostring(result):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
+    return formatted
+  end
+  return "0"
+end
+
 --========================================================
 -- MAIN FUNCTIONS
 --========================================================
@@ -564,14 +576,29 @@ local function stopLegitDig()
   Runtime.MythicPrevLineRot, Runtime.MythicDigMoving = nil, false
 end
 
--- Auto Debris
+-- Auto Debris (versi final: deteksi semua debris berposisi)
 local function startAutoDebris()
   task.spawn(function()
     while Settings.Main.AutoDebris do
+      -- Kumpulkan debris berdasarkan nama mengandung "Debris" atau "Impact"
       local debrisList = {}
       for _, v in ipairs(workspace:GetChildren()) do
-        if v.Name == "ImpactDebris" and not Runtime.CompletedDebris[v] then
-          table.insert(debrisList, v)
+        local name = v.Name
+        if (name:find("Debris") or name:find("Impact")) and not Runtime.CompletedDebris[v] then
+          -- Cek apakah debris memiliki posisi (BasePart)
+          local hasPosition = false
+          if v:IsA("BasePart") then
+            hasPosition = true
+          elseif v:IsA("Model") then
+            if v.PrimaryPart then
+              hasPosition = true
+            elseif v:FindFirstChildWhichIsA("BasePart") then
+              hasPosition = true
+            end
+          end
+          if hasPosition then
+            table.insert(debrisList, v)
+          end
         end
       end
 
@@ -580,50 +607,62 @@ local function startAutoDebris()
           local char = LocalPlayer.Character
           local hrp = char and char:FindFirstChild("HumanoidRootPart")
           if hrp then
-            Runtime.DebrisReturnPos, Runtime.DebrisActive = hrp.Position, true
+            Runtime.DebrisReturnPos = hrp.Position
+            Runtime.DebrisActive = true
           end
         end
 
-        local randomDebris = debrisList[math.random(1, #debrisList)]
-        local cf = (randomDebris:IsA("Model") and randomDebris.PrimaryPart) and randomDebris.PrimaryPart.CFrame or nil
+        while #debrisList > 0 do
+          local idx = math.random(1, #debrisList)
+          local debris = debrisList[idx]
 
-        if cf then
-          tpTo(cf.Position)
-          task.wait(4)
-          local foundPrompt, startTick = false, tick()
-          repeat
-            local prompt = findMoonGiftPrompt()
-            if prompt then
-              foundPrompt = true
-              pcall(function()
-                fireproximityprompt(prompt)
-              end)
-              task.wait(2)
-              Runtime.CompletedDebris[randomDebris] = true
-              break
-            end
-            task.wait(0.2)
-          until tick() - startTick > 60
-          if not foundPrompt then
-            Runtime.CompletedDebris[randomDebris] = true
+          -- Dapatkan posisi teleport
+          local cf = nil
+          if debris:IsA("BasePart") then
+            cf = debris.CFrame
+          elseif debris:IsA("Model") and debris.PrimaryPart then
+            cf = debris.PrimaryPart.CFrame
+          else
+            local part = debris:FindFirstChildWhichIsA("BasePart")
+            if part then cf = part.CFrame end
           end
-        end
-      end
 
-      local stillExists = false
-      for _, v in ipairs(workspace:GetChildren()) do
-        if v.Name == "ImpactDebris" and not Runtime.CompletedDebris[v] then
-          stillExists = true
-          break
-        end
-      end
+          if cf then
+            tpTo(cf.Position)
 
-      if not stillExists and Runtime.DebrisActive then
+            local startWait = tick()
+            local promptFound = false
+            repeat
+              if not debris:IsDescendantOf(workspace) then
+                break
+              end
+              local prompt = findMoonGiftPrompt()
+              if prompt then
+                promptFound = true
+                pcall(function() fireproximityprompt(prompt) end)
+                task.wait(2)
+                break
+              end
+              task.wait(0.2)
+            until tick() - startWait > 15
+
+            Runtime.CompletedDebris[debris] = true
+          else
+            Runtime.CompletedDebris[debris] = true
+          end
+
+          table.remove(debrisList, idx)
+          task.wait(1)
+        end
+
         if Runtime.DebrisReturnPos then
           tpTo(Runtime.DebrisReturnPos)
         end
-        Runtime.DebrisReturnPos, Runtime.DebrisActive, Runtime.CompletedDebris = nil, false, {}
+        Runtime.DebrisReturnPos = nil
+        Runtime.DebrisActive = false
+        Runtime.CompletedDebris = {}
       end
+
       task.wait(1)
     end
   end)
@@ -1119,6 +1158,7 @@ end })
 -- TAB: FAVORITES
 --========================================================
 
+-- Shell Favorites (berdasarkan nama shell)
 Tabs.Favorites:CreateSection("Shell Favorites")
 Tabs.Favorites:CreateDropdown("SelectedShells", {
   Title = "Select Shells",
@@ -1136,16 +1176,30 @@ Tabs.Favorites:CreateToggle("AutoFavorite", {
     if V then startAutoFavorite() end
   end
 })
-Tabs.Favorites:CreateButton({ Title = "Unfavorite Selected Shells", Callback = function()
-  for _, i in ipairs(LocalPlayer.Backpack:GetChildren()) do
-    for n in pairs(Settings.Favorites.SelectedShells) do
-      if i.Name:find(n) then
-        unfavoriteShell(i)
+Tabs.Favorites:CreateButton({
+  Title = "Unfavorite Selected Shells",
+  Callback = function()
+    local unfavCount = 0
+    for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
+      if not item:IsA("Tool") then continue end
+      for shellName in pairs(Settings.Favorites.SelectedShells) do
+        if item.Name:find(shellName) then
+          unfavoriteShell(item)
+          unfavCount = unfavCount + 1
+          task.wait(0.05)
+          break
+        end
       end
     end
+    Fluent:Notify({
+      Title = "Unfavorite Complete",
+      Content = "Unfavorited " .. unfavCount .. " shells!",
+      Duration = 3
+    })
   end
-end })
+})
 
+-- Rarity Favorites (berdasarkan rarity)
 Tabs.Favorites:CreateSection("Rarity Favorites")
 Tabs.Favorites:CreateDropdown("SelectedRarities", {
   Title = "Select Rarities",
@@ -1161,6 +1215,26 @@ Tabs.Favorites:CreateToggle("AutoFavoriteRarity", {
   Callback = function(V)
     Settings.Favorites.AutoFavoriteRarity = V
     if V then startAutoFavoriteRarity() end
+  end
+})
+Tabs.Favorites:CreateButton({
+  Title = "Unfavorite Selected Rarities",
+  Callback = function()
+    local unfavCount = 0
+    for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
+      if not item:IsA("Tool") then continue end
+      local rarity = getShellRarity(item.Name)
+      if rarity and Settings.Favorites.SelectedRarities[rarity] then
+        unfavoriteShell(item)
+        unfavCount = unfavCount + 1
+        task.wait(0.05)
+      end
+    end
+    Fluent:Notify({
+      Title = "Unfavorite Rarity",
+      Content = "Unfavorited " .. unfavCount .. " shells with selected rarities.",
+      Duration = 3
+    })
   end
 })
 
@@ -1286,6 +1360,7 @@ Tabs.Trait:CreateToggle("AutoTraitReroll", {
     end
   end
 })
+
 
 --========================================================
 -- TAB: MERCHANT
