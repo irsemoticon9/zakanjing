@@ -1341,6 +1341,37 @@ Tabs.Crab:CreateToggle("AutoUpgrade", {
 --========================================================
 -- TAB: TRAIT REROLL
 --========================================================
+Tabs.Trait:CreateSection("Current Information")
+
+local TraitInfo = Tabs.Trait:CreateParagraph("TraitInfo", {
+    Title = "Trait Information",
+    Content = "Loading..."
+})
+
+print("TraitInfo =", TraitInfo)
+for k,v in pairs(TraitInfo) do
+    print("KEY:", k, "VALUE:", v)
+end
+
+task.spawn(function()
+    while true do
+        pcall(function()
+
+           local text = string.format(
+    "Tool   : %s\nTrait  : %s\nPity   : %s\nPearls : %s\n\n━━━━━━━━━━━━━━\n\nInstructions:\n1. Open Equipment\n2. Enter Trait Reroll mode, that tool you want\n3. Choose your Target Trait\n4. Enable Auto Trait Reroll",
+    getCurrentTool(),
+    getCurrentTrait(),
+    getCurrentPityText(),
+    getCurrentPearls()
+)
+
+TraitInfo:SetValue(text)
+
+        end)
+
+        task.wait(1)
+    end
+end)
 
 Tabs.Trait:CreateDropdown("TargetTrait", {
   Title = "Target Trait",
