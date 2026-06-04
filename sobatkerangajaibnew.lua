@@ -22,6 +22,7 @@ local VirtualUser = game:GetService("VirtualUser")
 local LocalPlayer = Players.LocalPlayer
 
 local ShellData = require(ReplicatedStorage.Modules.GameModules.Info.Shells)
+local ModifierData = require(ReplicatedStorage.Modules.GameModules.Info.ModifierData)
 
 --========================================================
 -- DATABASE TELEPORT
@@ -316,6 +317,65 @@ local function getCurrentPearls()
     return formatted
   end
   return "0"
+end
+
+local function getBackpackCapacity()
+    local current, max = "?", "?"
+
+    pcall(function()
+        for _, gui in pairs(LocalPlayer.PlayerGui:GetDescendants()) do
+            if gui:IsA("TextLabel") and tostring(gui.Text):match("^%d+/%d+$") then
+                current, max = gui.Text:match("(%d+)/(%d+)")
+                break
+            end
+        end
+    end)
+
+    return string.format("%s/%s", current, max)
+end
+
+local function formatNumber(num)
+    num = tonumber(num) or 0
+
+    local formatted = tostring(math.floor(num))
+    while true do
+        formatted, k = formatted:gsub("^(-?%d+)(%d%d%d)", "%1,%2")
+        if k == 0 then break end
+    end
+
+    return formatted
+end
+
+local function getBackpackValue()
+    local total = 0
+
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    if not backpack then
+        return 0
+    end
+
+    for _, item in ipairs(backpack:GetChildren()) do
+        if item:IsA("Tool") then
+
+            local shellName = item:GetAttribute("Name")
+            local weight = tonumber(item:GetAttribute("Weight")) or 0
+            local modifier = item:GetAttribute("Modifier")
+
+            local shellInfo = shellName and ShellData.Names[shellName]
+
+            if shellInfo then
+                local value = shellInfo.Cost or 0
+
+                if modifier and ModifierData[modifier] then
+                    value *= (ModifierData[modifier].Mult or 1)
+                end
+
+                total += value * weight
+            end
+        end
+    end
+
+    return math.floor(total + 0.5)
 end
 
 --========================================================
@@ -1009,7 +1069,8 @@ local Window = Fluent:CreateWindow({
 })
 
 local Tabs = {
-  Main = Window:CreateTab({ Title = "Main", Icon = "pickaxe" }),
+  Info = Window:CreateTab({ Title = "Information", Icon = "info" }),
+  Main = Window:CreateTab({ Title = "Auto Farm", Icon = "pickaxe" }),
   Favorites = Window:CreateTab({ Title = "Favorites", Icon = "star" }),
   Gift = Window:CreateTab({ Title = "Auto Gift Shells", Icon = "gift" }),
   Crab = Window:CreateTab({ Title = "Hermit Crab", Icon = "shell" }),
@@ -1093,6 +1154,57 @@ ShellButton.MouseButton1Click:Connect(function()
       Window:Minimize(Minimized)
     end
   end)
+end)
+--========================================================
+-- TAB: INFORMATION
+--========================================================
+Tabs.Info:CreateSection("Account Information")
+
+local InfoParagraph = Tabs.Info:CreateParagraph("AccountInfo", {
+    Title = "Player Information",
+    Content = "Loading..."
+})
+task.spawn(function()
+    while true do
+
+        local username = LocalPlayer.Name
+
+        local level = "?"
+        pcall(function()
+            level = LocalPlayer.PlayerGui.Main.Stats.LevelFrame.Level.Text
+        end)
+
+        local money = 0
+        pcall(function()
+            money = LocalPlayer.PlayerGui.Main.Stats.Money.Value.Value
+        end)
+
+        local pearls = 0
+        pcall(function()
+            pearls = LocalPlayer.PlayerGui.Main.Stats.Pearls.Value.Value
+        end)
+
+        local backpack = getBackpackCapacity()
+
+        local value = getBackpackValue() -- fungsi yang sudah kita buat sebelumnya
+
+        InfoParagraph:SetValue(string.format(
+[[Username : %s
+Level    : %s
+Money    : %s
+Pearls   : %s
+Backpack : %s
+Backpack Value    : %s]],
+            username,
+            level,
+            formatNumber(money),
+            formatNumber(pearls),
+            backpack,
+            formatNumber(value)
+        ))
+
+        task.wait(2)
+    end
 end)
 
 --========================================================
@@ -1348,11 +1460,6 @@ local TraitInfo = Tabs.Trait:CreateParagraph("TraitInfo", {
     Content = "Loading..."
 })
 
-print("TraitInfo =", TraitInfo)
-for k,v in pairs(TraitInfo) do
-    print("KEY:", k, "VALUE:", v)
-end
-
 task.spawn(function()
     while true do
         pcall(function()
@@ -1474,7 +1581,7 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 -- FINALIZE EXECUTION & ANTI-AFK
 --========================================================
 
-Window:SelectTab(1)
+Window:SelectTab(2)
 Fluent:Notify({
   Title = "Sobat Kerang",
   Content = "SAATNYA SOBAT KERANG BERAKSI!",
