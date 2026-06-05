@@ -40,7 +40,7 @@ local TeleportLocations = {
         ["Frostveil Isle"] = Vector3.new(3661.6, 33.3, -1017.5),
         ["Glowcap Cave"] = Vector3.new(1415.0, -66.4, 1219.6),
         ["Coral Graveyard"] = Vector3.new(2782.4, -127.9, -822.4),
-        ["Lost City"] = Vector3.new(17288.244, -68.146, 3361.719),  -- update koordinat
+        ["Lost City"] = Vector3.new(17288.244, -68.146, 3361.719),
     },
     NPCs = {
         ["Lost NPC"] = Vector3.new(1798, 62, -1619),
@@ -195,13 +195,32 @@ local function tpTo(position)
     hrp.CFrame = CFrame.new(position)
 end
 
-local function findMoonGiftPrompt()
+local function findNearbyMoonGiftPrompt(maxDistance)
+    local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return nil end
+
     for _, obj in ipairs(workspace:GetDescendants()) do
         if obj:IsA("ProximityPrompt") then
             local objectText = tostring(obj.ObjectText)
             local actionText = tostring(obj.ActionText)
             if objectText:find("Moon Gift") and actionText:find("Open") then
-                return obj
+                local part = obj.Parent
+                local pos = nil
+                -- Cari BasePart di parent/grandparent hingga 5 tingkat
+                for i = 1, 5 do
+                    if part:IsA("BasePart") then
+                        pos = part.Position
+                        break
+                    end
+                    part = part.Parent
+                    if not part then break end
+                end
+                if pos then
+                    local dist = (pos - hrp.Position).Magnitude
+                    if dist <= maxDistance then
+                        return obj
+                    end
+                end
             end
         end
     end
@@ -385,7 +404,7 @@ local function getBackpackValue()
 end
 
 --========================================================
--- WEBHOOK FUNCTIONS (with proper cleanup)
+-- WEBHOOK FUNCTIONS
 --========================================================
 
 local function sendDiscordWebhook(webhookUrl, payload)
@@ -428,9 +447,8 @@ local function getShellValue(shellName, weight, modifier)
     return math.floor(baseValue * weight + 0.5)
 end
 
--- Monitor backpack untuk shell baru (webhook) - versi stabil, tanpa duplikasi
+-- Monitor backpack untuk shell baru
 local function startWebhookMonitor()
-    -- Hentikan monitor lama jika masih berjalan
     if Runtime.WebhookMonitorConn then
         Runtime.WebhookMonitorConn:Disconnect()
         Runtime.WebhookMonitorConn = nil
@@ -442,7 +460,7 @@ local function startWebhookMonitor()
 
     Runtime.WebhookMonitorActive = true
     Runtime.WebhookMonitorThread = task.spawn(function()
-        local processedShells = {}  -- persistent table
+        local processedShells = {}
         local backpack = nil
         local conn = nil
 
@@ -454,14 +472,12 @@ local function startWebhookMonitor()
 
             local newBackpack = LocalPlayer:FindFirstChild("Backpack")
             if newBackpack ~= backpack then
-                -- backpack berubah (misal respawn), reset koneksi
                 if conn then
                     conn:Disconnect()
                     conn = nil
                 end
                 backpack = newBackpack
                 if backpack then
-                    -- reset processed shells untuk backpack baru
                     processedShells = {}
                     for _, item in ipairs(backpack:GetChildren()) do
                         if item:IsA("Tool") then
@@ -508,10 +524,7 @@ local function startWebhookMonitor()
             task.wait(1)
         end
 
-        -- cleanup saat loop berhenti
-        if conn then
-            conn:Disconnect()
-        end
+        if conn then conn:Disconnect() end
         Runtime.WebhookMonitorConn = nil
     end)
 end
@@ -543,7 +556,6 @@ local function getHRP()
     return char:FindFirstChild("HumanoidRootPart")
 end
 
--- Start webhook monitor once (will be restarted on cleanup)
 startWebhookMonitor()
 
 --========================================================
@@ -868,12 +880,12 @@ local function startLostCityMonitor()
 end
 
 -- ============================================================
--- AUTO DEBRIS (VERSI FINAL: TELEPORT KE TERDEKAT + PRIORITAS LOST CITY)
+-- AUTO DEBRIS (DENGAN DETEKSI QTE + PROMPT RADIUS)
 -- ============================================================
 local function startAutoDebris()
     task.spawn(function()
         while Settings.Main.AutoDebris do
-            -- Prioritas Lost City: jika sedang aktif, skip debris
+            -- Prioritas Lost City
             if Runtime.LostCityActive then
                 task.wait(1)
                 continue
@@ -916,6 +928,7 @@ local function startAutoDebris()
                     local currentPos = hrp and hrp.Position
                     if not currentPos then break end
 
+                    -- Cari debris terdekat
                     local bestIdx = nil
                     local bestDebris = nil
                     local bestDist = math.huge
@@ -950,31 +963,67 @@ local function startAutoDebris()
 
                     -- Teleport ke debris terdekat
                     tpTo(cf.Position)
-                    print(string.format("[Auto Debris] Teleport ke debris terdekat (jarak: %.1f)", bestDist))
+                    print(string.format("[Auto Debris] Teleport ke meteor (jarak: %.1f)", bestDist))
 
-                    -- Tunggu Moon Gift muncul (timeout 15 detik)
-                    local startWait = tick()
-                    local promptFound = false
+                    -- Step 1: Tunggu QTE muncul (timeout 10 detik)
+                    local qteStart = tick()
                     repeat
-                        if not debris:IsDescendantOf(workspace) then break end
-                        local prompt = findMoonGiftPrompt()
+                        if LocalPlayer.PlayerGui:FindFirstChild("QTE") then
+                            break
+                        end
+                        task.wait(0.2)
+                    until tick() - qteStart > 10
+
+                    if not LocalPlayer.PlayerGui:FindFirstChild("QTE") then
+                        print("[Auto Debris] QTE tidak muncul, debris mungkin invalid")
+                        Runtime.CompletedDebris[debris] = true
+                        table.remove(debrisList, idx)
+                        task.wait(1)
+                        continue
+                    end
+
+                    -- Step 2: Tunggu QTE hilang (timeout 30 detik)
+                    print("[Auto Debris] QTE terdeteksi, menunggu selesai...")
+                    local qteEnd = tick()
+                    repeat
+                        task.wait(0.2)
+                        if tick() - qteEnd > 30 then
+                            print("[Auto Debris] QTE timeout 30 detik, lanjut")
+                            break
+                        end
+                    until LocalPlayer.PlayerGui:FindFirstChild("QTE") == nil
+
+                    print("[Auto Debris] QTE selesai")
+
+                    -- Step 3: Monitor Moon Gift prompt radius 30 studs, timeout 15 detik
+                    local promptFound = false
+                    local startWait = tick()
+                    repeat
+                        local prompt = findNearbyMoonGiftPrompt(30)
                         if prompt then
                             promptFound = true
                             pcall(function() fireproximityprompt(prompt) end)
-                            task.wait(2)
+                            print("[Auto Debris] Moon Gift prompt ditemukan dan di-fire")
+                            task.wait(1)
                             break
                         end
                         task.wait(0.2)
                     until tick() - startWait > 15
 
+                    if not promptFound then
+                        print("[Auto Debris] Moon Gift prompt tidak muncul dalam 15 detik")
+                    end
+
+                    -- Tandai debris selesai
                     Runtime.CompletedDebris[debris] = true
                     table.remove(debrisList, idx)
                     task.wait(1)
                 end
 
-                -- Kembali ke posisi awal setelah semua debris diproses
+                -- Semua debris selesai: kembali ke posisi awal
                 if Runtime.DebrisReturnPos then
                     tpTo(Runtime.DebrisReturnPos)
+                    print("[Auto Debris] Kembali ke posisi awal")
                 end
                 Runtime.DebrisReturnPos = nil
                 Runtime.DebrisActive = false
@@ -1488,9 +1537,7 @@ Tabs.Main:CreateToggle("AutoLostCity", {
     Default = false,
     Callback = function(V)
         Settings.Main.AutoLostCity = V
-        if V then
-            startLostCityMonitor()
-        end
+        if V then startLostCityMonitor() end
     end
 })
 Tabs.Main:CreateToggle("AutoDebris", {
@@ -1900,7 +1947,7 @@ Tabs.Webhook:CreateToggle("WebhookEnabled", {
                 Duration = 2
             })
         else
-            
+            -- notifikasi dimatikan
         end
     end
 })
@@ -1924,7 +1971,7 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 -- FINALIZE EXECUTION & ANTI-AFK
 --========================================================
 
-Window:SelectTab(2) -- Pilih Auto Farm tab
+Window:SelectTab(2)
 Fluent:Notify({
     Title = "Sobat Kerang",
     Content = "SAATNYA SOBAT KERANG BERAKSI!",
@@ -1932,16 +1979,16 @@ Fluent:Notify({
 })
 SaveManager:LoadAutoloadConfig()
 
--- Anti-AFK Otomatis
+-- Anti-AFK
 if not Runtime.AntiAfkConn then
     Runtime.AntiAfkConn = LocalPlayer.Idled:Connect(function()
         VirtualUser:CaptureController()
         VirtualUser:ClickButton2(Vector2.new())
-        print("[Sobat Kerang] Timer AFK direset!")
+        print("[Sobat Kerang] AFK reset")
     end)
 end
 
--- Cleanup function (called when script is re-run)
+-- Cleanup
 getgenv().SobatKerangCleanup = function()
     pcall(function()
         if CoreGui:FindFirstChild("SobatKerangFloating") then
@@ -1949,29 +1996,13 @@ getgenv().SobatKerangCleanup = function()
         end
     end)
     pcall(function()
-        -- Stop webhook monitor
         Runtime.WebhookMonitorActive = false
-        if Runtime.WebhookMonitorConn then
-            Runtime.WebhookMonitorConn:Disconnect()
-            Runtime.WebhookMonitorConn = nil
-        end
-        if Runtime.WebhookMonitorThread then
-            task.cancel(Runtime.WebhookMonitorThread)
-            Runtime.WebhookMonitorThread = nil
-        end
-        -- Stop Lost City monitor
-        if Runtime.LostCityMonitorThread then
-            task.cancel(Runtime.LostCityMonitorThread)
-            Runtime.LostCityMonitorThread = nil
-        end
-        -- Stop anti-AFK
-        if Runtime.AntiAfkConn then
-            Runtime.AntiAfkConn:Disconnect()
-            Runtime.AntiAfkConn = nil
-        end
-        -- Destroy UI window
+        if Runtime.WebhookMonitorConn then Runtime.WebhookMonitorConn:Disconnect() end
+        if Runtime.WebhookMonitorThread then task.cancel(Runtime.WebhookMonitorThread) end
+        if Runtime.LostCityMonitorThread then task.cancel(Runtime.LostCityMonitorThread) end
+        if Runtime.AntiAfkConn then Runtime.AntiAfkConn:Disconnect() end
         Window:Destroy()
     end)
 end
 
-print("SCRIPT END")
+print("SCRIPT READY")
