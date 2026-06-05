@@ -195,6 +195,7 @@ local function tpTo(position)
     hrp.CFrame = CFrame.new(position)
 end
 
+-- Fungsi untuk mencari prompt Moon Gift dalam radius tertentu
 local function findNearbyMoonGiftPrompt(maxDistance)
     local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not hrp then return nil end
@@ -204,19 +205,19 @@ local function findNearbyMoonGiftPrompt(maxDistance)
             local objectText = tostring(obj.ObjectText)
             local actionText = tostring(obj.ActionText)
             if objectText:find("Moon Gift") and actionText:find("Open") then
+                -- Cari BasePart di parent/grandparent
                 local part = obj.Parent
-                local pos = nil
-                -- Cari BasePart di parent/grandparent hingga 5 tingkat
+                local foundPart = nil
                 for i = 1, 5 do
+                    if not part then break end
                     if part:IsA("BasePart") then
-                        pos = part.Position
+                        foundPart = part
                         break
                     end
                     part = part.Parent
-                    if not part then break end
                 end
-                if pos then
-                    local dist = (pos - hrp.Position).Magnitude
+                if foundPart then
+                    local dist = (foundPart.Position - hrp.Position).Magnitude
                     if dist <= maxDistance then
                         return obj
                     end
@@ -817,7 +818,7 @@ local function stopLegitDig()
 end
 
 -- ============================================================
--- AUTO LOST CITY (VERSI FINAL: DETEKSI FLEKSIBEL + LOCK POSISI)
+-- AUTO LOST CITY
 -- ============================================================
 local function startLostCityMonitor()
     if Runtime.LostCityMonitorThread then
@@ -860,7 +861,7 @@ local function startLostCityMonitor()
                 sendLostCityWebhook(false)
 
             elseif Runtime.LostCityActive and lostCity then
-                -- Lock posisi setiap 0.5 detik jika bergeser
+                -- Lock posisi setiap 0.5 detik
                 local hrp = getHRP()
                 if hrp then
                     local currentPos = hrp.Position
@@ -880,7 +881,7 @@ local function startLostCityMonitor()
 end
 
 -- ============================================================
--- AUTO DEBRIS (DENGAN DETEKSI QTE + PROMPT RADIUS)
+-- AUTO DEBRIS (DENGAN DETEKSI QTE)
 -- ============================================================
 local function startAutoDebris()
     task.spawn(function()
@@ -965,12 +966,12 @@ local function startAutoDebris()
                     tpTo(cf.Position)
                     print(string.format("[Auto Debris] Teleport ke meteor (jarak: %.1f)", bestDist))
 
-                    -- Step 1: Tunggu QTE muncul (timeout 10 detik)
+                    -- ========== DETEKSI QTE ==========
+                    -- Tunggu QTE muncul (timeout 10 detik)
                     local qteStart = tick()
                     repeat
-                        if LocalPlayer.PlayerGui:FindFirstChild("QTE") then
-                            break
-                        end
+                        local qte = LocalPlayer.PlayerGui:FindFirstChild("QTE")
+                        if qte then break end
                         task.wait(0.2)
                     until tick() - qteStart > 10
 
@@ -982,7 +983,6 @@ local function startAutoDebris()
                         continue
                     end
 
-                    -- Step 2: Tunggu QTE hilang (timeout 30 detik)
                     print("[Auto Debris] QTE terdeteksi, menunggu selesai...")
                     local qteEnd = tick()
                     repeat
@@ -995,7 +995,7 @@ local function startAutoDebris()
 
                     print("[Auto Debris] QTE selesai")
 
-                    -- Step 3: Monitor Moon Gift prompt radius 30 studs, timeout 15 detik
+                    -- ========== MONITOR MOON GIFT PROMPT ==========
                     local promptFound = false
                     local startWait = tick()
                     repeat
@@ -1020,7 +1020,7 @@ local function startAutoDebris()
                     task.wait(1)
                 end
 
-                -- Semua debris selesai: kembali ke posisi awal
+                -- Kembali ke posisi awal setelah semua debris habis
                 if Runtime.DebrisReturnPos then
                     tpTo(Runtime.DebrisReturnPos)
                     print("[Auto Debris] Kembali ke posisi awal")
@@ -1388,7 +1388,7 @@ local Tabs = {
 }
 
 --========================================================
--- FLOATING SHELL BUTTON (CUSTOM DRAG + BYPASS)
+-- FLOATING SHELL BUTTON
 --========================================================
 
 local CoreGui = game:GetService("CoreGui")
@@ -1953,7 +1953,7 @@ Tabs.Webhook:CreateToggle("WebhookEnabled", {
 })
 
 --========================================================
--- MANAGEMENT SETUP (INTERFACE & SAVE)
+-- MANAGEMENT SETUP
 --========================================================
 
 SaveManager:SetLibrary(Fluent)
@@ -1968,7 +1968,7 @@ InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
 --========================================================
--- FINALIZE EXECUTION & ANTI-AFK
+-- FINALIZE
 --========================================================
 
 Window:SelectTab(2)
