@@ -16,7 +16,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local HttpService = game:GetService("HttpService")
-local workspace = game:GetService("workspace")
+local Workspace = game:GetService("Workspace")
 local VirtualUser = game:GetService("VirtualUser")
 
 local LocalPlayer = Players.LocalPlayer
@@ -40,7 +40,7 @@ local TeleportLocations = {
         ["Frostveil Isle"] = Vector3.new(3661.6, 33.3, -1017.5),
         ["Glowcap Cave"] = Vector3.new(1415.0, -66.4, 1219.6),
         ["Coral Graveyard"] = Vector3.new(2782.4, -127.9, -822.4),
-        ["Lost City"] = Vector3.new(17141.4, -62.1, 3516.9),
+        ["Lost City"] = Vector3.new(17288.244, -68.146, 3361.719),  -- update koordinat
     },
     NPCs = {
         ["Lost NPC"] = Vector3.new(1798, 62, -1619),
@@ -69,6 +69,14 @@ local TeleportLocations = {
     }
 }
 
+-- Konstanta CFrame presisi untuk Lost City
+local LOST_CITY_CFRAME = CFrame.new(
+    17288.244141, -68.145607, 3361.718750,
+    -0.173760, -0.311264, 0.934303,
+    -0.000033, 0.948737, 0.316067,
+    -0.984788, 0.054889, -0.164863
+)
+
 local IslandNames = {}
 for name in pairs(TeleportLocations.Islands) do
     table.insert(IslandNames, name)
@@ -90,6 +98,7 @@ local Settings = {
         LegitDig = false,
         FastLegitDig = false,
         MythicOnly = false,
+        AutoLostCity = false,
         AutoDebris = false,
         AutoSell = false,
         SellWhenFull = false
@@ -128,7 +137,8 @@ local Settings = {
     Webhook = {
         Url = "",
         SelectedRarities = {},
-        Enabled = false
+        Enabled = false,
+        LostCityNotify = false
     }
 }
 
@@ -151,7 +161,11 @@ local Runtime = {
     UpgradeActive = false,
     AntiAfkConn = nil,
     WebhookMonitorActive = false,
-    WebhookMonitorConn = nil
+    WebhookMonitorConn = nil,
+    WebhookMonitorThread = nil,
+    LostCityActive = false,
+    LostCityReturnCFrame = nil,
+    LostCityMonitorThread = nil
 }
 
 --========================================================
@@ -502,6 +516,33 @@ local function startWebhookMonitor()
     end)
 end
 
+local function sendLostCityWebhook(isActive)
+    if not Settings.Webhook.LostCityNotify then
+        return
+    end
+    if Settings.Webhook.Url == "" then
+        return
+    end
+
+    local embed = {
+        embeds = {{
+            title = isActive and "🏝️ Lost City Spawned!" or "🌊 Lost City Disappeared!",
+            color = isActive and 0x00ff00 or 0xff0000,
+            description = isActive
+                and "Ancient Turtle telah memunculkan Lost City!"
+                or "Event Lost City telah berakhir.",
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        }}
+    }
+    sendDiscordWebhook(Settings.Webhook.Url, embed)
+end
+
+local function getHRP()
+    local char = LocalPlayer.Character
+    if not char then return nil end
+    return char:FindFirstChild("HumanoidRootPart")
+end
+
 -- Start webhook monitor once (will be restarted on cleanup)
 startWebhookMonitor()
 
@@ -763,10 +804,82 @@ local function stopLegitDig()
     Runtime.MythicPrevLineRot, Runtime.MythicDigMoving = nil, false
 end
 
--- Auto Debris (versi fleksibel)
+-- ============================================================
+-- AUTO LOST CITY (VERSI FINAL: DETEKSI FLEKSIBEL + LOCK POSISI)
+-- ============================================================
+local function startLostCityMonitor()
+    if Runtime.LostCityMonitorThread then
+        task.cancel(Runtime.LostCityMonitorThread)
+        Runtime.LostCityMonitorThread = nil
+    end
+
+    Runtime.LostCityMonitorThread = task.spawn(function()
+        local wasFound = false
+
+        while Settings.Main.AutoLostCity do
+            local lostCity = workspace:FindFirstChild("Lost City", true)
+
+            if lostCity and not wasFound then
+                wasFound = true
+                print("[Lost City] DETECTED")
+
+                local hrp = getHRP()
+                if hrp and not Runtime.LostCityActive then
+                    Runtime.LostCityReturnCFrame = hrp.CFrame
+                    Runtime.LostCityActive = true
+                    hrp.CFrame = LOST_CITY_CFRAME
+                    print("[Lost City] Teleport ke Lost City (CFrame presisi)")
+                end
+                sendLostCityWebhook(true)
+
+            elseif not lostCity and wasFound then
+                wasFound = false
+                print("[Lost City] DISAPPEARED")
+
+                if Runtime.LostCityReturnCFrame then
+                    local hrp = getHRP()
+                    if hrp then
+                        hrp.CFrame = Runtime.LostCityReturnCFrame
+                        print("[Lost City] Kembali ke posisi awal")
+                    end
+                    Runtime.LostCityReturnCFrame = nil
+                end
+                Runtime.LostCityActive = false
+                sendLostCityWebhook(false)
+
+            elseif Runtime.LostCityActive and lostCity then
+                -- Lock posisi setiap 0.5 detik jika bergeser
+                local hrp = getHRP()
+                if hrp then
+                    local currentPos = hrp.Position
+                    local targetPos = TeleportLocations.Islands["Lost City"]
+                    if (currentPos - targetPos).Magnitude > 1 then
+                        hrp.CFrame = LOST_CITY_CFRAME
+                        print("[Lost City] Posisi terkunci kembali ke titik Lost City")
+                    end
+                end
+                task.wait(0.5)
+                continue
+            end
+
+            task.wait(1)
+        end
+    end)
+end
+
+-- ============================================================
+-- AUTO DEBRIS (VERSI FINAL: TELEPORT KE TERDEKAT + PRIORITAS LOST CITY)
+-- ============================================================
 local function startAutoDebris()
     task.spawn(function()
         while Settings.Main.AutoDebris do
+            -- Prioritas Lost City: jika sedang aktif, skip debris
+            if Runtime.LostCityActive then
+                task.wait(1)
+                continue
+            end
+
+            -- Kumpulkan debris yang memiliki posisi
             local debrisList = {}
             for _, v in ipairs(workspace:GetChildren()) do
                 local name = v.Name
@@ -786,6 +899,7 @@ local function startAutoDebris()
             end
 
             if #debrisList > 0 then
+                -- Catat posisi awal hanya sekali
                 if not Runtime.DebrisActive then
                     local char = LocalPlayer.Character
                     local hrp = char and char:FindFirstChild("HumanoidRootPart")
@@ -795,44 +909,70 @@ local function startAutoDebris()
                     end
                 end
 
+                -- Proses semua debris, pilih yang terdekat setiap kali
                 while #debrisList > 0 do
-                    local idx = math.random(1, #debrisList)
-                    local debris = debrisList[idx]
+                    local char = LocalPlayer.Character
+                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                    local currentPos = hrp and hrp.Position
+                    if not currentPos then break end
 
-                    local cf = nil
-                    if debris:IsA("BasePart") then
-                        cf = debris.CFrame
-                    elseif debris:IsA("Model") and debris.PrimaryPart then
-                        cf = debris.PrimaryPart.CFrame
-                    else
-                        local part = debris:FindFirstChildWhichIsA("BasePart")
-                        if part then cf = part.CFrame end
-                    end
+                    local bestIdx = nil
+                    local bestDebris = nil
+                    local bestDist = math.huge
+                    local bestCf = nil
 
-                    if cf then
-                        tpTo(cf.Position)
-                        local startWait = tick()
-                        local promptFound = false
-                        repeat
-                            if not debris:IsDescendantOf(workspace) then break end
-                            local prompt = findMoonGiftPrompt()
-                            if prompt then
-                                promptFound = true
-                                pcall(function() fireproximityprompt(prompt) end)
-                                task.wait(2)
-                                break
+                    for i, d in ipairs(debrisList) do
+                        local cf = nil
+                        if d:IsA("BasePart") then
+                            cf = d.CFrame
+                        elseif d:IsA("Model") and d.PrimaryPart then
+                            cf = d.PrimaryPart.CFrame
+                        else
+                            local part = d:FindFirstChildWhichIsA("BasePart")
+                            if part then cf = part.CFrame end
+                        end
+                        if cf then
+                            local dist = (currentPos - cf.Position).Magnitude
+                            if dist < bestDist then
+                                bestDist = dist
+                                bestIdx = i
+                                bestDebris = d
+                                bestCf = cf
                             end
-                            task.wait(0.2)
-                        until tick() - startWait > 15
-                        Runtime.CompletedDebris[debris] = true
-                    else
-                        Runtime.CompletedDebris[debris] = true
+                        end
                     end
 
+                    if not bestDebris then break end
+
+                    local debris = bestDebris
+                    local idx = bestIdx
+                    local cf = bestCf
+
+                    -- Teleport ke debris terdekat
+                    tpTo(cf.Position)
+                    print(string.format("[Auto Debris] Teleport ke debris terdekat (jarak: %.1f)", bestDist))
+
+                    -- Tunggu Moon Gift muncul (timeout 15 detik)
+                    local startWait = tick()
+                    local promptFound = false
+                    repeat
+                        if not debris:IsDescendantOf(workspace) then break end
+                        local prompt = findMoonGiftPrompt()
+                        if prompt then
+                            promptFound = true
+                            pcall(function() fireproximityprompt(prompt) end)
+                            task.wait(2)
+                            break
+                        end
+                        task.wait(0.2)
+                    until tick() - startWait > 15
+
+                    Runtime.CompletedDebris[debris] = true
                     table.remove(debrisList, idx)
                     task.wait(1)
                 end
 
+                -- Kembali ke posisi awal setelah semua debris diproses
                 if Runtime.DebrisReturnPos then
                     tpTo(Runtime.DebrisReturnPos)
                 end
@@ -1179,7 +1319,7 @@ local Window = Fluent:CreateWindow({
     Title = "Sobat Kerang",
     SubTitle = "v3 Ultimate",
     TabWidth = 170,
-    Size = UDim2.fromOffset(400, 300),
+    Size = UDim2.fromOffset(480, 300),
     Acrylic = true,
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.RightControl
@@ -1341,6 +1481,16 @@ Tabs.Main:CreateToggle("MythicOnly", {
     Callback = function(V)
         Settings.Main.MythicOnly = V
         if V then startMythicDig() else stopLegitDig() end
+    end
+})
+Tabs.Main:CreateToggle("AutoLostCity", {
+    Title = "Auto Lost City",
+    Default = false,
+    Callback = function(V)
+        Settings.Main.AutoLostCity = V
+        if V then
+            startLostCityMonitor()
+        end
     end
 })
 Tabs.Main:CreateToggle("AutoDebris", {
@@ -1728,6 +1878,15 @@ Tabs.Webhook:CreateDropdown("WebhookRarities", {
     SaveManager:Save()
 end)
 
+Tabs.Webhook:CreateToggle("LostCityWebhook", {
+    Title = "Notify Lost City Event",
+    Default = false,
+    Callback = function(V)
+        Settings.Webhook.LostCityNotify = V
+        SaveManager:Save()
+    end
+})
+
 Tabs.Webhook:CreateToggle("WebhookEnabled", {
     Title = "Enable Webhook Notifications",
     Default = false,
@@ -1741,11 +1900,7 @@ Tabs.Webhook:CreateToggle("WebhookEnabled", {
                 Duration = 2
             })
         else
-            Fluent:Notify({
-                Title = "Webhook",
-                Content = "Webhook monitoring stopped.",
-                Duration = 2
-            })
+            
         end
     end
 })
@@ -1794,13 +1949,22 @@ getgenv().SobatKerangCleanup = function()
         end
     end)
     pcall(function()
-        -- Stop webhook monitor properly
+        -- Stop webhook monitor
         Runtime.WebhookMonitorActive = false
         if Runtime.WebhookMonitorConn then
             Runtime.WebhookMonitorConn:Disconnect()
             Runtime.WebhookMonitorConn = nil
         end
-        -- Disconnect anti-afk
+        if Runtime.WebhookMonitorThread then
+            task.cancel(Runtime.WebhookMonitorThread)
+            Runtime.WebhookMonitorThread = nil
+        end
+        -- Stop Lost City monitor
+        if Runtime.LostCityMonitorThread then
+            task.cancel(Runtime.LostCityMonitorThread)
+            Runtime.LostCityMonitorThread = nil
+        end
+        -- Stop anti-AFK
         if Runtime.AntiAfkConn then
             Runtime.AntiAfkConn:Disconnect()
             Runtime.AntiAfkConn = nil
