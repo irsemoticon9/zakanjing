@@ -25,68 +25,75 @@ local ShellData = require(ReplicatedStorage.Modules.GameModules.Info.Shells)
 local ModifierData = require(ReplicatedStorage.Modules.GameModules.Info.ModifierData)
 
 --========================================================
+-- [FIX #8] NETWORK CONSTANTS (tidak lagi magic strings)
+--========================================================
+
+local NET = {
+    SELL          = "@",
+    CANCEL_DIG    = "6",
+    HERMIT_CLAIM  = "\b",
+    HERMIT_FAV_ON = "\b\001\001",
+    HERMIT_FAV_OFF= "\b\001\000",
+}
+
+--========================================================
 -- DATABASE TELEPORT
 --========================================================
 
 local TeleportLocations = {
     Islands = {
-        ["Solmere"] = Vector3.new(-1570, 28.9, -1733.25),
-        ["Caldera Cay"] = Vector3.new(1650, 25, -1428),
-        ["Sea Stacks Island"] = Vector3.new(971, 26, 1398),
-        ["Crescent Shore"] = Vector3.new(-1406, 35, 1570),
-        ["Spawn Island"] = Vector3.new(71, 41, 42),
-        ["Sacred Mountain"] = Vector3.new(3076, 259, 668),
-        ["Sky Island"] = Vector3.new(119, 3083, 1265),
-        ["Frostveil Isle"] = Vector3.new(3661.6, 33.3, -1017.5),
-        ["Glowcap Cave"] = Vector3.new(1415.0, -66.4, 1219.6),
-        ["Coral Graveyard"] = Vector3.new(2782.4, -127.9, -822.4),
-        ["Lost City"] = Vector3.new(17288.244, -68.146, 3361.719),
+        ["Solmere"]          = Vector3.new(-1570, 28.9, -1733.25),
+        ["Caldera Cay"]      = Vector3.new(1650, 25, -1428),
+        ["Sea Stacks Island"]= Vector3.new(971, 26, 1398),
+        ["Crescent Shore"]   = Vector3.new(-1406, 35, 1570),
+        ["Spawn Island"]     = Vector3.new(71, 41, 42),
+        ["Sacred Mountain"]  = Vector3.new(3076, 259, 668),
+        ["Sky Island"]       = Vector3.new(119, 3083, 1265),
+        ["Frostveil Isle"]   = Vector3.new(3661.6, 33.3, -1017.5),
+        ["Glowcap Cave"]     = Vector3.new(1415.0, -66.4, 1219.6),
+        ["Coral Graveyard"]  = Vector3.new(2782.4, -127.9, -822.4),
+        ["Lost City"]        = Vector3.new(17288.244, -68.146, 3361.719),
     },
     NPCs = {
-        ["Lost NPC"] = Vector3.new(1798, 62, -1619),
-        ["Crab Bossfight"] = Vector3.new(-1365, 25, -1562),
-        ["Tinkerer"] = Vector3.new(107, 46, 56),
-        ["Sarah"] = Vector3.new(83, 35, 102),
-        ["Boat NPC"] = Vector3.new(26, 22, 192),
-        ["Merchant"] = Vector3.new(84, 42, 9),
+        ["Lost NPC"]     = Vector3.new(1798, 62, -1619),
+        ["Crab Bossfight"]= Vector3.new(-1365, 25, -1562),
+        ["Tinkerer"]     = Vector3.new(107, 46, 56),
+        ["Sarah"]        = Vector3.new(83, 35, 102),
+        ["Boat NPC"]     = Vector3.new(26, 22, 192),
+        ["Merchant"]     = Vector3.new(84, 42, 9),
         ["Backpack NPC"] = Vector3.new(0, 52, -2),
-        ["Old Fisherman"] = Vector3.new(55, 24, 260),
-        ["Ghost"] = Vector3.new(156, 124, -73),
-        ["Shady NPC"] = Vector3.new(222, 330, -58),
-        ["Georgie"] = Vector3.new(906, 28, 1452),
-        ["Maxwell"] = Vector3.new(884, 26, 1358),
-        ["Hermulese"] = Vector3.new(-1358, 25, -1569),
-        ["Biologist"] = Vector3.new(-1453, 38, 1582),
-        ["Oro"] = Vector3.new(-1413, 35, 1549),
-        ["Psychic"] = Vector3.new(-1483, 38, 1512),
+        ["Old Fisherman"]= Vector3.new(55, 24, 260),
+        ["Ghost"]        = Vector3.new(156, 124, -73),
+        ["Shady NPC"]    = Vector3.new(222, 330, -58),
+        ["Georgie"]      = Vector3.new(906, 28, 1452),
+        ["Maxwell"]      = Vector3.new(884, 26, 1358),
+        ["Hermulese"]    = Vector3.new(-1358, 25, -1569),
+        ["Biologist"]    = Vector3.new(-1453, 38, 1582),
+        ["Oro"]          = Vector3.new(-1413, 35, 1549),
+        ["Psychic"]      = Vector3.new(-1483, 38, 1512),
         ["Keeper Nyros"] = Vector3.new(67, 3093, 1420),
-        ["Ardyn"] = Vector3.new(-56, 3136, 1322),
+        ["Ardyn"]        = Vector3.new(-56, 3136, 1322),
         ["Keeper Solen"] = Vector3.new(2780, 64, 454),
         ["Elder Kaelen"] = Vector3.new(2705, 36, 398),
-        ["Virell"] = Vector3.new(3743.7, 63.3, -1137.1),
-        ["Lyra"] = Vector3.new(3788.5, 28.6, -969.2),
-        ["Lost Diver"] = Vector3.new(2780.8, -123.3, -827.1)
+        ["Virell"]       = Vector3.new(3743.7, 63.3, -1137.1),
+        ["Lyra"]         = Vector3.new(3788.5, 28.6, -969.2),
+        ["Lost Diver"]   = Vector3.new(2780.8, -123.3, -827.1),
     }
 }
 
--- Konstanta CFrame presisi untuk Lost City
 local LOST_CITY_CFRAME = CFrame.new(
     17288.244141, -68.145607, 3361.718750,
-    -0.173760, -0.311264, 0.934303,
-    -0.000033, 0.948737, 0.316067,
-    -0.984788, 0.054889, -0.164863
+    -0.173760, -0.311264,  0.934303,
+    -0.000033,  0.948737,  0.316067,
+    -0.984788,  0.054889, -0.164863
 )
 
 local IslandNames = {}
-for name in pairs(TeleportLocations.Islands) do
-    table.insert(IslandNames, name)
-end
+for name in pairs(TeleportLocations.Islands) do table.insert(IslandNames, name) end
 table.sort(IslandNames)
 
 local NpcNames = {}
-for name in pairs(TeleportLocations.NPCs) do
-    table.insert(NpcNames, name)
-end
+for name in pairs(TeleportLocations.NPCs) do table.insert(NpcNames, name) end
 table.sort(NpcNames)
 
 --========================================================
@@ -95,77 +102,107 @@ table.sort(NpcNames)
 
 local Settings = {
     Main = {
-        LegitDig = false,
-        FastLegitDig = false,
-        MythicOnly = false,
-        AutoLostCity = false,
-        AutoDebris = false,
-        AutoSell = false,
-        SellWhenFull = false
+        LegitDig      = false,
+        FastLegitDig  = false,
+        MythicOnly    = false,
+        AutoLostCity  = false,
+        AutoDebris    = false,
+        AutoSell      = false,
+        SellWhenFull  = false,
     },
     Favorites = {
-        SelectedShells = {},
-        SelectedRarities = {},
-        AutoFavorite = false,
-        AutoFavoriteRarity = false
+        SelectedShells    = {},
+        SelectedRarities  = {},
+        AutoFavorite      = false,
+        AutoFavoriteRarity= false,
     },
     Gift = {
-        SelectedRarities = {},
-        SelectedNonFavoriteRarities = {},
-        SelectedShells = {},
-        AutoGift = false,
-        AutoGiftNonFavorite = false,
-        AutoGiftShells = false
+        SelectedRarities          = {},
+        SelectedNonFavoriteRarities= {},
+        SelectedShells            = {},
+        AutoGift                  = false,
+        AutoGiftNonFavorite       = false,
+        AutoGiftShells            = false,
     },
     Crab = {
         SelectedUpgrades = {},
-        AutoClaim = false,
-        AutoUpgrade = false
+        AutoClaim        = false,
+        AutoUpgrade      = false,
     },
     Trait = {
         TargetTrait = nil,
-        AutoReroll = false
+        AutoReroll  = false,
     },
     Merchant = {
         SelectedItems = {},
-        AutoBuy = false
+        AutoBuy       = false,
     },
     Teleport = {
         SelectedIsland = nil,
-        SelectedNpc = nil
+        SelectedNpc    = nil,
     },
     Webhook = {
-        Url = "",
-        SelectedRarities = {},
-        Enabled = false,
-        LostCityNotify = false
-    }
+        Url               = "",
+        SelectedRarities  = {},
+        Enabled           = false,
+        LostCityNotify    = false,
+    },
+    FPS = {
+        UnlockFPS        = false,
+        DisableParticles = false,
+        DisableShadows   = false,
+        DisableFog       = false,
+        DisableTextures  = false,
+        DisableDecals    = false,
+        DisableGrass     = false,
+        DisableBlur      = false,
+        DisableSunRays   = false,
+        LowRenderDist    = false,
+        TargetFPS        = 60,
+    },
 }
 
 local Runtime = {
-    StartTime = tick(),
-    QteAutoClickConn = nil,
-    PrevLineRot = nil,
-    QteLineMoving = false,
-    CachedBars = nil,
-    MythicDigConn = nil,
-    MythicPrevLineRot = nil,
-    MythicDigMoving = false,
-    CompletedDebris = {},
-    DebrisReturnPos = nil,
-    DebrisActive = false,
-    SellRunning = false,
-    SellWhenFullRunning = false,
-    GiftRunning = false,
-    MerchantRunning = false,
-    UpgradeActive = false,
-    AntiAfkConn = nil,
+    StartTime            = tick(),
+    QteAutoClickConn     = nil,
+    PrevLineRot          = nil,
+    QteLineMoving        = false,
+    CachedBars           = nil,
+    MythicDigConn        = nil,
+    MythicPrevLineRot    = nil,
+    MythicDigMoving      = false,
+    CompletedDebris      = {},
+    DebrisReturnPos      = nil,
+    DebrisActive         = false,
+    -- [FIX #2] guard flag untuk debris thread
+    DebrisRunning        = false,
+    SellRunning          = false,
+    SellWhenFullRunning  = false,
+    -- [FIX #1 & #7] satu flag gift, plus key aktif
+    GiftRunning          = false,
+    ActiveGiftKey        = nil,
+    MerchantRunning      = false,
+    UpgradeActive        = false,
+    AntiAfkConn          = nil,
     WebhookMonitorActive = false,
-    WebhookMonitorConn = nil,
+    WebhookMonitorConn   = nil,
     WebhookMonitorThread = nil,
-    LostCityActive = false,
+    LostCityActive       = false,
     LostCityReturnCFrame = nil,
-    LostCityMonitorThread = nil
+    LostCityMonitorThread= nil,
+    -- [FIX #9] webhook queue
+    WebhookQueue         = {},
+    WebhookQueueThread   = nil,
+    -- [FIX #3] cache backpack value
+    CachedBackpackValue  = 0,
+    BackpackValueConn    = {},
+    -- FPS Booster
+    FPSBoosterConns      = {},
+    OriginalLighting     = {},
+    OriginalTerrain      = {},
+    ParticleCache        = {},
+    TextureCache         = {},
+    DecalCache           = {},
 }
 
 --========================================================
@@ -195,33 +232,36 @@ local function tpTo(position)
     hrp.CFrame = CFrame.new(position)
 end
 
--- Fungsi untuk mencari prompt Moon Gift dalam radius tertentu
+local function getHRP()
+    local char = LocalPlayer.Character
+    if not char then return nil end
+    return char:FindFirstChild("HumanoidRootPart")
+end
+
+-- [FIX #4] findNearbyMoonGiftPrompt — hanya cek descendants dari candidates dekat HRP
 local function findNearbyMoonGiftPrompt(maxDistance)
     local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not hrp then return nil end
 
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("ProximityPrompt") then
-            local objectText = tostring(obj.ObjectText)
-            local actionText = tostring(obj.ActionText)
-            if objectText:find("Moon Gift") and actionText:find("Open") then
-                -- Cari BasePart di parent/grandparent
-                local part = obj.Parent
-                local foundPart = nil
-                for i = 1, 5 do
-                    if not part then break end
-                    if part:IsA("BasePart") then
-                        foundPart = part
-                        break
-                    end
-                    part = part.Parent
-                end
-                if foundPart then
-                    local dist = (foundPart.Position - hrp.Position).Magnitude
-                    if dist <= maxDistance then
-                        return obj
-                    end
-                end
+    -- Kumpulkan objek workspace level-1 dulu, baru cek descendants-nya
+    -- Jauh lebih efisien daripada workspace:GetDescendants() seluruhnya
+    local candidates = {}
+    for _, obj in ipairs(workspace:GetChildren()) do
+        local part = obj:IsA("BasePart") and obj or (obj:IsA("Model") and obj.PrimaryPart)
+        if part then
+            if (part.Position - hrp.Position).Magnitude <= maxDistance then
+                table.insert(candidates, obj)
+            end
+        end
+    end
+
+    for _, candidate in ipairs(candidates) do
+        for _, obj in ipairs(candidate:GetDescendants()) do
+            if obj:IsA("ProximityPrompt")
+                and tostring(obj.ObjectText):find("Moon Gift")
+                and tostring(obj.ActionText):find("Open")
+            then
+                return obj
             end
         end
     end
@@ -233,9 +273,7 @@ local function getShellList()
     for _, shell in ipairs(ShellData.Items) do
         table.insert(shells, shell.Name)
     end
-    table.sort(shells, function(a, b)
-        return string.lower(a) < string.lower(b)
-    end)
+    table.sort(shells, function(a, b) return string.lower(a) < string.lower(b) end)
     return shells
 end
 
@@ -258,18 +296,14 @@ local function confirmGift()
     local yesButton = confirmGui.Main.Buttons.Yes
     if not yesButton then return false end
     for _, connection in pairs(getconnections(yesButton.Activated)) do
-        pcall(function()
-            connection:Fire()
-        end)
+        pcall(function() connection:Fire() end)
     end
     return true
 end
 
 local function getShellRarity(shellName)
     for knownShell, rarity in pairs(ShellRarities) do
-        if shellName:find(knownShell) then
-            return rarity
-        end
+        if shellName:find(knownShell) then return rarity end
     end
     return nil
 end
@@ -340,9 +374,7 @@ local function getTraitList()
     local traits = {}
     local frame = LocalPlayer.PlayerGui.Equipment.TraitsInfo.Core.ScrollingFrame
     for _, obj in ipairs(frame:GetChildren()) do
-        if obj:IsA("Frame") then
-            table.insert(traits, obj.Name)
-        end
+        if obj:IsA("Frame") then table.insert(traits, obj.Name) end
     end
     table.sort(traits)
     return traits
@@ -376,21 +408,23 @@ local function formatNumber(num)
     num = tonumber(num) or 0
     local formatted = tostring(math.floor(num))
     while true do
+        local k
         formatted, k = formatted:gsub("^(-?%d+)(%d%d%d)", "%1,%2")
         if k == 0 then break end
     end
     return formatted
 end
 
-local function getBackpackValue()
+-- [FIX #3] Hitung nilai backpack sekali, cache-nya update via event
+local function computeBackpackValue()
     local total = 0
     local backpack = LocalPlayer:FindFirstChild("Backpack")
     if not backpack then return 0 end
     for _, item in ipairs(backpack:GetChildren()) do
         if item:IsA("Tool") then
             local shellName = item:GetAttribute("Name")
-            local weight = tonumber(item:GetAttribute("Weight")) or 0
-            local modifier = item:GetAttribute("Modifier")
+            local weight    = tonumber(item:GetAttribute("Weight")) or 0
+            local modifier  = item:GetAttribute("Modifier")
             local shellInfo = shellName and ShellData.Names[shellName]
             if shellInfo then
                 local value = shellInfo.Cost or 0
@@ -404,37 +438,89 @@ local function getBackpackValue()
     return math.floor(total + 0.5)
 end
 
+local function setupBackpackValueCache()
+    -- Bersihkan koneksi lama
+    for _, conn in ipairs(Runtime.BackpackValueConn) do
+        pcall(function() conn:Disconnect() end)
+    end
+    Runtime.BackpackValueConn = {}
+
+    Runtime.CachedBackpackValue = computeBackpackValue()
+
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    if not backpack then return end
+
+    local function refresh() Runtime.CachedBackpackValue = computeBackpackValue() end
+
+    table.insert(Runtime.BackpackValueConn, backpack.ChildAdded:Connect(refresh))
+    table.insert(Runtime.BackpackValueConn, backpack.ChildRemoved:Connect(refresh))
+end
+
+-- Panggil saat karakter spawn (backpack baru)
+LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(1)
+    setupBackpackValueCache()
+end)
+setupBackpackValueCache()
+
+local function getBackpackValue()
+    return Runtime.CachedBackpackValue
+end
+
 --========================================================
--- WEBHOOK FUNCTIONS
+-- [FIX #9] WEBHOOK QUEUE (rate-limit safe)
 --========================================================
+
+local function enqueueWebhook(payload)
+    table.insert(Runtime.WebhookQueue, payload)
+end
+
+local function startWebhookQueueProcessor()
+    if Runtime.WebhookQueueThread then
+        pcall(function() task.cancel(Runtime.WebhookQueueThread) end)
+    end
+    Runtime.WebhookQueueThread = task.spawn(function()
+        while true do
+            if #Runtime.WebhookQueue > 0 and Settings.Webhook.Url ~= "" then
+                local payload = table.remove(Runtime.WebhookQueue, 1)
+                pcall(function()
+                    local requestFunc = syn and syn.request or http_request or request
+                    if requestFunc then
+                        requestFunc({
+                            Url     = Settings.Webhook.Url,
+                            Method  = "POST",
+                            Headers = { ["Content-Type"] = "application/json" },
+                            Body    = HttpService:JSONEncode(payload),
+                        })
+                    end
+                end)
+                task.wait(1.5) -- jaga dari Discord rate limit (max ~50 req/menit)
+            else
+                task.wait(0.5)
+            end
+        end
+    end)
+end
 
 local function sendDiscordWebhook(webhookUrl, payload)
+    -- Dipakai langsung hanya untuk test / Lost City notify
     if webhookUrl == nil or webhookUrl == "" then return false end
-
     local requestFunc = syn and syn.request or http_request or request
-    if not requestFunc then
-        warn("[Webhook] No request function available")
-        return false
-    end
+    if not requestFunc then return false end
 
     local success, response = pcall(function()
         return requestFunc({
-            Url = webhookUrl,
-            Method = "POST",
+            Url     = webhookUrl,
+            Method  = "POST",
             Headers = { ["Content-Type"] = "application/json" },
-            Body = HttpService:JSONEncode(payload)
+            Body    = HttpService:JSONEncode(payload),
         })
     end)
 
-    if not success then
-        warn("[Webhook] Request failed:", response)
-        return false
-    end
-
+    if not success then return false end
     if type(response) == "table" and response.StatusCode then
         return response.StatusCode >= 200 and response.StatusCode < 300
     end
-
     return true
 end
 
@@ -448,14 +534,17 @@ local function getShellValue(shellName, weight, modifier)
     return math.floor(baseValue * weight + 0.5)
 end
 
--- Monitor backpack untuk shell baru
+--========================================================
+-- WEBHOOK MONITOR
+--========================================================
+
 local function startWebhookMonitor()
     if Runtime.WebhookMonitorConn then
-        Runtime.WebhookMonitorConn:Disconnect()
+        pcall(function() Runtime.WebhookMonitorConn:Disconnect() end)
         Runtime.WebhookMonitorConn = nil
     end
     if Runtime.WebhookMonitorThread then
-        task.cancel(Runtime.WebhookMonitorThread)
+        pcall(function() task.cancel(Runtime.WebhookMonitorThread) end)
         Runtime.WebhookMonitorThread = nil
     end
 
@@ -473,49 +562,39 @@ local function startWebhookMonitor()
 
             local newBackpack = LocalPlayer:FindFirstChild("Backpack")
             if newBackpack ~= backpack then
-                if conn then
-                    conn:Disconnect()
-                    conn = nil
-                end
+                if conn then pcall(function() conn:Disconnect() end) conn = nil end
                 backpack = newBackpack
                 if backpack then
                     processedShells = {}
                     for _, item in ipairs(backpack:GetChildren()) do
-                        if item:IsA("Tool") then
-                            processedShells[item] = true
-                        end
+                        if item:IsA("Tool") then processedShells[item] = true end
                     end
                     conn = backpack.ChildAdded:Connect(function(item)
-                        if not Runtime.WebhookMonitorActive or not Settings.Webhook.Enabled then
-                            return
-                        end
+                        if not Runtime.WebhookMonitorActive or not Settings.Webhook.Enabled then return end
                         if item:IsA("Tool") and not processedShells[item] then
                             processedShells[item] = true
                             local shellName = item:GetAttribute("Name")
-                            local rarity = getShellRarity(shellName)
+                            local rarity    = getShellRarity(shellName)
                             if rarity and Settings.Webhook.SelectedRarities[rarity] then
-                                local weight = item:GetAttribute("Weight") or 0
+                                local weight   = item:GetAttribute("Weight") or 0
                                 local modifier = item:GetAttribute("Modifier")
-                                local value = getShellValue(shellName, weight, modifier)
-                                local webhookUrl = Settings.Webhook.Url
-                                if webhookUrl ~= "" then
-                                    local embed = {
-                                        embeds = {{
-                                            title = "🐚 New Shell Obtained!",
-                                            color = 0x00ff00,
-                                            fields = {
-                                                { name = "Name", value = shellName, inline = true },
-                                                { name = "Rarity", value = rarity, inline = true },
-                                                { name = "Weight", value = tostring(weight), inline = true },
-                                                { name = "Value", value = tostring(value), inline = true },
-                                                { name = "Modifier", value = modifier or "None", inline = true },
-                                                { name = "Player", value = LocalPlayer.Name, inline = true }
-                                            },
-                                            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
-                                        }}
-                                    }
-                                    sendDiscordWebhook(webhookUrl, embed)
-                                end
+                                local value    = getShellValue(shellName, weight, modifier)
+                                -- [FIX #9] masuk queue, bukan langsung kirim
+                                enqueueWebhook({
+                                    embeds = {{
+                                        title  = "🐚 New Shell Obtained!",
+                                        color  = 0x00ff00,
+                                        fields = {
+                                            { name = "Name",     value = shellName,           inline = true },
+                                            { name = "Rarity",   value = rarity,              inline = true },
+                                            { name = "Weight",   value = tostring(weight),    inline = true },
+                                            { name = "Value",    value = tostring(value),     inline = true },
+                                            { name = "Modifier", value = modifier or "None",  inline = true },
+                                            { name = "Player",   value = LocalPlayer.Name,    inline = true },
+                                        },
+                                        timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ"),
+                                    }}
+                                })
                             end
                         end
                     end)
@@ -525,42 +604,30 @@ local function startWebhookMonitor()
             task.wait(1)
         end
 
-        if conn then conn:Disconnect() end
+        if conn then pcall(function() conn:Disconnect() end) end
         Runtime.WebhookMonitorConn = nil
     end)
 end
 
 local function sendLostCityWebhook(isActive)
-    if not Settings.Webhook.LostCityNotify then
-        return
-    end
-    if Settings.Webhook.Url == "" then
-        return
-    end
-
-    local embed = {
+    if not Settings.Webhook.LostCityNotify or Settings.Webhook.Url == "" then return end
+    sendDiscordWebhook(Settings.Webhook.Url, {
         embeds = {{
-            title = isActive and "🏝️ Lost City Spawned!" or "🌊 Lost City Disappeared!",
-            color = isActive and 0x00ff00 or 0xff0000,
+            title       = isActive and "🏝️ Lost City Spawned!" or "🌊 Lost City Disappeared!",
+            color       = isActive and 0x00ff00 or 0xff0000,
             description = isActive
                 and "Ancient Turtle telah memunculkan Lost City!"
-                or "Event Lost City telah berakhir.",
-            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+                or  "Event Lost City telah berakhir.",
+            timestamp   = os.date("!%Y-%m-%dT%H:%M:%SZ"),
         }}
-    }
-    sendDiscordWebhook(Settings.Webhook.Url, embed)
-end
-
-local function getHRP()
-    local char = LocalPlayer.Character
-    if not char then return nil end
-    return char:FindFirstChild("HumanoidRootPart")
+    })
 end
 
 startWebhookMonitor()
+startWebhookQueueProcessor()
 
 --========================================================
--- MAIN FUNCTIONS (dig, sell, gift, etc.)
+-- MAIN FUNCTIONS
 --========================================================
 
 -- LegitDig
@@ -578,20 +645,11 @@ local function startLegitDig()
         if not Settings.Main.LegitDig then return end
         pcall(function()
             local qte = pgui:FindFirstChild("QTE")
-            if not qte then
-                Runtime.QteLineMoving = false
-                return
-            end
+            if not qte then Runtime.QteLineMoving = false return end
             local main = qte:FindFirstChild("Main")
-            if not main then
-                Runtime.QteLineMoving = false
-                return
-            end
+            if not main then Runtime.QteLineMoving = false return end
             local line, bars = main:FindFirstChild("Line"), main:FindFirstChild("Bars")
-            if not line or not bars then
-                Runtime.QteLineMoving = false
-                return
-            end
+            if not line or not bars then Runtime.QteLineMoving = false return end
 
             local lineRot = line.Rotation
             if Runtime.PrevLineRot ~= nil then
@@ -601,24 +659,15 @@ local function startLegitDig()
 
             local targetBar
             for _, bar in pairs(bars:GetChildren()) do
-                if bar:IsA("ImageLabel") and bar.Visible then
-                    targetBar = bar
-                    break
-                end
+                if bar:IsA("ImageLabel") and bar.Visible then targetBar = bar break end
             end
+            if not targetBar then clicked = false return end
 
-            if not targetBar then
-                clicked = false
-                return
-            end
-            local diff = angleDiff(lineRot, targetBar.Rotation)
+            local diff    = angleDiff(lineRot, targetBar.Rotation)
             local barSize = tonumber(targetBar.Name:match("%d+")) or 15
 
             if not clicked and diff <= barSize / 2 then
-                if diff > prevDiff then
-                    safeVIMClick()
-                    clicked = true
-                end
+                if diff > prevDiff then safeVIMClick() clicked = true end
             end
             if diff > barSize then clicked = false end
             prevDiff = diff
@@ -647,10 +696,7 @@ local function startFastLegitDig()
         if not Settings.Main.FastLegitDig then return end
         pcall(function()
             local qte = pgui:FindFirstChild("QTE")
-            if not qte then
-                Runtime.CachedBars = nil
-                return
-            end
+            if not qte then Runtime.CachedBars = nil return end
             local main = qte:FindFirstChild("Main")
             if not main then return end
             local line, bars = main:FindFirstChild("Line"), main:FindFirstChild("Bars")
@@ -662,23 +708,17 @@ local function startFastLegitDig()
             if not Runtime.CachedBars then
                 Runtime.CachedBars = {}
                 for _, obj in ipairs(bars:GetChildren()) do
-                    if obj:IsA("ImageLabel") then
-                        table.insert(Runtime.CachedBars, obj)
-                    end
+                    if obj:IsA("ImageLabel") then table.insert(Runtime.CachedBars, obj) end
                 end
             end
 
             local targetBar
             for i = 1, #Runtime.CachedBars do
-                local bar = Runtime.CachedBars[i]
-                if bar.Visible then
-                    targetBar = bar
-                    break
-                end
+                if Runtime.CachedBars[i].Visible then targetBar = Runtime.CachedBars[i] break end
             end
-
             if not targetBar then return end
-            local diff = angleDiff(line.Rotation, targetBar.Rotation)
+
+            local diff    = angleDiff(line.Rotation, targetBar.Rotation)
             local barSize = tonumber(targetBar.Name:match("%d+")) or 15
 
             if diff <= (barSize / 2.5) then
@@ -693,23 +733,16 @@ local function startFastLegitDig()
 
     task.spawn(function()
         while Settings.Main.FastLegitDig do
-            local qte = pgui:FindFirstChild("QTE")
-            if qte then
-                local main = qte:FindFirstChild("Main")
-                local line = main and main:FindFirstChild("Line")
-                if line then
-                    local currentRot = line.Rotation
-                    if Runtime.PrevLineRot ~= nil then
-                        Runtime.QteLineMoving = math.abs(currentRot - Runtime.PrevLineRot) > 0.1
-                    end
-                    Runtime.PrevLineRot = currentRot
-
-                    if not Runtime.QteLineMoving and not Runtime.UpgradeActive then
-                        safeVIMClick()
-                    end
-                else
-                    if not Runtime.UpgradeActive then safeVIMClick() end
+            local qte  = pgui:FindFirstChild("QTE")
+            local main = qte and qte:FindFirstChild("Main")
+            local line = main and main:FindFirstChild("Line")
+            if line then
+                local cur = line.Rotation
+                if Runtime.PrevLineRot ~= nil then
+                    Runtime.QteLineMoving = math.abs(cur - Runtime.PrevLineRot) > 0.1
                 end
+                Runtime.PrevLineRot = cur
+                if not Runtime.QteLineMoving and not Runtime.UpgradeActive then safeVIMClick() end
             else
                 if not Runtime.UpgradeActive then safeVIMClick() end
             end
@@ -733,15 +766,9 @@ local function startMythicDig()
         if not Settings.Main.MythicOnly then return end
         pcall(function()
             local qte = pgui:FindFirstChild("QTE")
-            if not qte then
-                Runtime.MythicDigMoving = false
-                return
-            end
+            if not qte then Runtime.MythicDigMoving = false return end
             local main = qte:FindFirstChild("Main")
-            if not main then
-                Runtime.MythicDigMoving = false
-                return
-            end
+            if not main then Runtime.MythicDigMoving = false return end
             local line, bars = main:FindFirstChild("Line"), main:FindFirstChild("Bars")
             if not line or not bars then return end
 
@@ -752,26 +779,23 @@ local function startMythicDig()
             Runtime.MythicPrevLineRot = lineRot
             if not Runtime.MythicDigMoving then return end
 
-            local surgeFrame = qte:FindFirstChild("Surge")
+            local surgeFrame   = qte:FindFirstChild("Surge")
             local surgeVisible = surgeFrame and surgeFrame.Visible
 
             local targetBar
             for _, bar in pairs(bars:GetChildren()) do
-                if bar:IsA("ImageLabel") and bar.Visible then
-                    targetBar = bar
-                    break
-                end
+                if bar:IsA("ImageLabel") and bar.Visible then targetBar = bar break end
             end
-
             if not targetBar then return end
-            local diff = angleDiff(lineRot, targetBar.Rotation)
+
+            local diff    = angleDiff(lineRot, targetBar.Rotation)
             local barSize = tonumber(targetBar.Name:match("%d+")) or 15
 
             if not surgeVisible then
                 if not cancelCooldown then
                     cancelCooldown = true
                     pcall(function()
-                        ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("6"))
+                        ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring(NET.CANCEL_DIG))
                     end)
                     task.delay(2, function()
                         cancelCooldown = false
@@ -802,27 +826,26 @@ local function startMythicDig()
     end)
 end
 
--- Stop Dig
 local function stopLegitDig()
-    Settings.Main.LegitDig, Settings.Main.FastLegitDig, Settings.Main.MythicOnly = false, false, false
-    if Runtime.QteAutoClickConn then
-        Runtime.QteAutoClickConn:Disconnect()
-        Runtime.QteAutoClickConn = nil
-    end
-    if Runtime.MythicDigConn then
-        Runtime.MythicDigConn:Disconnect()
-        Runtime.MythicDigConn = nil
-    end
-    Runtime.CachedBars, Runtime.QteLineMoving, Runtime.PrevLineRot = nil, false, nil
-    Runtime.MythicPrevLineRot, Runtime.MythicDigMoving = nil, false
+    Settings.Main.LegitDig    = false
+    Settings.Main.FastLegitDig= false
+    Settings.Main.MythicOnly  = false
+    if Runtime.QteAutoClickConn then Runtime.QteAutoClickConn:Disconnect() Runtime.QteAutoClickConn = nil end
+    if Runtime.MythicDigConn    then Runtime.MythicDigConn:Disconnect()    Runtime.MythicDigConn    = nil end
+    Runtime.CachedBars        = nil
+    Runtime.QteLineMoving     = false
+    Runtime.PrevLineRot       = nil
+    Runtime.MythicPrevLineRot = nil
+    Runtime.MythicDigMoving   = false
 end
 
 -- ============================================================
 -- AUTO LOST CITY
 -- ============================================================
 local function startLostCityMonitor()
+    -- [FIX pcall task.cancel] selalu pcall
     if Runtime.LostCityMonitorThread then
-        task.cancel(Runtime.LostCityMonitorThread)
+        pcall(function() task.cancel(Runtime.LostCityMonitorThread) end)
         Runtime.LostCityMonitorThread = nil
     end
 
@@ -835,12 +858,11 @@ local function startLostCityMonitor()
             if lostCity and not wasFound then
                 wasFound = true
                 print("[Lost City] DETECTED")
-
                 local hrp = getHRP()
                 if hrp and not Runtime.LostCityActive then
                     Runtime.LostCityReturnCFrame = hrp.CFrame
-                    Runtime.LostCityActive = true
-                    hrp.CFrame = LOST_CITY_CFRAME
+                    Runtime.LostCityActive       = true
+                    hrp.CFrame                   = LOST_CITY_CFRAME
                     print("[Lost City] Teleport ke Lost City (CFrame presisi)")
                 end
                 sendLostCityWebhook(true)
@@ -848,7 +870,6 @@ local function startLostCityMonitor()
             elseif not lostCity and wasFound then
                 wasFound = false
                 print("[Lost City] DISAPPEARED")
-
                 if Runtime.LostCityReturnCFrame then
                     local hrp = getHRP()
                     if hrp then
@@ -861,12 +882,12 @@ local function startLostCityMonitor()
                 sendLostCityWebhook(false)
 
             elseif Runtime.LostCityActive and lostCity then
-                -- Lock posisi setiap 0.5 detik
+                -- [FIX #6] threshold dinaikkan ke 20 agar tidak frozen karena minor server push
                 local hrp = getHRP()
                 if hrp then
                     local currentPos = hrp.Position
-                    local targetPos = TeleportLocations.Islands["Lost City"]
-                    if (currentPos - targetPos).Magnitude > 1 then
+                    local targetPos  = TeleportLocations.Islands["Lost City"]
+                    if (currentPos - targetPos).Magnitude > 20 then
                         hrp.CFrame = LOST_CITY_CFRAME
                         print("[Lost City] Posisi terkunci kembali ke titik Lost City")
                     end
@@ -881,18 +902,16 @@ local function startLostCityMonitor()
 end
 
 -- ============================================================
--- AUTO DEBRIS (DENGAN DETEKSI QTE)
+-- AUTO DEBRIS  [FIX #2: guard DebrisRunning]
 -- ============================================================
 local function startAutoDebris()
+    if Runtime.DebrisRunning then return end  -- cegah multiple thread
+    Runtime.DebrisRunning = true
+
     task.spawn(function()
         while Settings.Main.AutoDebris do
-            -- Prioritas Lost City
-            if Runtime.LostCityActive then
-                task.wait(1)
-                continue
-            end
+            if Runtime.LostCityActive then task.wait(1) continue end
 
-            -- Kumpulkan debris yang memiliki posisi
             local debrisList = {}
             for _, v in ipairs(workspace:GetChildren()) do
                 local name = v.Name
@@ -905,36 +924,27 @@ local function startAutoDebris()
                             hasPosition = true
                         end
                     end
-                    if hasPosition then
-                        table.insert(debrisList, v)
-                    end
+                    if hasPosition then table.insert(debrisList, v) end
                 end
             end
 
             if #debrisList > 0 then
-                -- Catat posisi awal hanya sekali
                 if not Runtime.DebrisActive then
                     local char = LocalPlayer.Character
-                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                    local hrp  = char and char:FindFirstChild("HumanoidRootPart")
                     if hrp then
                         Runtime.DebrisReturnPos = hrp.Position
-                        Runtime.DebrisActive = true
+                        Runtime.DebrisActive    = true
                     end
                 end
 
-                -- Proses semua debris, pilih yang terdekat setiap kali
                 while #debrisList > 0 do
                     local char = LocalPlayer.Character
-                    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                    local hrp  = char and char:FindFirstChild("HumanoidRootPart")
                     local currentPos = hrp and hrp.Position
                     if not currentPos then break end
 
-                    -- Cari debris terdekat
-                    local bestIdx = nil
-                    local bestDebris = nil
-                    local bestDist = math.huge
-                    local bestCf = nil
-
+                    local bestIdx, bestDebris, bestDist, bestCf = nil, nil, math.huge, nil
                     for i, d in ipairs(debrisList) do
                         local cf = nil
                         if d:IsA("BasePart") then
@@ -948,37 +958,28 @@ local function startAutoDebris()
                         if cf then
                             local dist = (currentPos - cf.Position).Magnitude
                             if dist < bestDist then
-                                bestDist = dist
-                                bestIdx = i
+                                bestDist   = dist
+                                bestIdx    = i
                                 bestDebris = d
-                                bestCf = cf
+                                bestCf     = cf
                             end
                         end
                     end
-
                     if not bestDebris then break end
 
-                    local debris = bestDebris
-                    local idx = bestIdx
-                    local cf = bestCf
-
-                    -- Teleport ke debris terdekat
-                    tpTo(cf.Position)
+                    tpTo(bestCf.Position)
                     print(string.format("[Auto Debris] Teleport ke meteor (jarak: %.1f)", bestDist))
 
-                    -- ========== DETEKSI QTE ==========
-                    -- Tunggu QTE muncul (timeout 10 detik)
                     local qteStart = tick()
                     repeat
-                        local qte = LocalPlayer.PlayerGui:FindFirstChild("QTE")
-                        if qte then break end
+                        if LocalPlayer.PlayerGui:FindFirstChild("QTE") then break end
                         task.wait(0.2)
                     until tick() - qteStart > 10
 
                     if not LocalPlayer.PlayerGui:FindFirstChild("QTE") then
                         print("[Auto Debris] QTE tidak muncul, debris mungkin invalid")
-                        Runtime.CompletedDebris[debris] = true
-                        table.remove(debrisList, idx)
+                        Runtime.CompletedDebris[bestDebris] = true
+                        table.remove(debrisList, bestIdx)
                         task.wait(1)
                         continue
                     end
@@ -987,17 +988,12 @@ local function startAutoDebris()
                     local qteEnd = tick()
                     repeat
                         task.wait(0.2)
-                        if tick() - qteEnd > 30 then
-                            print("[Auto Debris] QTE timeout 30 detik, lanjut")
-                            break
-                        end
+                        if tick() - qteEnd > 30 then print("[Auto Debris] QTE timeout 30 detik, lanjut") break end
                     until LocalPlayer.PlayerGui:FindFirstChild("QTE") == nil
-
                     print("[Auto Debris] QTE selesai")
 
-                    -- ========== MONITOR MOON GIFT PROMPT ==========
                     local promptFound = false
-                    local startWait = tick()
+                    local startWait   = tick()
                     repeat
                         local prompt = findNearbyMoonGiftPrompt(30)
                         if prompt then
@@ -1010,27 +1006,24 @@ local function startAutoDebris()
                         task.wait(0.2)
                     until tick() - startWait > 15
 
-                    if not promptFound then
-                        print("[Auto Debris] Moon Gift prompt tidak muncul dalam 15 detik")
-                    end
+                    if not promptFound then print("[Auto Debris] Moon Gift prompt tidak muncul dalam 15 detik") end
 
-                    -- Tandai debris selesai
-                    Runtime.CompletedDebris[debris] = true
-                    table.remove(debrisList, idx)
+                    Runtime.CompletedDebris[bestDebris] = true
+                    table.remove(debrisList, bestIdx)
                     task.wait(1)
                 end
 
-                -- Kembali ke posisi awal setelah semua debris habis
                 if Runtime.DebrisReturnPos then
                     tpTo(Runtime.DebrisReturnPos)
                     print("[Auto Debris] Kembali ke posisi awal")
                 end
                 Runtime.DebrisReturnPos = nil
-                Runtime.DebrisActive = false
+                Runtime.DebrisActive    = false
                 Runtime.CompletedDebris = {}
             end
             task.wait(1)
         end
+        Runtime.DebrisRunning = false  -- reset guard saat loop selesai
     end)
 end
 
@@ -1038,14 +1031,13 @@ end
 local sellNpcPos = Vector3.new(110.58, 3083.84, 1208.72)
 local function sellInventory()
     local char = LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    local hrp  = char and char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
     local returnPos = hrp.Position
-
     tpTo(sellNpcPos)
     task.wait(2.5)
     pcall(function()
-        ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("@"))
+        ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring(NET.SELL))
     end)
     task.wait(2)
     tpTo(returnPos)
@@ -1056,7 +1048,7 @@ local function startAutoSell()
     Runtime.SellRunning = true
     task.spawn(function()
         while Settings.Main.AutoSell do
-            pcall(sellInventory)
+            if not Runtime.DebrisActive then pcall(sellInventory) end
             task.wait(300)
         end
         Runtime.SellRunning = false
@@ -1068,21 +1060,20 @@ local function startSellWhenFull()
     Runtime.SellWhenFullRunning = true
     task.spawn(function()
         while Settings.Main.SellWhenFull do
-            local inventoryFull = false
-            pcall(function()
-                for _, gui in pairs(LocalPlayer.PlayerGui:GetDescendants()) do
-                    if gui:IsA("TextLabel") and tostring(gui.Text):match("^%d+/%d+$") then
-                        local current, max = gui.Text:match("(%d+)/(%d+)")
-                        if tonumber(current) and tonumber(max) and tonumber(current) >= tonumber(max) then
-                            inventoryFull = true
-                            break
+            if not Runtime.DebrisActive then
+                local inventoryFull = false
+                pcall(function()
+                    for _, gui in pairs(LocalPlayer.PlayerGui:GetDescendants()) do
+                        if gui:IsA("TextLabel") and tostring(gui.Text):match("^%d+/%d+$") then
+                            local current, max = gui.Text:match("(%d+)/(%d+)")
+                            if tonumber(current) and tonumber(max) and tonumber(current) >= tonumber(max) then
+                                inventoryFull = true
+                                break
+                            end
                         end
                     end
-                end
-            end)
-            if inventoryFull then
-                sellInventory()
-                task.wait(5)
+                end)
+                if inventoryFull then sellInventory() task.wait(5) end
             end
             task.wait(2)
         end
@@ -1093,13 +1084,13 @@ end
 -- Auto Favorite
 local function favoriteShell(item)
     pcall(function()
-        ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("\b\001\001"), { item })
+        ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring(NET.HERMIT_FAV_ON), { item })
     end)
 end
 
 local function unfavoriteShell(item)
     pcall(function()
-        ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring("\b\001\000"), { item })
+        ReplicatedStorage:WaitForChild("ByteNetReliable"):FireServer(buffer.fromstring(NET.HERMIT_FAV_OFF), { item })
     end)
 end
 
@@ -1109,10 +1100,7 @@ local function startAutoFavorite()
             for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
                 if not Settings.Favorites.AutoFavorite then break end
                 for shellName in pairs(Settings.Favorites.SelectedShells) do
-                    if item.Name:find(shellName) then
-                        favoriteShell(item)
-                        task.wait(0.05)
-                    end
+                    if item.Name:find(shellName) then favoriteShell(item) task.wait(0.05) end
                 end
             end
             task.wait(1)
@@ -1125,18 +1113,12 @@ local function startAutoFavoriteRarity()
         while Settings.Favorites.AutoFavoriteRarity do
             for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
                 if not Settings.Favorites.AutoFavoriteRarity then break end
-                local matched = false
                 for shellName, rarity in pairs(ShellRarities) do
-                    if item.Name:find(shellName) then
-                        if Settings.Favorites.SelectedRarities[rarity] then
-                            matched = true
-                        end
+                    if item.Name:find(shellName) and Settings.Favorites.SelectedRarities[rarity] then
+                        favoriteShell(item)
+                        task.wait(0.05)
                         break
                     end
-                end
-                if matched then
-                    favoriteShell(item)
-                    task.wait(0.05)
                 end
             end
             task.wait(1)
@@ -1144,7 +1126,9 @@ local function startAutoFavoriteRarity()
     end)
 end
 
--- Auto Gift
+-- ============================================================
+-- [FIX #1 & #7] AUTO GIFT — refactored, satu helper tunggal
+-- ============================================================
 local function findGiftableShell()
     local backpack = LocalPlayer:FindFirstChild("Backpack")
     if not backpack then return nil end
@@ -1158,9 +1142,7 @@ end
 
 local function equipGiftShell(shell)
     if not shell or not LocalPlayer.Character then return false end
-    pcall(function()
-        shell.Parent = LocalPlayer.Character
-    end)
+    pcall(function() shell.Parent = LocalPlayer.Character end)
     task.wait(0.5)
     return true
 end
@@ -1195,46 +1177,39 @@ local function executeGiftRoutine(shell)
     end
 end
 
-local function startAutoGift()
-    if Runtime.GiftRunning then return end
-    Runtime.GiftRunning = true
+-- [FIX #7] Satu fungsi generik menggantikan tiga fungsi identik
+local function startAutoGiftWith(findFn, settingKey)
+    -- [FIX #1] paksa reset flag sebelum mulai, cegah stale lock
+    if Runtime.GiftRunning and Runtime.ActiveGiftKey == settingKey then return end
+    Runtime.GiftRunning   = true
+    Runtime.ActiveGiftKey = settingKey
+
     task.spawn(function()
-        while Settings.Gift.AutoGift do
-            executeGiftRoutine(findGiftableShell())
+        while Settings.Gift[settingKey] do
+            executeGiftRoutine(findFn())
             task.wait(0.5)
         end
-        Runtime.GiftRunning = false
+        Runtime.GiftRunning   = false
+        Runtime.ActiveGiftKey = nil
     end)
+end
+
+local function startAutoGift()
+    startAutoGiftWith(findGiftableShell, "AutoGift")
 end
 
 local function startAutoGiftNonFavorite()
-    if Runtime.GiftRunning then return end
-    Runtime.GiftRunning = true
-    task.spawn(function()
-        while Settings.Gift.AutoGiftNonFavorite do
-            executeGiftRoutine(findNonFavoriteShell())
-            task.wait(0.5)
-        end
-        Runtime.GiftRunning = false
-    end)
+    startAutoGiftWith(findNonFavoriteShell, "AutoGiftNonFavorite")
 end
 
 local function startAutoGiftShells()
-    if Runtime.GiftRunning then return end
-    Runtime.GiftRunning = true
-    task.spawn(function()
-        while Settings.Gift.AutoGiftShells do
-            executeGiftRoutine(findSelectedGiftShell())
-            task.wait(0.5)
-        end
-        Runtime.GiftRunning = false
-    end)
+    startAutoGiftWith(findSelectedGiftShell, "AutoGiftShells")
 end
 
--- Hermit Crab Claim & Upgrade
+-- Hermit Crab
 local function claimAllHermitShells()
     pcall(function()
-        ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(buffer.fromstring("\b"), nil, 8)
+        ReplicatedStorage:WaitForChild("ByteNetQuery"):InvokeServer(buffer.fromstring(NET.HERMIT_CLAIM), nil, 8)
     end)
 end
 
@@ -1253,7 +1228,7 @@ local function virtualClickButton(buttonObj)
         local guiService = game:GetService("GuiService")
         local x = buttonObj.AbsolutePosition.X + (buttonObj.AbsoluteSize.X / 2)
         local y = buttonObj.AbsolutePosition.Y + (buttonObj.AbsoluteSize.Y / 2) + guiService:GetGuiInset().Y
-        VIM:SendMouseButtonEvent(x, y, 0, true, game, 0)
+        VIM:SendMouseButtonEvent(x, y, 0, true,  game, 0)
         task.wait(0.05)
         VIM:SendMouseButtonEvent(x, y, 0, false, game, 0)
     end)
@@ -1266,8 +1241,9 @@ local function upgradeHermit(stat)
     pcall(function()
         local targetStatObj = hermitGui.Main.Core.InfoFrame.Stats.StatsFolder:FindFirstChild(folderName)
         if targetStatObj and targetStatObj:FindFirstChild("Upgrade") then
-            if targetStatObj.Upgrade.AbsoluteSize.X > 0 and targetStatObj.Upgrade.AbsoluteSize.Y > 0 then
-                virtualClickButton(targetStatObj.Upgrade)
+            local upg = targetStatObj.Upgrade
+            if upg.AbsoluteSize.X > 0 and upg.AbsoluteSize.Y > 0 then
+                virtualClickButton(upg)
             end
         end
     end)
@@ -1278,27 +1254,23 @@ local function startAutoHermitUpgrade()
         while Settings.Crab.AutoUpgrade do
             local hermitGui = LocalPlayer.PlayerGui:FindFirstChild("HermitCrab")
             if hermitGui then
-                local mainFrame = hermitGui:FindFirstChild("Main")
-                local isAlreadyOpen = mainFrame and mainFrame.Visible
+                local mainFrame    = hermitGui:FindFirstChild("Main")
+                local isAlreadyOpen= mainFrame and mainFrame.Visible
                 Runtime.UpgradeActive = true
                 task.wait(0.1)
-
                 if mainFrame and not isAlreadyOpen and hermitGui:FindFirstChild("OpenButton") then
                     virtualClickButton(hermitGui.OpenButton)
                     task.wait(0.4)
                 end
-
                 for upgradeName in pairs(Settings.Crab.SelectedUpgrades) do
                     if not Settings.Crab.AutoUpgrade then break end
                     upgradeHermit(upgradeName)
                     task.wait(0.6)
                 end
-
                 if mainFrame and not isAlreadyOpen and hermitGui:FindFirstChild("CloseButton") then
                     virtualClickButton(hermitGui.CloseButton)
                     task.wait(0.2)
                 end
-
                 Runtime.UpgradeActive = false
                 task.wait(8)
             else
@@ -1322,8 +1294,7 @@ local function startAutoTraitReroll()
     task.spawn(function()
         local lastPity = getCurrentPity()
         while Settings.Trait.AutoReroll do
-            local currentTrait = getCurrentTrait()
-            if currentTrait == Settings.Trait.TargetTrait or getCurrentPity() < lastPity then
+            if getCurrentTrait() == Settings.Trait.TargetTrait or getCurrentPity() < lastPity then
                 Settings.Trait.AutoReroll = false
                 break
             end
@@ -1357,34 +1328,250 @@ local function startAutoBuyMerchant()
 end
 
 --========================================================
+-- FPS BOOSTER FUNCTIONS
+--========================================================
+
+local Lighting  = game:GetService("Lighting")
+local StarterGui= game:GetService("StarterGui")
+
+-- Simpan nilai asli Lighting agar bisa di-restore
+local function saveLightingOriginals()
+    Runtime.OriginalLighting = {
+        GlobalShadows    = Lighting.GlobalShadows,
+        FogEnd           = Lighting.FogEnd,
+        FogStart         = Lighting.FogStart,
+        FogColor         = Lighting.FogColor,
+        Brightness       = Lighting.Brightness,
+    }
+    -- Simpan terrain properties
+    pcall(function()
+        Runtime.OriginalTerrain = {
+            WaterWaveSize   = workspace.Terrain.WaterWaveSize,
+            WaterWaveSpeed  = workspace.Terrain.WaterWaveSpeed,
+            WaterReflectance= workspace.Terrain.WaterReflectance,
+            WaterTransparency= workspace.Terrain.WaterTransparency,
+        }
+    end)
+end
+saveLightingOriginals()
+
+-- Unlock FPS (bypass Roblox 60fps cap)
+local function setFPSUnlock(enabled)
+    if enabled then
+        -- setfpscap tersedia di kebanyakan exploit modern
+        if setfpscap then
+            pcall(function() setfpscap(Settings.FPS.TargetFPS) end)
+        end
+    else
+        if setfpscap then
+            pcall(function() setfpscap(60) end)
+        end
+    end
+end
+
+-- Disable / restore shadows
+local function setShadows(disable)
+    pcall(function()
+        Lighting.GlobalShadows = not disable
+        if disable then
+            Lighting.Brightness = 2
+        else
+            Lighting.Brightness = Runtime.OriginalLighting.Brightness
+        end
+    end)
+end
+
+-- Disable / restore fog
+local function setFog(disable)
+    pcall(function()
+        if disable then
+            Lighting.FogEnd   = 1e6
+            Lighting.FogStart = 1e6
+        else
+            Lighting.FogEnd   = Runtime.OriginalLighting.FogEnd
+            Lighting.FogStart = Runtime.OriginalLighting.FogStart
+        end
+    end)
+end
+
+-- Disable / restore post-processing blur
+local function setBlur(disable)
+    for _, obj in ipairs(Lighting:GetChildren()) do
+        if obj:IsA("BlurEffect") then
+            obj.Enabled = not disable
+        end
+    end
+end
+
+-- Disable / restore sun rays
+local function setSunRays(disable)
+    for _, obj in ipairs(Lighting:GetChildren()) do
+        if obj:IsA("SunRaysEffect") then
+            obj.Enabled = not disable
+        end
+    end
+end
+
+-- Disable / restore particles (Smoke, Fire, Sparkles, ParticleEmitter)
+local particleTypes = {"Smoke", "Fire", "Sparkles", "ParticleEmitter"}
+
+local function setParticles(disable)
+    if disable then
+        -- Scan workspace dan cache rate asli
+        Runtime.ParticleCache = {}
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            for _, pType in ipairs(particleTypes) do
+                if obj:IsA(pType) then
+                    Runtime.ParticleCache[obj] = obj.Enabled ~= nil and obj.Enabled or true
+                    pcall(function()
+                        if pType == "Smoke" or pType == "Fire" or pType == "Sparkles" then
+                            obj.Size = NumberSequence.new(0)
+                        end
+                        obj.Enabled = false
+                    end)
+                    break
+                end
+            end
+        end
+        -- Auto-disable particles yang baru muncul
+        local conn = workspace.DescendantAdded:Connect(function(obj)
+            if not Settings.FPS.DisableParticles then return end
+            for _, pType in ipairs(particleTypes) do
+                if obj:IsA(pType) then
+                    pcall(function() obj.Enabled = false end)
+                    break
+                end
+            end
+        end)
+        table.insert(Runtime.FPSBoosterConns, conn)
+    else
+        -- Restore
+        for obj, wasEnabled in pairs(Runtime.ParticleCache) do
+            pcall(function() obj.Enabled = wasEnabled end)
+        end
+        Runtime.ParticleCache = {}
+        -- Disconnect listener
+        for _, conn in ipairs(Runtime.FPSBoosterConns) do
+            pcall(function() conn:Disconnect() end)
+        end
+        Runtime.FPSBoosterConns = {}
+    end
+end
+
+-- Disable / restore textures (set semua SurfaceAppearance & texture transparent)
+local function setTextures(disable)
+    if disable then
+        Runtime.TextureCache = {}
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj:IsA("SurfaceAppearance") then
+                Runtime.TextureCache[obj] = { ColorMapId = obj.ColorMapId }
+                pcall(function() obj.ColorMapId = "" end)
+            end
+        end
+    else
+        for obj, data in pairs(Runtime.TextureCache) do
+            pcall(function() obj.ColorMapId = data.ColorMapId end)
+        end
+        Runtime.TextureCache = {}
+    end
+end
+
+-- Disable / restore decals
+local function setDecals(disable)
+    if disable then
+        Runtime.DecalCache = {}
+        for _, obj in ipairs(workspace:GetDescendants()) do
+            if obj:IsA("Decal") or obj:IsA("Texture") then
+                Runtime.DecalCache[obj] = { Transparency = obj.Transparency }
+                pcall(function() obj.Transparency = 1 end)
+            end
+        end
+    else
+        for obj, data in pairs(Runtime.DecalCache) do
+            pcall(function() obj.Transparency = data.Transparency end)
+        end
+        Runtime.DecalCache = {}
+    end
+end
+
+-- Disable / restore grass
+local function setGrass(disable)
+    pcall(function()
+        workspace.Terrain.Decoration = not disable
+    end)
+end
+
+-- Kurangi / restore render distance
+local function setRenderDistance(low)
+    pcall(function()
+        if low then
+            workspace.StreamingMinRadius = 64
+            workspace.StreamingTargetRadius = 256
+        else
+            workspace.StreamingMinRadius = 64
+            workspace.StreamingTargetRadius = 1024
+        end
+    end)
+end
+
+-- Apply semua yang aktif sekaligus (berguna saat script reload)
+local function applyAllFPSSettings()
+    setFPSUnlock(Settings.FPS.UnlockFPS)
+    setShadows(Settings.FPS.DisableShadows)
+    setFog(Settings.FPS.DisableFog)
+    setBlur(Settings.FPS.DisableBlur)
+    setSunRays(Settings.FPS.DisableSunRays)
+    setGrass(Settings.FPS.DisableGrass)
+    setRenderDistance(Settings.FPS.LowRenderDist)
+    if Settings.FPS.DisableParticles then setParticles(true) end
+    if Settings.FPS.DisableTextures  then setTextures(true)  end
+    if Settings.FPS.DisableDecals    then setDecals(true)    end
+end
+
+-- Restore semua ke default
+local function restoreAllFPS()
+    setFPSUnlock(false)
+    setShadows(false)
+    setFog(false)
+    setBlur(false)
+    setSunRays(false)
+    setGrass(false)
+    setRenderDistance(false)
+    setParticles(false)
+    setTextures(false)
+    setDecals(false)
+end
+
+--========================================================
 -- FLUENT UI & ADDONS
 --========================================================
 
-local Fluent = loadstring(game:HttpGet("https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"))()
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"))()
+local Fluent          = loadstring(game:HttpGet("https://github.com/ActualMasterOogway/Fluent-Renewed/releases/latest/download/Fluent.luau"))()
+local SaveManager     = loadstring(game:HttpGet("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/SaveManager.luau"))()
+local InterfaceManager= loadstring(game:HttpGet("https://raw.githubusercontent.com/ActualMasterOogway/Fluent-Renewed/master/Addons/InterfaceManager.luau"))()
 
 local Window = Fluent:CreateWindow({
-    Title = "Sobat Kerang",
-    SubTitle = "v3 Ultimate",
-    TabWidth = 170,
-    Size = UDim2.fromOffset(480, 300),
-    Acrylic = true,
-    Theme = "Dark",
-    MinimizeKey = Enum.KeyCode.RightControl
+    Title      = "Sobat Kerang",
+    SubTitle   = "v4.1 Ultimate",
+    TabWidth   = 170,
+    Size       = UDim2.fromOffset(480, 300),
+    Acrylic    = true,
+    Theme      = "Dark",
+    MinimizeKey= Enum.KeyCode.RightControl,
 })
 
 local Tabs = {
-    Info = Window:CreateTab({ Title = "Information", Icon = "info" }),
-    Main = Window:CreateTab({ Title = "Auto Farm", Icon = "pickaxe" }),
-    Favorites = Window:CreateTab({ Title = "Favorites", Icon = "star" }),
-    Gift = Window:CreateTab({ Title = "Auto Gift Shells", Icon = "gift" }),
-    Crab = Window:CreateTab({ Title = "Hermit Crab", Icon = "shell" }),
-    Trait = Window:CreateTab({ Title = "Trait Reroll", Icon = "refresh-cw" }),
-    Merchant = Window:CreateTab({ Title = "Merchant", Icon = "shopping-cart" }),
-    Teleport = Window:CreateTab({ Title = "Teleport", Icon = "map-pinned" }),
-    Webhook = Window:CreateTab({ Title = "Webhook", Icon = "webhook" }),
-    Settings = Window:CreateTab({ Title = "Settings", Icon = "settings" })
+    Info    = Window:CreateTab({ Title = "Information",       Icon = "info"          }),
+    Main    = Window:CreateTab({ Title = "Auto Farm",         Icon = "pickaxe"       }),
+    Favorites= Window:CreateTab({ Title = "Favorites",        Icon = "star"          }),
+    Gift    = Window:CreateTab({ Title = "Auto Gift Shells",  Icon = "gift"          }),
+    Crab    = Window:CreateTab({ Title = "Hermit Crab",       Icon = "shell"         }),
+    Trait   = Window:CreateTab({ Title = "Trait Reroll",      Icon = "refresh-cw"   }),
+    Merchant= Window:CreateTab({ Title = "Merchant",          Icon = "shopping-cart" }),
+    Teleport= Window:CreateTab({ Title = "Teleport",          Icon = "map-pinned"    }),
+    Webhook = Window:CreateTab({ Title = "Webhook",           Icon = "webhook"       }),
+    FPS     = Window:CreateTab({ Title = "FPS Booster",       Icon = "zap"           }),
+    Settings= Window:CreateTab({ Title = "Settings",          Icon = "settings"      }),
 }
 
 --========================================================
@@ -1392,57 +1579,60 @@ local Tabs = {
 --========================================================
 
 local CoreGui = game:GetService("CoreGui")
-local UIS = game:GetService("UserInputService")
+local UIS     = game:GetService("UserInputService")
 
 if CoreGui:FindFirstChild("SobatKerangFloating") then
     CoreGui.SobatKerangFloating:Destroy()
 end
 
-local FloatGui = Instance.new("ScreenGui")
-FloatGui.Name = "SobatKerangFloating"
-FloatGui.ResetOnSpawn = false
-FloatGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-FloatGui.DisplayOrder = 999999
-FloatGui.Parent = CoreGui
+local FloatGui             = Instance.new("ScreenGui")
+FloatGui.Name              = "SobatKerangFloating"
+FloatGui.ResetOnSpawn      = false
+FloatGui.ZIndexBehavior    = Enum.ZIndexBehavior.Sibling
+FloatGui.DisplayOrder      = 999999
+FloatGui.Parent            = CoreGui
 
-local ShellButton = Instance.new("TextButton")
-ShellButton.Name = "ShellButton"
-ShellButton.Parent = FloatGui
-ShellButton.Size = UDim2.fromOffset(50, 50)
-ShellButton.Position = UDim2.new(0, 20, 0.5, -30)
-ShellButton.Text = "🐚"
-ShellButton.TextScaled = false
-ShellButton.TextSize = 25
+local ShellButton          = Instance.new("TextButton")
+ShellButton.Name           = "ShellButton"
+ShellButton.Parent         = FloatGui
+ShellButton.Size           = UDim2.fromOffset(50, 50)
+ShellButton.Position       = UDim2.new(0, 20, 0.5, -30)
+ShellButton.Text           = "🐚"
+ShellButton.TextScaled     = false
+ShellButton.TextSize       = 25
 ShellButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-ShellButton.TextColor3 = Color3.new(1, 1, 1)
-ShellButton.AutoButtonColor = true
+ShellButton.TextColor3     = Color3.new(1, 1, 1)
+ShellButton.AutoButtonColor= true
 
-local Corner = Instance.new("UICorner")
-Corner.CornerRadius = UDim.new(1, 0)
-Corner.Parent = ShellButton
+local Corner               = Instance.new("UICorner")
+Corner.CornerRadius        = UDim.new(1, 0)
+Corner.Parent              = ShellButton
 
-local Stroke = Instance.new("UIStroke")
-Stroke.Color = Color3.fromRGB(0, 180, 255)
-Stroke.Thickness = 2
-Stroke.Parent = ShellButton
+local Stroke               = Instance.new("UIStroke")
+Stroke.Color               = Color3.fromRGB(0, 180, 255)
+Stroke.Thickness           = 2
+Stroke.Parent              = ShellButton
 
 local dragging, dragStart, startPos = false, nil, nil
 
 ShellButton.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
         dragging, dragStart, startPos = true, input.Position, ShellButton.Position
         input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
+            if input.UserInputState == Enum.UserInputState.End then dragging = false end
         end)
     end
 end)
 
 UIS.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+    or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
-        ShellButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        ShellButton.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
     end
 end)
 
@@ -1453,9 +1643,7 @@ ShellButton.MouseButton1Click:Connect(function()
         local fluentGui = CoreGui:FindFirstChild("FluentRenewed") or CoreGui:FindFirstChild("Fluent")
         if fluentGui then
             for _, obj in ipairs(fluentGui:GetChildren()) do
-                if obj:IsA("Frame") then
-                    obj.Visible = not Minimized
-                end
+                if obj:IsA("Frame") then obj.Visible = not Minimized end
             end
         else
             Window:Minimize(Minimized)
@@ -1469,27 +1657,21 @@ end)
 Tabs.Info:CreateSection("Account Information")
 
 local InfoParagraph = Tabs.Info:CreateParagraph("AccountInfo", {
-    Title = "Player Information",
+    Title   = "Player Information",
     Content = "Loading..."
 })
 
 task.spawn(function()
     while true do
         local username = LocalPlayer.Name
-        local level = "?"
-        pcall(function()
-            level = LocalPlayer.PlayerGui.Main.Stats.LevelFrame.Level.Text
-        end)
-        local money = 0
-        pcall(function()
-            money = LocalPlayer.PlayerGui.Main.Stats.Money.Value.Value
-        end)
+        local level    = "?"
+        pcall(function() level = LocalPlayer.PlayerGui.Main.Stats.LevelFrame.Level.Text end)
+        local money  = 0
+        pcall(function() money  = LocalPlayer.PlayerGui.Main.Stats.Money.Value.Value  end)
         local pearls = 0
-        pcall(function()
-            pearls = LocalPlayer.PlayerGui.Main.Stats.Pearls.Value.Value
-        end)
+        pcall(function() pearls = LocalPlayer.PlayerGui.Main.Stats.Pearls.Value.Value end)
         local backpack = getBackpackCapacity()
-        local value = getBackpackValue()
+        local value    = getBackpackValue()  -- [FIX #3] pakai cache
         InfoParagraph:SetValue(string.format(
 [[Username : %s
 Level    : %s
@@ -1509,66 +1691,66 @@ end)
 
 Tabs.Main:CreateSection("Digging")
 Tabs.Main:CreateToggle("LegitDig", {
-    Title = "Legit Dig",
-    Default = false,
+    Title    = "Legit Dig",
+    Default  = false,
     Callback = function(V)
         Settings.Main.LegitDig = V
         if V then startLegitDig() else stopLegitDig() end
     end
 })
 Tabs.Main:CreateToggle("FastLegitDig", {
-    Title = "Fast Legit Dig",
-    Default = false,
+    Title    = "Fast Legit Dig",
+    Default  = false,
     Callback = function(V)
         Settings.Main.FastLegitDig = V
         if V then startFastLegitDig() else stopLegitDig() end
     end
 })
 Tabs.Main:CreateToggle("MythicOnly", {
-    Title = "Mythic Only Dig ✨",
-    Default = false,
+    Title    = "Mythic Only Dig ✨",
+    Default  = false,
     Callback = function(V)
         Settings.Main.MythicOnly = V
         if V then startMythicDig() else stopLegitDig() end
     end
 })
 Tabs.Main:CreateToggle("AutoLostCity", {
-    Title = "Auto Lost City",
-    Default = false,
+    Title    = "Auto Lost City",
+    Default  = false,
     Callback = function(V)
         Settings.Main.AutoLostCity = V
         if V then startLostCityMonitor() end
     end
 })
 Tabs.Main:CreateToggle("AutoDebris", {
-    Title = "Auto Debris",
-    Default = false,
+    Title    = "Auto Debris",
+    Default  = false,
     Callback = function(V)
         Settings.Main.AutoDebris = V
+        -- [FIX #2] reset guard agar bisa start ulang
+        if not V then Runtime.DebrisRunning = false end
         if V then startAutoDebris() end
     end
 })
 
 Tabs.Main:CreateSection("Sell")
 Tabs.Main:CreateToggle("AutoSell", {
-    Title = "Auto Sell",
-    Default = false,
+    Title    = "Auto Sell",
+    Default  = false,
     Callback = function(V)
         Settings.Main.AutoSell = V
         if V then startAutoSell() end
     end
 })
 Tabs.Main:CreateToggle("SellWhenFull", {
-    Title = "Sell When Full",
-    Default = false,
+    Title    = "Sell When Full",
+    Default  = false,
     Callback = function(V)
         Settings.Main.SellWhenFull = V
         if V then startSellWhenFull() end
     end
 })
-Tabs.Main:CreateButton({ Title = "Sell Now", Callback = function()
-    sellInventory()
-end })
+Tabs.Main:CreateButton({ Title = "Sell Now", Callback = function() sellInventory() end })
 
 --========================================================
 -- TAB: FAVORITES
@@ -1576,23 +1758,22 @@ end })
 
 Tabs.Favorites:CreateSection("Shell Favorites")
 Tabs.Favorites:CreateDropdown("SelectedShells", {
-    Title = "Select Shells",
-    Values = getShellList(),
-    Multi = true,
+    Title   = "Select Shells",
+    Values  = getShellList(),
+    Multi   = true,
     Default = {}
-}):OnChanged(function(V)
-    Settings.Favorites.SelectedShells = V
-end)
+}):OnChanged(function(V) Settings.Favorites.SelectedShells = V end)
+
 Tabs.Favorites:CreateToggle("AutoFavorite", {
-    Title = "Auto Favorite Selected Shells",
-    Default = false,
+    Title    = "Auto Favorite Selected Shells",
+    Default  = false,
     Callback = function(V)
         Settings.Favorites.AutoFavorite = V
         if V then startAutoFavorite() end
     end
 })
 Tabs.Favorites:CreateButton({
-    Title = "Unfavorite Selected Shells",
+    Title    = "Unfavorite Selected Shells",
     Callback = function()
         local unfavCount = 0
         for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
@@ -1606,33 +1787,28 @@ Tabs.Favorites:CreateButton({
                 end
             end
         end
-        Fluent:Notify({
-            Title = "Unfavorite Complete",
-            Content = "Unfavorited " .. unfavCount .. " shells!",
-            Duration = 3
-        })
+        Fluent:Notify({ Title = "Unfavorite Complete", Content = "Unfavorited " .. unfavCount .. " shells!", Duration = 3 })
     end
 })
 
 Tabs.Favorites:CreateSection("Rarity Favorites")
 Tabs.Favorites:CreateDropdown("SelectedRarities", {
-    Title = "Select Rarities",
-    Values = getRarityList(),
-    Multi = true,
+    Title   = "Select Rarities",
+    Values  = getRarityList(),
+    Multi   = true,
     Default = {}
-}):OnChanged(function(V)
-    Settings.Favorites.SelectedRarities = V
-end)
+}):OnChanged(function(V) Settings.Favorites.SelectedRarities = V end)
+
 Tabs.Favorites:CreateToggle("AutoFavoriteRarity", {
-    Title = "Auto Favorite Selected Rarities",
-    Default = false,
+    Title    = "Auto Favorite Selected Rarities",
+    Default  = false,
     Callback = function(V)
         Settings.Favorites.AutoFavoriteRarity = V
         if V then startAutoFavoriteRarity() end
     end
 })
 Tabs.Favorites:CreateButton({
-    Title = "Unfavorite Selected Rarities",
+    Title    = "Unfavorite Selected Rarities",
     Callback = function()
         local unfavCount = 0
         for _, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
@@ -1644,11 +1820,7 @@ Tabs.Favorites:CreateButton({
                 task.wait(0.05)
             end
         end
-        Fluent:Notify({
-            Title = "Unfavorite Rarity",
-            Content = "Unfavorited " .. unfavCount .. " shells with selected rarities.",
-            Duration = 3
-        })
+        Fluent:Notify({ Title = "Unfavorite Rarity", Content = "Unfavorited " .. unfavCount .. " shells.", Duration = 3 })
     end
 })
 
@@ -1658,38 +1830,44 @@ Tabs.Favorites:CreateButton({
 
 Tabs.Gift:CreateSection("Auto Gift Base on Rarities")
 Tabs.Gift:CreateDropdown("GiftRarities", {
-    Title = "Select Gift Rarities",
-    Values = getRarityList(),
-    Multi = true,
+    Title   = "Select Gift Rarities",
+    Values  = getRarityList(),
+    Multi   = true,
     Default = {}
-}):OnChanged(function(V)
-    Settings.Gift.SelectedRarities = V
-end)
+}):OnChanged(function(V) Settings.Gift.SelectedRarities = V end)
+
 Tabs.Gift:CreateToggle("AutoGift", {
-    Title = "Selected Rarities",
-    Default = false,
+    Title    = "Selected Rarities",
+    Default  = false,
     Callback = function(V)
         Settings.Gift.AutoGift = V
-        if V then startAutoGift() end
+        -- [FIX #1] reset flag lain sebelum start
+        if V then
+            Settings.Gift.AutoGiftNonFavorite = false
+            Settings.Gift.AutoGiftShells      = false
+            Runtime.GiftRunning               = false
+            startAutoGift()
+        end
     end
 })
 
 Tabs.Gift:CreateSection("Auto Gift Base on Unfavorite Shells")
 Tabs.Gift:CreateDropdown("GiftNFRarities", {
-    Title = "Select Non-Favorite Rarities",
-    Values = getRarityList(),
-    Multi = true,
+    Title   = "Select Non-Favorite Rarities",
+    Values  = getRarityList(),
+    Multi   = true,
     Default = {}
-}):OnChanged(function(V)
-    Settings.Gift.SelectedNonFavoriteRarities = V
-end)
+}):OnChanged(function(V) Settings.Gift.SelectedNonFavoriteRarities = V end)
+
 Tabs.Gift:CreateToggle("AutoGiftNonFavorite", {
-    Title = "Auto Gift Non-Favorite",
-    Default = false,
+    Title    = "Auto Gift Non-Favorite",
+    Default  = false,
     Callback = function(V)
         Settings.Gift.AutoGiftNonFavorite = V
         if V then
-            Settings.Gift.AutoGift = false
+            Settings.Gift.AutoGift       = false
+            Settings.Gift.AutoGiftShells = false
+            Runtime.GiftRunning          = false
             startAutoGiftNonFavorite()
         end
     end
@@ -1697,21 +1875,21 @@ Tabs.Gift:CreateToggle("AutoGiftNonFavorite", {
 
 Tabs.Gift:CreateSection("Auto Gift Base on Shell Names")
 Tabs.Gift:CreateDropdown("GiftShells", {
-    Title = "Select Shells",
-    Values = getShellList(),
-    Multi = true,
+    Title   = "Select Shells",
+    Values  = getShellList(),
+    Multi   = true,
     Default = {}
-}):OnChanged(function(V)
-    Settings.Gift.SelectedShells = V
-end)
+}):OnChanged(function(V) Settings.Gift.SelectedShells = V end)
+
 Tabs.Gift:CreateToggle("AutoGiftShells", {
-    Title = "Auto Gift Selected Shells",
-    Default = false,
+    Title    = "Auto Gift Selected Shells",
+    Default  = false,
     Callback = function(V)
         Settings.Gift.AutoGiftShells = V
         if V then
-            Settings.Gift.AutoGift = false
+            Settings.Gift.AutoGift            = false
             Settings.Gift.AutoGiftNonFavorite = false
+            Runtime.GiftRunning               = false
             startAutoGiftShells()
         end
     end
@@ -1723,29 +1901,25 @@ Tabs.Gift:CreateToggle("AutoGiftShells", {
 
 Tabs.Crab:CreateSection("Claim")
 Tabs.Crab:CreateToggle("AutoClaim", {
-    Title = "Auto Claim Shells",
-    Default = false,
+    Title    = "Auto Claim Shells",
+    Default  = false,
     Callback = function(V)
         Settings.Crab.AutoClaim = V
-        if V then
-            claimAllHermitShells()
-            startAutoHermitClaim()
-        end
+        if V then claimAllHermitShells() startAutoHermitClaim() end
     end
 })
 
 Tabs.Crab:CreateSection("Upgrades")
 Tabs.Crab:CreateDropdown("HermitUpgrades", {
-    Title = "Select Upgrades",
-    Values = getHermitUpgradeList(),
-    Multi = true,
+    Title   = "Select Upgrades",
+    Values  = getHermitUpgradeList(),
+    Multi   = true,
     Default = {}
-}):OnChanged(function(V)
-    Settings.Crab.SelectedUpgrades = V
-end)
+}):OnChanged(function(V) Settings.Crab.SelectedUpgrades = V end)
+
 Tabs.Crab:CreateToggle("AutoUpgrade", {
-    Title = "Auto Upgrade Selected",
-    Default = false,
+    Title    = "Auto Upgrade Selected",
+    Default  = false,
     Callback = function(V)
         Settings.Crab.AutoUpgrade = V
         if V then startAutoHermitUpgrade() end
@@ -1755,45 +1929,38 @@ Tabs.Crab:CreateToggle("AutoUpgrade", {
 --========================================================
 -- TAB: TRAIT REROLL
 --========================================================
-Tabs.Trait:CreateSection("Current Information")
 
+Tabs.Trait:CreateSection("Current Information")
 local TraitInfo = Tabs.Trait:CreateParagraph("TraitInfo", {
-    Title = "Trait Information",
+    Title   = "Trait Information",
     Content = "Loading..."
 })
 
 task.spawn(function()
     while true do
         pcall(function()
-            local text = string.format(
+            TraitInfo:SetValue(string.format(
                 "Tool   : %s\nTrait  : %s\nPity   : %s\nPearls : %s\n\n━━━━━━━━━━━━━━\n\nInstructions:\n1. Open Equipment\n2. Enter Trait Reroll mode, that tool you want\n3. Choose your Target Trait\n4. Enable Auto Trait Reroll",
-                getCurrentTool(),
-                getCurrentTrait(),
-                getCurrentPityText(),
-                getCurrentPearls()
-            )
-            TraitInfo:SetValue(text)
+                getCurrentTool(), getCurrentTrait(), getCurrentPityText(), getCurrentPearls()
+            ))
         end)
         task.wait(1)
     end
 end)
 
 Tabs.Trait:CreateDropdown("TargetTrait", {
-    Title = "Target Trait",
-    Values = getTraitList(),
-    Multi = false,
+    Title   = "Target Trait",
+    Values  = getTraitList(),
+    Multi   = false,
     Default = nil
-}):OnChanged(function(V)
-    Settings.Trait.TargetTrait = V
-end)
+}):OnChanged(function(V) Settings.Trait.TargetTrait = V end)
+
 Tabs.Trait:CreateToggle("AutoTraitReroll", {
-    Title = "Auto Trait Reroll",
-    Default = false,
+    Title    = "Auto Trait Reroll",
+    Default  = false,
     Callback = function(V)
         Settings.Trait.AutoReroll = V
-        if V and Settings.Trait.TargetTrait then
-            startAutoTraitReroll()
-        end
+        if V and Settings.Trait.TargetTrait then startAutoTraitReroll() end
     end
 })
 
@@ -1802,23 +1969,22 @@ Tabs.Trait:CreateToggle("AutoTraitReroll", {
 --========================================================
 
 local KnownMerchantItems = {
-    "Abyssal Charm", "Colossus Charm", "Coral Charm", "Crystal Charm",
-    "Driftwood Charm", "Eclipse Charm", "Leviathan Charm", "Moonstone Charm",
-    "Pebble Charm", "Prism Charm", "Sea Glass Charm", "Starfish Charm",
-    "Tidal Charm", "Tide Charm", "Void Charm", "Crab Treat", "Pearl", "Mystic Shell"
+    "Abyssal Charm","Colossus Charm","Coral Charm","Crystal Charm",
+    "Driftwood Charm","Eclipse Charm","Leviathan Charm","Moonstone Charm",
+    "Pebble Charm","Prism Charm","Sea Glass Charm","Starfish Charm",
+    "Tidal Charm","Tide Charm","Void Charm","Crab Treat","Pearl","Mystic Shell",
 }
 Tabs.Merchant:CreateSection("Auto Buy Items")
 Tabs.Merchant:CreateDropdown("MerchantItems", {
-    Title = "Select Known Items",
-    Values = KnownMerchantItems,
-    Multi = true,
+    Title   = "Select Known Items",
+    Values  = KnownMerchantItems,
+    Multi   = true,
     Default = {}
-}):OnChanged(function(V)
-    Settings.Merchant.SelectedItems = V
-end)
+}):OnChanged(function(V) Settings.Merchant.SelectedItems = V end)
+
 Tabs.Merchant:CreateToggle("AutoBuyMerchant", {
-    Title = "Enable Auto Buy Merchant",
-    Default = false,
+    Title    = "Enable Auto Buy Merchant",
+    Default  = false,
     Callback = function(V)
         Settings.Merchant.AutoBuy = V
         if V then startAutoBuyMerchant() end
@@ -1831,13 +1997,12 @@ Tabs.Merchant:CreateToggle("AutoBuyMerchant", {
 
 Tabs.Teleport:CreateSection("Island Teleport")
 Tabs.Teleport:CreateDropdown("SelectedIsland", {
-    Title = "Select Island",
-    Values = IslandNames,
-    Multi = false,
+    Title   = "Select Island",
+    Values  = IslandNames,
+    Multi   = false,
     Default = nil
-}):OnChanged(function(V)
-    Settings.Teleport.SelectedIsland = V
-end)
+}):OnChanged(function(V) Settings.Teleport.SelectedIsland = V end)
+
 Tabs.Teleport:CreateButton({ Title = "🚀 Teleport Instan ke Pulau", Callback = function()
     if Settings.Teleport.SelectedIsland then
         tpTo(TeleportLocations.Islands[Settings.Teleport.SelectedIsland] + Vector3.new(0, 5, 0))
@@ -1846,13 +2011,12 @@ end })
 
 Tabs.Teleport:CreateSection("NPC Teleport")
 Tabs.Teleport:CreateDropdown("SelectedNPC", {
-    Title = "Select NPC",
-    Values = NpcNames,
-    Multi = false,
+    Title   = "Select NPC",
+    Values  = NpcNames,
+    Multi   = false,
     Default = nil
-}):OnChanged(function(V)
-    Settings.Teleport.SelectedNpc = V
-end)
+}):OnChanged(function(V) Settings.Teleport.SelectedNpc = V end)
+
 Tabs.Teleport:CreateButton({ Title = "🚀 Teleport Instan ke NPC", Callback = function()
     if Settings.Teleport.SelectedNpc then
         tpTo(TeleportLocations.NPCs[Settings.Teleport.SelectedNpc] + Vector3.new(0, 5, 0))
@@ -1862,93 +2026,230 @@ end })
 --========================================================
 -- TAB: WEBHOOK
 --========================================================
-Tabs.Webhook:CreateSection("Discord Webhook Settings")
 
-local WebhookInput = Tabs.Webhook:CreateInput("WebhookUrl", {
-    Title = "Webhook URL",
-    Default = Settings.Webhook.Url,
+Tabs.Webhook:CreateSection("Discord Webhook Settings")
+Tabs.Webhook:CreateInput("WebhookUrl", {
+    Title       = "Webhook URL",
+    Default     = Settings.Webhook.Url,
     Placeholder = "https://discord.com/api/webhooks/...",
-    Numeric = false,
-    Finished = true,
-    Callback = function(Value)
+    Numeric     = false,
+    Finished    = true,
+    Callback    = function(Value)
         Settings.Webhook.Url = Value
         SaveManager:Save()
-        Fluent:Notify({
-            Title = "Webhook",
-            Content = "URL saved!",
-            Duration = 1
-        })
+        Fluent:Notify({ Title = "Webhook", Content = "URL saved!", Duration = 1 })
     end
 })
 
 Tabs.Webhook:CreateButton({
-    Title = "🔔 Test Webhook",
+    Title    = "🔔 Test Webhook",
     Callback = function()
         local url = Settings.Webhook.Url
         if url == nil or url == "" then
-            Fluent:Notify({
-                Title = "Webhook Error",
-                Content = "Please enter a valid webhook URL first.",
-                Duration = 3
-            })
+            Fluent:Notify({ Title = "Webhook Error", Content = "Please enter a valid webhook URL first.", Duration = 3 })
             return
         end
-
-        local testPayload = {
-            content = "🐚 Sobat Kerang webhook is working! Test message."
-        }
-
-        local success = sendDiscordWebhook(url, testPayload)
+        local success = sendDiscordWebhook(url, { content = "🐚 Sobat Kerang webhook is working! Test message." })
         if success then
-            Fluent:Notify({
-                Title = "Webhook Test",
-                Content = "Test notification sent to Discord!",
-                Duration = 3
-            })
+            Fluent:Notify({ Title = "Webhook Test", Content = "Test notification sent to Discord!", Duration = 3 })
         else
-            Fluent:Notify({
-                Title = "Webhook Error",
-                Content = "Failed to send test. Check your URL and console.",
-                Duration = 5
-            })
+            Fluent:Notify({ Title = "Webhook Error", Content = "Failed to send test. Check your URL and console.", Duration = 5 })
         end
     end
 })
 
 Tabs.Webhook:CreateDropdown("WebhookRarities", {
-    Title = "Notify on Rarities",
-    Values = getRarityList(),
-    Multi = true,
+    Title   = "Notify on Rarities",
+    Values  = getRarityList(),
+    Multi   = true,
     Default = {}
-}):OnChanged(function(V)
-    Settings.Webhook.SelectedRarities = V
-    SaveManager:Save()
-end)
+}):OnChanged(function(V) Settings.Webhook.SelectedRarities = V SaveManager:Save() end)
 
 Tabs.Webhook:CreateToggle("LostCityWebhook", {
-    Title = "Notify Lost City Event",
-    Default = false,
-    Callback = function(V)
-        Settings.Webhook.LostCityNotify = V
-        SaveManager:Save()
-    end
+    Title    = "Notify Lost City Event",
+    Default  = false,
+    Callback = function(V) Settings.Webhook.LostCityNotify = V SaveManager:Save() end
 })
 
 Tabs.Webhook:CreateToggle("WebhookEnabled", {
-    Title = "Enable Webhook Notifications",
-    Default = false,
+    Title    = "Enable Webhook Notifications",
+    Default  = false,
     Callback = function(V)
         Settings.Webhook.Enabled = V
         SaveManager:Save()
-        if V then
-            Fluent:Notify({
-                Title = "Webhook",
-                Content = "Webhook monitoring started!",
-                Duration = 2
-            })
-        else
-            -- notifikasi dimatikan
-        end
+        if V then Fluent:Notify({ Title = "Webhook", Content = "Webhook monitoring started!", Duration = 2 }) end
+    end
+})
+
+--========================================================
+-- TAB: FPS BOOSTER
+--========================================================
+
+Tabs.FPS:CreateSection("⚡ Frame Rate")
+
+Tabs.FPS:CreateToggle("UnlockFPS", {
+    Title    = "Unlock FPS (bypass 60fps cap)",
+    Default  = false,
+    Callback = function(V)
+        Settings.FPS.UnlockFPS = V
+        setFPSUnlock(V)
+    end
+})
+
+Tabs.FPS:CreateSlider("TargetFPS", {
+    Title   = "Target FPS (saat Unlock aktif)",
+    Min     = 60,
+    Max     = 240,
+    Default = 60,
+    Suffix  = " fps",
+    Callback= function(V)
+        Settings.FPS.TargetFPS = V
+        if Settings.FPS.UnlockFPS then setFPSUnlock(true) end
+    end
+})
+
+Tabs.FPS:CreateSection("🌫️ Visual Effects")
+
+Tabs.FPS:CreateToggle("DisableShadows", {
+    Title    = "Disable Shadows",
+    Default  = false,
+    Callback = function(V)
+        Settings.FPS.DisableShadows = V
+        setShadows(V)
+    end
+})
+
+Tabs.FPS:CreateToggle("DisableFog", {
+    Title    = "Disable Fog",
+    Default  = false,
+    Callback = function(V)
+        Settings.FPS.DisableFog = V
+        setFog(V)
+    end
+})
+
+Tabs.FPS:CreateToggle("DisableBlur", {
+    Title    = "Disable Post-Process Blur",
+    Default  = false,
+    Callback = function(V)
+        Settings.FPS.DisableBlur = V
+        setBlur(V)
+    end
+})
+
+Tabs.FPS:CreateToggle("DisableSunRays", {
+    Title    = "Disable Sun Rays",
+    Default  = false,
+    Callback = function(V)
+        Settings.FPS.DisableSunRays = V
+        setSunRays(V)
+    end
+})
+
+Tabs.FPS:CreateSection("🌿 World Detail")
+
+Tabs.FPS:CreateToggle("DisableGrass", {
+    Title    = "Disable Grass / Terrain Decoration",
+    Default  = false,
+    Callback = function(V)
+        Settings.FPS.DisableGrass = V
+        setGrass(V)
+    end
+})
+
+Tabs.FPS:CreateToggle("DisableParticles", {
+    Title    = "Disable Particles (Fire, Smoke, dll)",
+    Default  = false,
+    Callback = function(V)
+        Settings.FPS.DisableParticles = V
+        setParticles(V)
+    end
+})
+
+Tabs.FPS:CreateToggle("DisableDecals", {
+    Title    = "Disable Decals & Textures Overlay",
+    Default  = false,
+    Callback = function(V)
+        Settings.FPS.DisableDecals = V
+        setDecals(V)
+    end
+})
+
+Tabs.FPS:CreateToggle("DisableTextures", {
+    Title    = "Disable Surface Textures (extreme)",
+    Default  = false,
+    Callback = function(V)
+        Settings.FPS.DisableTextures = V
+        setTextures(V)
+    end
+})
+
+Tabs.FPS:CreateToggle("LowRenderDist", {
+    Title    = "Low Render Distance",
+    Default  = false,
+    Callback = function(V)
+        Settings.FPS.LowRenderDist = V
+        setRenderDistance(V)
+    end
+})
+
+Tabs.FPS:CreateSection("🚀 Presets")
+
+Tabs.FPS:CreateButton({
+    Title    = "⚡ Preset: Farming Mode (Recommended)",
+    Callback = function()
+        -- Matiin semua yang visual-heavy, pertahankan textures agar game masih terbaca
+        Settings.FPS.UnlockFPS        = true
+        Settings.FPS.TargetFPS        = 144
+        Settings.FPS.DisableShadows   = true
+        Settings.FPS.DisableFog       = true
+        Settings.FPS.DisableBlur      = true
+        Settings.FPS.DisableSunRays   = true
+        Settings.FPS.DisableGrass     = true
+        Settings.FPS.DisableParticles = true
+        Settings.FPS.DisableDecals    = false
+        Settings.FPS.DisableTextures  = false
+        Settings.FPS.LowRenderDist    = true
+        applyAllFPSSettings()
+        Fluent:Notify({ Title = "FPS Booster", Content = "Preset Farming Mode aktif! Target 144fps.", Duration = 3 })
+    end
+})
+
+Tabs.FPS:CreateButton({
+    Title    = "💀 Preset: Max FPS (Potato Mode)",
+    Callback = function()
+        -- Matiin segalanya
+        Settings.FPS.UnlockFPS        = true
+        Settings.FPS.TargetFPS        = 240
+        Settings.FPS.DisableShadows   = true
+        Settings.FPS.DisableFog       = true
+        Settings.FPS.DisableBlur      = true
+        Settings.FPS.DisableSunRays   = true
+        Settings.FPS.DisableGrass     = true
+        Settings.FPS.DisableParticles = true
+        Settings.FPS.DisableDecals    = true
+        Settings.FPS.DisableTextures  = true
+        Settings.FPS.LowRenderDist    = true
+        applyAllFPSSettings()
+        Fluent:Notify({ Title = "FPS Booster", Content = "Preset Potato Mode aktif! Target 240fps.", Duration = 3 })
+    end
+})
+
+Tabs.FPS:CreateButton({
+    Title    = "♻️ Restore Default Graphics",
+    Callback = function()
+        Settings.FPS.UnlockFPS        = false
+        Settings.FPS.DisableShadows   = false
+        Settings.FPS.DisableFog       = false
+        Settings.FPS.DisableBlur      = false
+        Settings.FPS.DisableSunRays   = false
+        Settings.FPS.DisableGrass     = false
+        Settings.FPS.DisableParticles = false
+        Settings.FPS.DisableDecals    = false
+        Settings.FPS.DisableTextures  = false
+        Settings.FPS.LowRenderDist    = false
+        restoreAllFPS()
+        Fluent:Notify({ Title = "FPS Booster", Content = "Graphics dikembalikan ke default.", Duration = 3 })
     end
 })
 
@@ -1960,10 +2261,8 @@ SaveManager:SetLibrary(Fluent)
 InterfaceManager:SetLibrary(Fluent)
 SaveManager:IgnoreThemeSettings()
 SaveManager:SetIgnoreIndexes({})
-
 InterfaceManager:SetFolder("SobatKerangHub")
 SaveManager:SetFolder("SobatKerangHub/SobatKerangAjaib")
-
 InterfaceManager:BuildInterfaceSection(Tabs.Settings)
 SaveManager:BuildConfigSection(Tabs.Settings)
 
@@ -1972,14 +2271,9 @@ SaveManager:BuildConfigSection(Tabs.Settings)
 --========================================================
 
 Window:SelectTab(2)
-Fluent:Notify({
-    Title = "Sobat Kerang",
-    Content = "SAATNYA SOBAT KERANG BERAKSI!",
-    Duration = 5
-})
+Fluent:Notify({ Title = "Sobat Kerang", Content = "SAATNYA SOBAT KERANG BERAKSI! (v4.1)", Duration = 5 })
 SaveManager:LoadAutoloadConfig()
 
--- Anti-AFK
 if not Runtime.AntiAfkConn then
     Runtime.AntiAfkConn = LocalPlayer.Idled:Connect(function()
         VirtualUser:CaptureController()
@@ -1996,13 +2290,23 @@ getgenv().SobatKerangCleanup = function()
         end
     end)
     pcall(function()
+        -- Restore FPS settings ke default sebelum destroy
+        restoreAllFPS()
+        for _, conn in ipairs(Runtime.FPSBoosterConns) do
+            pcall(function() conn:Disconnect() end)
+        end
+        Runtime.FPSBoosterConns = {}
+    end)
+    pcall(function()
         Runtime.WebhookMonitorActive = false
-        if Runtime.WebhookMonitorConn then Runtime.WebhookMonitorConn:Disconnect() end
-        if Runtime.WebhookMonitorThread then task.cancel(Runtime.WebhookMonitorThread) end
-        if Runtime.LostCityMonitorThread then task.cancel(Runtime.LostCityMonitorThread) end
-        if Runtime.AntiAfkConn then Runtime.AntiAfkConn:Disconnect() end
+        if Runtime.WebhookMonitorConn    then Runtime.WebhookMonitorConn:Disconnect()                           end
+        if Runtime.WebhookMonitorThread  then pcall(function() task.cancel(Runtime.WebhookMonitorThread)  end)  end
+        if Runtime.WebhookQueueThread    then pcall(function() task.cancel(Runtime.WebhookQueueThread)    end)  end
+        if Runtime.LostCityMonitorThread then pcall(function() task.cancel(Runtime.LostCityMonitorThread) end)  end
+        if Runtime.AntiAfkConn           then Runtime.AntiAfkConn:Disconnect()                                  end
+        for _, conn in ipairs(Runtime.BackpackValueConn) do pcall(function() conn:Disconnect() end) end
         Window:Destroy()
     end)
 end
 
-print("SCRIPT READY")
+print("[Sobat Kerang] SCRIPT READY")
